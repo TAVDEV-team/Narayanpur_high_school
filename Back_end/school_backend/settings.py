@@ -10,10 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
-# from dotenv import load_dotenv
-from pathlib import Path
-# load_dotenv()
+import dj_database_url
 
+from pathlib import Path
 from decouple import config
 
 
@@ -54,6 +53,10 @@ INSTALLED_APPS = [
     #django imports
     'rest_framework',
     'corsheaders',
+    "drf_spectacular",
+    #apps
+    'accounts',
+    'nphs_school',
 ]
 
 MIDDLEWARE = [
@@ -92,16 +95,26 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'school_backend.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config("DATABASE_NAME"),
+        'USER': config("DATABASE_USER"),
+        'PASSWORD': config("DATABASE_PASSWORD"),
+        'HOST': config("DATABASE_HOST"),
+        'PORT': config("DATABASE_PORT"),
     }
 }
+
 
 
 # Password validation

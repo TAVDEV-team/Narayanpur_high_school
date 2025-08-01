@@ -1,0 +1,49 @@
+from django.db import models
+
+
+class Batch(models.Model):
+    """
+    Represents a graduating cohort tied to a specific class level.
+
+    Fields:
+        label (CharField): Unique batch identifier (e.g., 'ssc2025').
+        class_ (ForeignKey): Optional link to the associated SClass.
+        created_at (DateTimeField): Timestamp of record creation.
+        updated_at (DateTimeField): Auto timestamp of updates.
+
+    Notes:
+        - Use label for graduation tracking (e.g., promotion history).
+        - `class_` may be null for alumni or archived batches.
+    """
+
+    label = models.CharField(
+        max_length=20, 
+        unique=True
+        )
+    current_class = models.ForeignKey(
+        "AClass", 
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+        )
+    is_graduated = models.BooleanField(
+        default=False,
+        help_text="Mark this batch as graduated or archived."
+        )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+        )
+    updated_at = models.DateTimeField(
+        auto_now=True
+        )
+
+    @classmethod
+    def active_batches(cls):
+        return cls.objects.filter(is_graduated=False)
+
+    @classmethod
+    def archived_batches(cls):
+        return cls.objects.filter(is_graduated=True)
+
+    def __str__(self):
+        return self.label
