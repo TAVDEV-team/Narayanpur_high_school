@@ -37,7 +37,10 @@ ALLOWED_HOSTS = config(
     "ALLOWED_HOSTS",
     cast=lambda v: [host.strip() for host in v.split(",")]
 )
-
+CSRF_TRUSTED_ORIGINS = config(
+    "CSRF_TRUSTED_ORIGINS",
+    cast=lambda v: [url.strip() for url in v.split(",")]
+)
 
 
 
