@@ -8,6 +8,7 @@ class Batch(models.Model):
     Fields:
         label (CharField): Unique batch identifier (e.g., 'ssc2025').
         class_ (ForeignKey): Optional link to the associated SClass.
+        graduation year : when they were/are graduated
         created_at (DateTimeField): Timestamp of record creation.
         updated_at (DateTimeField): Auto timestamp of updates.
 
@@ -29,6 +30,11 @@ class Batch(models.Model):
     is_graduated = models.BooleanField(
         default=False,
         help_text="Mark this batch as graduated or archived."
+        )
+    graduation_year = models.CharField(
+        max_length=4,
+        choices=[(str(y), str(y)) for y in range(1980, 2031)],
+        default="2020"
         )
     created_at = models.DateTimeField(
         auto_now_add=True
