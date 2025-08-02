@@ -1,6 +1,9 @@
+from django.db import transaction
 from django.db import models
 from nphs_school.models import School
 from solo.models import SingletonModel
+from django.db import models, transaction
+from django.core.exceptions import ValidationError
 
 class Fund(SingletonModel):
     school = models.ForeignKey(
@@ -24,8 +27,10 @@ class Fund(SingletonModel):
         .aggregate(models.Sum('amount'))['amount__sum'] or 0
 
         return income - expense
+    
     def __str__(self):
         return f"{str(self.school.name)}'s current balance {self.balance} $"
+
 
 class FundTransaction(models.Model):
     TRANSACTION_TYPES = (
@@ -52,10 +57,32 @@ class FundTransaction(models.Model):
     date = models.DateField(
         auto_now_add=True
         )
+    after_transaction_balance = models.IntegerField(default=0, editable=False)
+
+    def save(self, *args, **kwargs):
+        with transaction.atomic():
+            current_balance = self.fund.balance
+
+            if self.type == 'INCOME':
+                new_balance = current_balance + self.amount
+            elif self.type == 'EXPENSE':
+                new_balance = current_balance - self.amount
+
+                if new_balance < 0:
+                    raise ValidationError("Cannot perform expense: balance would go negative.")
+
+            else:
+                raise ValidationError("Invalid transaction type.")
+
+            self.after_transaction_balance = new_balance
+
+            super().save(*args, **kwargs)
 
     class Meta:
         ordering = ['-date']
 
 
+
     def __str__(self):
-        return f"{self.amount}$ added to school"
+
+        return f"{self.type} {self.amount}$  to school after transaction balance {self.after_transaction_balance }"

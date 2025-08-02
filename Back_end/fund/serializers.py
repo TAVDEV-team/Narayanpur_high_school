@@ -17,3 +17,4 @@ class FundTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FundTransaction
         fields = '__all__'
+        read_only_fields = ['after_transaction_balance']
