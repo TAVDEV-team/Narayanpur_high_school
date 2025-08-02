@@ -1,8 +1,61 @@
 from django.db import models
 from nphs_school.models import School
-# Create your models here.
+from solo.models import SingletonModel
+
+class Fund(SingletonModel):
+    school = models.ForeignKey(
+        School, 
+        on_delete=models.CASCADE, 
+        related_name="funds"
+        )
+    created_at = models.DateTimeField(
+        auto_now_add=True
+        )
+    updated_at = models.DateTimeField(
+        auto_now=True
+        )
+
+    @property
+    def balance(self):
+        income = self.transactions.filter(type='INCOME')\
+        .aggregate(models.Sum('amount'))['amount__sum'] or 0
+
+        expense = self.transactions.filter(type='EXPENSE')\
+        .aggregate(models.Sum('amount'))['amount__sum'] or 0
+
+        return income - expense
+    def __str__(self):
+        return f"{str(self.school.name)}'s current balance {self.balance} $"
+
 class FundTransaction(models.Model):
-    school = models.ForeignKey(School, on_delete=models.CASCADE, related_name="transactions")
-    amount = models.IntegerField()
-    reason = models.CharField(max_length=255)
-    created_at = models.DateTimeField(auto_now_add=True)
+    TRANSACTION_TYPES = (
+        ('INCOME', 'Income'),
+        ('EXPENSE', 'Expense'),
+        )
+
+    fund = models.ForeignKey(
+        Fund, 
+        on_delete=models.PROTECT, 
+        related_name="transactions"
+        )
+    type = models.CharField(
+        max_length=7, 
+        choices=TRANSACTION_TYPES
+        )
+    amount = models.PositiveIntegerField()
+    reason = models.CharField(
+        max_length=255
+        )
+    payment_method = models.CharField(
+        max_length=100
+        )
+    date = models.DateField(
+        auto_now_add=True
+        )
+
+    class Meta:
+        ordering = ['-date']
+
+
+    def __str__(self):
+        return f"{self.amount}$ added to school"
