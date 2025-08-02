@@ -1,4 +1,3 @@
-from django.db import transaction
 from django.db import models
 from nphs_school.models import School
 from solo.models import SingletonModel
@@ -41,7 +40,8 @@ class FundTransaction(models.Model):
     fund = models.ForeignKey(
         Fund, 
         on_delete=models.PROTECT, 
-        related_name="transactions"
+        related_name="transactions",
+        default=1
         )
     type = models.CharField(
         max_length=7, 
@@ -59,27 +59,30 @@ class FundTransaction(models.Model):
         )
     after_transaction_balance = models.IntegerField(default=0, editable=False)
 
+    def clean(self):
+        if self.type not in dict(self.TRANSACTION_TYPES):
+            raise ValidationError("Invalid transaction type.")
+
+        if self.amount <= 0:
+            raise ValidationError("Amount must be positive.")
+
+        if self.type == "EXPENSE" and self.amount > self.fund.balance:
+            raise ValidationError("Cannot spend more than current fund balance.")
+
     def save(self, *args, **kwargs):
+        self.full_clean()
         with transaction.atomic():
             current_balance = self.fund.balance
 
             if self.type == 'INCOME':
-                new_balance = current_balance + self.amount
+                self.after_transaction_balance = current_balance + self.amount
             elif self.type == 'EXPENSE':
-                new_balance = current_balance - self.amount
-
-                if new_balance < 0:
-                    raise ValidationError("Cannot perform expense: balance would go negative.")
-
-            else:
-                raise ValidationError("Invalid transaction type.")
-
-            self.after_transaction_balance = new_balance
+                self.after_transaction_balance = current_balance - self.amount
 
             super().save(*args, **kwargs)
 
     class Meta:
-        ordering = ['-date']
+        ordering = ['-date','-id']
 
 
 
