@@ -1,34 +1,8 @@
 from django.db import models
-from nphs_school.models import School
-from solo.models import SingletonModel
 from django.db import models, transaction
 from django.core.exceptions import ValidationError
 
-class Fund(SingletonModel):
-    school = models.ForeignKey(
-        School, 
-        on_delete=models.CASCADE, 
-        related_name="funds"
-        )
-    created_at = models.DateTimeField(
-        auto_now_add=True
-        )
-    updated_at = models.DateTimeField(
-        auto_now=True
-        )
-
-    @property
-    def balance(self):
-        income = self.transactions.filter(type='INCOME')\
-        .aggregate(models.Sum('amount'))['amount__sum'] or 0
-
-        expense = self.transactions.filter(type='EXPENSE')\
-        .aggregate(models.Sum('amount'))['amount__sum'] or 0
-
-        return income - expense
-    
-    def __str__(self):
-        return f"{str(self.school.name)}'s current balance {self.balance} $"
+from fund.models import Fund
 
 
 class FundTransaction(models.Model):
@@ -41,13 +15,14 @@ class FundTransaction(models.Model):
         Fund, 
         on_delete=models.PROTECT, 
         related_name="transactions",
-        default=1
+        default=1,
+        editable=False
         )
     type = models.CharField(
         max_length=7, 
         choices=TRANSACTION_TYPES
         )
-    amount = models.PositiveIntegerField()
+    amount = models.PositiveIntegerField(default=0)
     reason = models.CharField(
         max_length=255
         )
@@ -73,7 +48,6 @@ class FundTransaction(models.Model):
         self.full_clean()
         with transaction.atomic():
             current_balance = self.fund.balance
-
             if self.type == 'INCOME':
                 self.after_transaction_balance = current_balance + self.amount
             elif self.type == 'EXPENSE':
@@ -88,4 +62,4 @@ class FundTransaction(models.Model):
 
     def __str__(self):
 
-        return f"{self.type} {self.amount}$  to school after transaction balance {self.after_transaction_balance }"
+        return f"{self.amount}$  method {self.type} after transaction balance {self.after_transaction_balance }"
