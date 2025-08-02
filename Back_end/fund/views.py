@@ -4,14 +4,14 @@ from rest_framework.response import Response
 from fund.models import Fund, FundTransaction
 from fund.serializers import FundSerializer, FundTransactionSerializer
 
-# 🔐 Read-only Singleton View for Fund
+
 class FundViewSet(viewsets.ViewSet):
     def list(self, request):
         fund = Fund.get_solo()
         serializer = FundSerializer(fund)
         return Response(serializer.data)
 
-# 🔧 Full CRUD View for Transactions — except DELETE
+
 class FundTransactionViewSet(viewsets.ModelViewSet):
     queryset = FundTransaction.objects.all()
     serializer_class = FundTransactionSerializer
