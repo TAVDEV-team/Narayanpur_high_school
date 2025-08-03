@@ -4,7 +4,14 @@ from fund.models import FundTransaction
 class FundTransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = FundTransaction
-        fields = '__all__'
+        fields = [
+            'id',
+            'type',
+            'amount',
+            'reason',
+            'payment_method',
+            'after_transaction_balance'
+        ]
         read_only_fields = ['after_transaction_balance']
 
     def validate_amount(self, value):

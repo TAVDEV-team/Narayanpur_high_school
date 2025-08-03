@@ -4,7 +4,7 @@ from django.urls import path, include
 from fund.views import FundViewSet, FundTransactionViewSet
 
 router = DefaultRouter()
-router.register(r'fund', FundViewSet, basename='fund')
+router.register(r'balance', FundViewSet, basename='fund')
 router.register(r'transactions', FundTransactionViewSet, basename='transactions')
 
 
