@@ -29,4 +29,4 @@ class Fund(SingletonModel):
         return income - expense
     
     def __str__(self):
-        return f"{str(self.school.name)}'s current balance {self.balance} $"
+        return f"{str(self.school.name)}'s current balance {self.balance} Tk"
