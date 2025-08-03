@@ -21,7 +21,11 @@ class AClass(models.Model):
         - `total_students` can be manually synced or auto-counted via relation.
     """
 
-    name = models.CharField(max_length=12, choices=CLASS_CHOICES)
+    name = models.CharField(
+        max_length=12, 
+        choices=CLASS_CHOICES,
+        unique=True
+        )
     room_number = models.CharField(max_length=4)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

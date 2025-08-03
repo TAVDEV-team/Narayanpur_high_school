@@ -32,7 +32,10 @@ class FundTransaction(models.Model):
     date = models.DateField(
         auto_now_add=True
         )
-    after_transaction_balance = models.IntegerField(default=0, editable=False)
+    after_transaction_balance = models.IntegerField(
+        default=0, 
+        editable=False
+        )
 
     def clean(self):
         if self.type not in dict(self.TRANSACTION_TYPES):
@@ -62,4 +65,4 @@ class FundTransaction(models.Model):
 
     def __str__(self):
 
-        return f"{self.amount}$  method {self.type} after transaction balance {self.after_transaction_balance }"
+        return f"{self.amount}Tk  method {self.type} after transaction balance {self.after_transaction_balance }Tk"

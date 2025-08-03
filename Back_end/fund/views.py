@@ -5,12 +5,9 @@ from fund.models import Fund, FundTransaction
 from fund.serializers import FundSerializer, FundTransactionSerializer
 
 
-class FundViewSet(viewsets.ViewSet):
-    def list(self, request):
-        fund = Fund.get_solo()
-        serializer = FundSerializer(fund)
-        return Response(serializer.data)
-
+class FundViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Fund.objects.all()
+    serializer_class = FundSerializer
 
 class FundTransactionViewSet(viewsets.ModelViewSet):
     queryset = FundTransaction.objects.all()

@@ -1,14 +1,24 @@
 from django.shortcuts import render
 
-from nphs_school.serializers import AboutSerializer, SchoolSerializer, BatchSerializer, AClassSerializer
-from nphs_school.models import About, School, AClass, Batch
+from nphs_school.serializers import (
+    AboutSerializer, 
+    SchoolSerializer, 
+    BatchSerializer, 
+    AClassSerializer
+    )
+from nphs_school.models import (
+    About,
+    School, 
+    AClass, 
+    Batch
+    )
 
 from rest_framework import viewsets
 
 from rest_framework.response import Response
 from rest_framework import viewsets, status
 
-class AboutViewSet(viewsets.ViewSet):
+class AboutViewSet(viewsets.ModelViewSet):
     def list(self, request):
         about = About.get_solo()
         serializer = AboutSerializer(about)
