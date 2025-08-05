@@ -10,7 +10,8 @@ class FundTransactionSerializer(serializers.ModelSerializer):
             'amount',
             'reason',
             'payment_method',
-            'after_transaction_balance'
+            'after_transaction_balance',
+            'date'
         ]
         read_only_fields = ['after_transaction_balance']
 
