@@ -29,7 +29,7 @@ class FundTransaction(models.Model):
     payment_method = models.CharField(
         max_length=100
         )
-    date = models.DateField(
+    date = models.DateTimeField(
         auto_now_add=True
         )
     after_transaction_balance = models.IntegerField(
