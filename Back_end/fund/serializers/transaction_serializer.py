@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from fund.models import FundTransaction
-
+from fund.models import FundTransaction, Fund
 class FundTransactionSerializer(serializers.ModelSerializer):
+    fund = Fund.objects.get(id=1)
     class Meta:
         model = FundTransaction
         fields = [
@@ -21,7 +21,7 @@ class FundTransactionSerializer(serializers.ModelSerializer):
         return value
     
     def validate(self, data):
-        if data["type"] == "EXPENSE" and data["amount"] > data["fund"].balance:
+        if data["type"] == "EXPENSE" and data["amount"] > self.fund.balance:
             raise serializers.ValidationError("Not enough balance for this expense.")
         return data
     
