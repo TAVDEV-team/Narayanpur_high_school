@@ -19,6 +19,8 @@ from rest_framework.response import Response
 from rest_framework import viewsets, status
 
 class AboutViewSet(viewsets.ModelViewSet):
+    serializer_class = AboutSerializer
+    queryset = About.objects.all()
     def list(self, request):
         about = About.get_solo()
         serializer = AboutSerializer(about)
