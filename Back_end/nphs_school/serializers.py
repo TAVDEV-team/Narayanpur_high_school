@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from nphs_school.models import About, School, AClass, Batch, Subjects
+from nphs_school.models import About, School, AClass, Batch, Subjects, Notice
 
 class AboutSerializer(serializers.ModelSerializer):
     class Meta:
@@ -27,4 +27,9 @@ class BatchSerializer(serializers.ModelSerializer):
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subjects
+        fields = '__all__'
+
+class NoticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notice
         fields = '__all__'

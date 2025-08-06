@@ -4,13 +4,15 @@ from nphs_school.serializers import (
     AboutSerializer, 
     SchoolSerializer, 
     BatchSerializer, 
-    AClassSerializer
+    AClassSerializer,
+    NoticeSerializer
     )
 from nphs_school.models import (
     About,
     School, 
     AClass, 
-    Batch
+    Batch,
+    Notice
     )
 
 from rest_framework import viewsets
@@ -49,3 +51,7 @@ class AClassViewSet(viewsets.ModelViewSet):
 class BatchViewSet(viewsets.ModelViewSet):
     queryset = Batch.objects.all()
     serializer_class = BatchSerializer
+
+class NoticeViewSet(viewsets.ModelViewSet):
+    queryset = Notice.objects.all()
+    serializer_class = NoticeSerializer
