@@ -1,5 +1,5 @@
 from django.contrib import admin
-from nphs_school.models import About, School, AClass, Batch, Subjects
+from nphs_school.models import About, AClass, Batch, School, Subjects
 
 # class AboutAdmin(admin.ModelAdmin):
 #     search_fields = ['name']

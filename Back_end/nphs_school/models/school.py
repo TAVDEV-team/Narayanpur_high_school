@@ -1,6 +1,7 @@
 from django.db import models
 from solo.models import SingletonModel
 
+
 class School(SingletonModel):
     """
     Central configuration for the entire school entity.
@@ -26,7 +27,7 @@ class School(SingletonModel):
     """
 
     name = models.CharField(max_length=100)
-    code = models.CharField(max_length=10, default="105409",unique=True)
+    code = models.CharField(max_length=10, default="105409", unique=True)
     motto = models.CharField(max_length=120, blank=True)
     logo = models.ImageField(upload_to="schools/", null=True, blank=True)
     location_address = models.CharField(max_length=255)

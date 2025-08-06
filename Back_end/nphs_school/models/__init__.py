@@ -1,6 +1,15 @@
 from .about import About
-from .school import School
 from .academic_class import AClass
 from .batch import Batch
-from .subjuects import Subjects
 from .notice import Notice
+from .school import School
+from .subjuects import Subjects
+
+__all__ = [
+    'About',
+    'AClass',
+    'Batch',
+    'Notice',
+    'School',
+    'Subjects',
+]

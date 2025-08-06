@@ -93,3 +93,9 @@ docker-compose.override.yml
 .questions/
 .questions
 plan
+
+# .gitignore
+.vscode/
+pytest_cache/
+mypy_cache/
+.coverage
