@@ -17,31 +17,20 @@ class Batch(models.Model):
         - `class_` may be null for alumni or archived batches.
     """
 
-    label = models.CharField(
-        max_length=20, 
-        unique=True
-        )
+    label = models.CharField(max_length=20, unique=True)
     current_class = models.ForeignKey(
-        "AClass", 
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True
-        )
+        "AClass", on_delete=models.SET_NULL, null=True, blank=True
+    )
     is_graduated = models.BooleanField(
-        default=False,
-        help_text="Mark this batch as graduated or archived."
-        )
+        default=False, help_text="Mark this batch as graduated or archived."
+    )
     graduation_year = models.CharField(
         max_length=4,
         choices=[(str(y), str(y)) for y in range(1980, 2031)],
-        default="2020"
-        )
-    created_at = models.DateTimeField(
-        auto_now_add=True
-        )
-    updated_at = models.DateTimeField(
-        auto_now=True
-        )
+        default="2020",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     @classmethod
     def active_batches(cls):

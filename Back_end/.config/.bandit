@@ -1,0 +1,7 @@
+[bandit]
+exclude_dirs = 
+    venv,
+    staticfiles,
+    media,
+    */migrations/*
+skips = B101  # Example: skips use of `assert` statements

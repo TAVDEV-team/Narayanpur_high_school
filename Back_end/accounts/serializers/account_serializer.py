@@ -1,37 +1,41 @@
-from rest_framework import serializers
 from accounts.models import Account
-from .user_serializer import UserSerializer
 from django.db import transaction
+from rest_framework import serializers
+
+from .user_serializer import UserSerializer
+
 
 class AccountSerializer(serializers.ModelSerializer):
-    user = UserSerializer() 
+    user = UserSerializer()
 
     class Meta:
         model = Account
         fields = [
-            'id', 
-            'user',
-            'image',
-            'date_of_birth',
-            'mobile',
-            'religion',
-            'address',
-            'joining_date',
-            'last_educational_institute',
-            'full_name',
-            ]
-        read_only_fields = ['full_name']
-        
+            "id",
+            "user",
+            "image",
+            "date_of_birth",
+            "mobile",
+            "religion",
+            "address",
+            "joining_date",
+            "last_educational_institute",
+            "full_name",
+        ]
+        read_only_fields = ["full_name"]
+
     def update(self, instance, validated_data):
-        user_data = validated_data.pop('user', None)
+        user_data = validated_data.pop("user", None)
         if user_data:
-            user_serializer = UserSerializer(instance=instance.user, data=user_data, partial=True)
+            user_serializer = UserSerializer(
+                instance=instance.user, data=user_data, partial=True
+            )
             user_serializer.is_valid(raise_exception=True)
             user_serializer.save()
         return super().update(instance, validated_data)
 
     def create(self, validated_data):
-        user_data = validated_data.pop('user')
+        user_data = validated_data.pop("user")
         with transaction.atomic():
             user_serializer = UserSerializer(data=user_data)
             user_serializer.is_valid(raise_exception=True)
@@ -43,7 +47,7 @@ class AccountSerializer(serializers.ModelSerializer):
         if not value.isdigit():
             raise serializers.ValidationError("Mobile must be digits only.")
         if len(value) > 14:
-            raise serializers.ValidationError("Mobile must not exceed 14 digits.")
+            raise serializers.ValidationError(
+                "Mobile must not exceed 14 digits."
+            )
         return value
-
-

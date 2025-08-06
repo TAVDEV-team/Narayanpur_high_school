@@ -1,6 +1,8 @@
+from datetime import date
+
 from django.db import models
 from solo.models import SingletonModel
-from datetime import date
+
 
 class About(SingletonModel):
     """
@@ -16,7 +18,8 @@ class About(SingletonModel):
         - motto (CharField): School tagline or mission (optional).
         - logo (ImageField): Main logo used for branding (optional).
         - favicon (ImageField): Favicon image for the frontend (optional).
-        - social_links (JSONField): Dict of platform → link (e.g., {"facebook": "url"}).
+        - social_links (JSONField): Dict of platform →\
+            link (e.g., {"facebook": "url"}).
         - extra : Arbitrary config space (e.g., contact emails, themes).
         - created_at (DateTimeField): Timestamp when the record was created.
         - updated_at : Auto-updated on changes.
@@ -28,59 +31,24 @@ class About(SingletonModel):
     """
 
     name = models.CharField(
-        max_length=200,
-        default="Naraynpur High School",
-        editable=False
-        )
-    eiin = models.CharField(
-        max_length=7,
-        default="105409",
-        editable=False
-        )
-    established_at = models.DateField(
-        default=date(1980, 1, 1),
-        editable=False
-        )
+        max_length=200, default="Naraynpur High School", editable=False
+    )
+    eiin = models.CharField(max_length=7, default="105409", editable=False)
+    established_at = models.DateField(default=date(1980, 1, 1), editable=False)
     location_url = models.URLField(
-        default="https://maps.app.goo.gl/YSq6eubdtMss756a8",
-        editable=False
-        )
+        default="https://maps.app.goo.gl/YSq6eubdtMss756a8", editable=False
+    )
     location_address = models.CharField(
-        default="Narayan pur, Amjad-Nagar, Chauddagram-3500",
-        max_length=255
-        )
+        default="Narayan pur, Amjad-Nagar, Chauddagram-3500", max_length=255
+    )
     history = models.TextField()
-    motto = models.CharField(
-        max_length=255, 
-        null=True, 
-        blank=True
-        )
-    logo = models.ImageField(
-        upload_to="branding/", 
-        null=True, 
-        blank=True
-        )
-    favicon = models.ImageField(
-        upload_to="branding/", 
-        null=True, 
-        blank=True
-        )
-    social_links = models.JSONField(
-        default=dict, 
-        blank=True, 
-        null=True
-        )
-    extra = models.JSONField(
-        default=dict, 
-        blank=True, 
-        null=True
-        )
-    created_at = models.DateTimeField(
-        auto_now_add=True
-        )
-    updated_at = models.DateTimeField(
-        auto_now=True
-        )
+    motto = models.CharField(max_length=255, null=True, blank=True)
+    logo = models.ImageField(upload_to="branding/", null=True, blank=True)
+    favicon = models.ImageField(upload_to="branding/", null=True, blank=True)
+    social_links = models.JSONField(default=dict, blank=True, null=True)
+    extra = models.JSONField(default=dict, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name

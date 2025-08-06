@@ -37,7 +37,9 @@ class Migration(migrations.Migration):
                 ("date_of_birth", models.DateField()),
                 (
                     "image",
-                    models.ImageField(blank=True, null=True, upload_to="Accounts/"),
+                    models.ImageField(
+                        blank=True, null=True, upload_to="Accounts/"
+                    ),
                 ),
                 (
                     "religion",
@@ -54,10 +56,15 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "joining_date",
-                    models.DateField(help_text="when he/she joined the school"),
+                    models.DateField(
+                        help_text="when he/she joined the school"
+                    ),
                 ),
                 ("address", models.TextField()),
-                ("last_educational_institute", models.CharField(max_length=120)),
+                (
+                    "last_educational_institute",
+                    models.CharField(max_length=120),
+                ),
                 ("is_active", models.BooleanField(default=True)),
                 ("created_at", models.DateTimeField(auto_now_add=True)),
                 ("updated_at", models.DateTimeField(auto_now=True)),

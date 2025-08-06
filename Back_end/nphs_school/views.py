@@ -1,28 +1,19 @@
-from django.shortcuts import render
-
+from nphs_school.models import About, AClass, Batch, Notice, School
 from nphs_school.serializers import (
-    AboutSerializer, 
-    SchoolSerializer, 
-    BatchSerializer, 
+    AboutSerializer,
     AClassSerializer,
-    NoticeSerializer
-    )
-from nphs_school.models import (
-    About,
-    School, 
-    AClass, 
-    Batch,
-    Notice
-    )
-
-from rest_framework import viewsets
-
+    BatchSerializer,
+    NoticeSerializer,
+    SchoolSerializer,
+)
+from rest_framework import status, viewsets
 from rest_framework.response import Response
-from rest_framework import viewsets, status
+
 
 class AboutViewSet(viewsets.ModelViewSet):
     serializer_class = AboutSerializer
     queryset = About.objects.all()
+
     def list(self, request):
         about = About.get_solo()
         serializer = AboutSerializer(about)
@@ -35,7 +26,6 @@ class AboutViewSet(viewsets.ModelViewSet):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class SchoolViewSet(viewsets.ModelViewSet):
@@ -51,6 +41,7 @@ class AClassViewSet(viewsets.ModelViewSet):
 class BatchViewSet(viewsets.ModelViewSet):
     queryset = Batch.objects.all()
     serializer_class = BatchSerializer
+
 
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notice.objects.all()
