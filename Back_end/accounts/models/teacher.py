@@ -1,7 +1,7 @@
 from accounts.models import Account
 from django.core.exceptions import ValidationError
 from django.db import models
-from nphs_school.models import AClass, Subjects
+from nphs_school.models import AClass, Subject
 from solo.models import SingletonModel
 
 
@@ -10,7 +10,7 @@ class TeacherAccount(models.Model):
         Account, on_delete=models.CASCADE, related_name="teacher_profile"
     )
     base_subject = models.ForeignKey(
-        Subjects,
+        Subject,
         on_delete=models.SET_NULL,
         blank=True,
         null=True,

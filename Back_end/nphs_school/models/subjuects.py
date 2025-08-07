@@ -1,17 +1,21 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 
 
-class Subjects(models.Model):
-    name_of_subject = models.CharField(max_length=120, unique=True)
-    subject_code = models.CharField(max_length=4, unique=True)
+class Subject(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    code = models.CharField(max_length=4, unique=True)
+    written_marks = models.PositiveIntegerField(default=0)
+    practical_marks = models.PositiveIntegerField(default=0)
+    mcq_marks = models.PositiveIntegerField(default=0)
+
+    @property
+    def total_marks(self):
+        return self.written_marks + self.practical_marks + self.mcq_marks
 
     def clean(self):
-
-        return super().clean()
-
-    def save(self):
-        self.full_clean()
-        return super().save()
+        if self.total_marks > 100:
+            raise ValidationError("Total marks cannot exceed 100.")
 
     def __str__(self):
-        return f"{self.name_of_subject}-{self.subject_code}"
+        return f"{self.name} - {self.code}"

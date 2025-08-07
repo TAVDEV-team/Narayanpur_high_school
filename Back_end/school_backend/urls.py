@@ -11,6 +11,7 @@ urlpatterns = [
                 path("nphs/", include("nphs_school.urls")),
                 path("funds/", include("fund.urls")),
                 path("user/", include("accounts.urls")),
+                path("result/", include("results.urls")),
             ]
         ),
     ),

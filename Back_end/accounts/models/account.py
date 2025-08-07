@@ -11,9 +11,6 @@ RELIGION_CHOICES = [
 
 class Account(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    full_name = models.CharField(
-        max_length=1000, editable=False, default="missing"
-    )
     mobile = models.CharField(max_length=14)
     date_of_birth = models.DateField()
     image = models.ImageField(upload_to="Accounts/", null=True, blank=True)
@@ -26,6 +23,10 @@ class Account(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def full_name(self):
+        return f"{self.user.first_name} {self.user.last_name}"
 
     class Meta:
         verbose_name = "Account"
@@ -44,11 +45,7 @@ class Account(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         self.mobile = self.normalize_mobile(self.mobile)
-        self.full_name = self.build_full_name()
         super().save(*args, **kwargs)
-
-    def build_full_name(self):
-        return f"{self.user.first_name} {self.user.last_name}"
 
     @staticmethod
     def normalize_mobile(raw):

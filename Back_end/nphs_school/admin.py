@@ -1,5 +1,5 @@
 from django.contrib import admin
-from nphs_school.models import About, AClass, Batch, School, Subjects
+from nphs_school.models import About, AClass, Batch, School, Subject
 
 # class AboutAdmin(admin.ModelAdmin):
 #     search_fields = ['name']
@@ -12,4 +12,4 @@ admin.site.register(About)
 admin.site.register(School)
 admin.site.register(AClass)
 admin.site.register(Batch)
-admin.site.register(Subjects)
+admin.site.register(Subject)
