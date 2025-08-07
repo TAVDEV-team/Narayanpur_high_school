@@ -5,7 +5,9 @@ from ..models import Result
 
 
 class ResultSerializer(serializers.ModelSerializer):
-    subject_name = serializers.CharField(source="subject.name", read_only=True)
+    subject_name = serializers.CharField(
+        source="subject.name", read_only=True
+    )
     mcq_max = serializers.IntegerField(
         source="subject.mcq_marks", read_only=True
     )
@@ -26,6 +28,7 @@ class ResultSerializer(serializers.ModelSerializer):
         model = Result
         fields = [
             "id",
+            "aclass",
             'exam_type',
             "subject_name",
             "student_name",
@@ -39,16 +42,24 @@ class ResultSerializer(serializers.ModelSerializer):
             "total_marks",
             "percentage",
             "grade",
+            "created_at",
+            "updated_at",
         ]
 
     def validate(self, attrs):
         student = attrs.get("student")
         subject = attrs.get("subject")
         exam_type = attrs.get("exam_type")
+        aclass = student.batch.aclass
+
+        if not aclass.subjects.filter(id=subject.id).exists():
+            raise ValidationError("Invalid subject for this class")
 
         if Result.objects.filter(
-            student=student, subject=subject, exam_type=exam_type
+            student=student,
+            subject=subject,
+            exam_type=exam_type
         ).exists():
-
             raise ValidationError("Result for this exam already exists.")
+
         return attrs

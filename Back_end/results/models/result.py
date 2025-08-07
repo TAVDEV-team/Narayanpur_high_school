@@ -1,14 +1,15 @@
 from accounts.models import StudentAccount
 from django.core.exceptions import ValidationError
 from django.db import models
-from nphs_school.models import Subject
+from nphs_school.models import AClass, Subject
 
 from .result_manager import ResultManager
 
 
 class Result(models.Model):
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     student = models.ForeignKey(StudentAccount, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    aclass = models.ForeignKey(AClass, on_delete=models.CASCADE, default=1)
 
     exam_type = models.CharField(
         max_length=10,
@@ -19,10 +20,11 @@ class Result(models.Model):
         ],
     )
 
+    objects = ResultManager()
     mcq = models.PositiveIntegerField(default=0)
     practical = models.PositiveIntegerField(default=0)
     writing = models.PositiveIntegerField(default=0)
-    objects = ResultManager()
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -58,7 +60,7 @@ class Result(models.Model):
             if pct >= cutoff:
                 return grade
 
-    def clean(self):
+    def clean_marking(self):
         errors = {}
         if self.mcq > self.subject.mcq_marks:
             errors['mcq'] = "MCQ marks cannot exceed total MCQ marks"
@@ -73,6 +75,17 @@ class Result(models.Model):
 
         if errors:
             raise ValidationError(errors)
+
+    def clean_subjects(self):
+        if self.subject not in self.aclass.Subject.all():
+            raise ValidationError({
+                "subject": f"{self.subject.name}\
+                is not assigned to class {self.aclass.name}."
+            })
+
+    def clean(self):
+        self.clean_marking()
+        self.clean_subjects()
 
     def save(self, *args, **kwargs):
         self.full_clean()

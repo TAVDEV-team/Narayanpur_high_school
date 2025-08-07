@@ -25,7 +25,7 @@ class Account(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     @property
-    def full_name(self):
+    def full_name(self) -> str:
         return f"{self.user.first_name} {self.user.last_name}"
 
     class Meta:

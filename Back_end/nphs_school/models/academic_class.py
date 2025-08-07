@@ -1,6 +1,6 @@
 from django.db import models
 
-from .subjuects import Subject
+from .subjects import Subject
 
 CLASS_CHOICES = [(str(i), f"Class {i}") for i in range(6, 11)]
 
