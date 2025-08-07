@@ -1,16 +1,8 @@
 from django.db import models
-from nphs_school.models import School
 from solo.models import SingletonModel
 
 
 class Fund(SingletonModel):
-    school = models.ForeignKey(
-        School,
-        on_delete=models.CASCADE,
-        related_name="funds",
-        default=1,
-        editable=False,
-    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -33,4 +25,4 @@ class Fund(SingletonModel):
         return income - expense
 
     def __str__(self):
-        return f"{str(self.school.name)}'s current balance {self.balance} Tk"
+        return f"Current balance: {self.balance} Tk"

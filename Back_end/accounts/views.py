@@ -1,15 +1,8 @@
-from accounts.models import (
-    HeadMasterAccount,
-    OfficeHelpersAccount,
-    StudentAccount,
-    TeacherAccount,
-)
-from accounts.serializers import (
-    HeadMasterSerializer,
-    OfficeHelpersSerializer,
-    StudentSerializer,
-    TeacherSerializer,
-)
+from accounts.models import (HeadMasterAccount, OfficeHelpersAccount,
+                             StudentAccount, TeacherAccount)
+from accounts.serializers import (HeadMasterSerializer,
+                                  OfficeHelpersSerializer, StudentSerializer,
+                                  TeacherSerializer)
 from rest_framework.viewsets import ModelViewSet
 
 

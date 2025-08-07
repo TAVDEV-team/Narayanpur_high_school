@@ -1,5 +1,5 @@
 from accounts.models import TeacherAccount
-from nphs_school.serializers import AClassSerializer, SubjectSerializer
+from nphs_school.serializers import AClassSerializer, Subjecterializer
 from rest_framework import serializers
 
 from .account_serializer import AccountSerializer
@@ -7,7 +7,7 @@ from .account_serializer import AccountSerializer
 
 class TeacherSerializer(serializers.ModelSerializer):
     account = AccountSerializer()
-    base_subject_detail = SubjectSerializer(
+    base_subject_detail = Subjecterializer(
         source="base_subject", read_only=True
     )
     class_teacher_of_detail = AClassSerializer(
