@@ -26,13 +26,32 @@ class School(SingletonModel):
         - Intended to serve as central anchor across all school-related apps.
     """
 
-    name = models.CharField(max_length=100)
-    code = models.CharField(max_length=10, default="105409", unique=True)
-    motto = models.CharField(max_length=120, blank=True)
-    logo = models.ImageField(upload_to="schools/", null=True, blank=True)
-    location_address = models.CharField(max_length=255)
+    name = models.CharField(
+        max_length=100,
+        default="Narayan Pur High School",
+        editable=False
+    )
+    code = models.CharField(
+        max_length=10,
+        default="105409",
+        unique=True
+    )
+    motto = models.CharField(
+        max_length=120,
+        blank=True
+    )
+    logo = models.ImageField(
+        upload_to="schools/",
+        null=True,
+        blank=True
+    )
+    location_address = models.CharField(
+        max_length=255
+    )
     contact_email = models.EmailField()
-    contact_phone = models.CharField(max_length=20)
+    contact_phone = models.CharField(
+        max_length=20
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
