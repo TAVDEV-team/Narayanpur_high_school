@@ -33,3 +33,6 @@ class StudentAccount(models.Model):
 
     class Meta:
         unique_together = ("batch", "roll_number")
+
+    def __str__(self):
+        return f"{self.account.full_name}"

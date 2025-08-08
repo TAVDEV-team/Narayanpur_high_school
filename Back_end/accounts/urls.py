@@ -1,15 +1,10 @@
-from accounts.views import (
-    HeadMasterAccountViewSet,
-    OfficeHelpersAccountViewSet,
-    StudentAccountViewSet,
-    TeacherAccountViewSet,
-)
+from accounts.views import (HeadMasterAccountViewSet,
+                            OfficeHelpersAccountViewSet, StudentAccountViewSet,
+                            TeacherAccountViewSet)
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
+from rest_framework_simplejwt.views import (TokenObtainPairView,
+                                            TokenRefreshView)
 
 router = DefaultRouter()
 router.register(r"students", StudentAccountViewSet, basename="student")

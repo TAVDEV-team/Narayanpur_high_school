@@ -3,7 +3,7 @@ from .academic_class import AClass
 from .batch import Batch
 from .notice import Notice
 from .school import School
-from .subjuects import Subjects
+from .subject import Subject
 
 __all__ = [
     'About',
@@ -11,5 +11,5 @@ __all__ = [
     'Batch',
     'Notice',
     'School',
-    'Subjects',
+    'Subject',
 ]

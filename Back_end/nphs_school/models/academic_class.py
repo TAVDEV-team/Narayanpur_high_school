@@ -1,5 +1,7 @@
 from django.db import models
 
+from .subject import Subject
+
 CLASS_CHOICES = [(str(i), f"Class {i}") for i in range(6, 11)]
 
 
@@ -22,6 +24,7 @@ class AClass(models.Model):
     """
 
     name = models.CharField(max_length=12, choices=CLASS_CHOICES, unique=True)
+    Subject = models.ManyToManyField(Subject)
     room_number = models.CharField(max_length=4)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
