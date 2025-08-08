@@ -23,29 +23,29 @@ class Result(models.Model):
     objects = ResultManager()
     mcq = models.PositiveIntegerField(default=0)
     practical = models.PositiveIntegerField(default=0)
-    writing = models.PositiveIntegerField(default=0)
+    written = models.PositiveIntegerField(default=0)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     @property
-    def total_marks(self):
-        return self.mcq + self.practical + self.writing
+    def total_marks(self) -> int:
+        return self.mcq + self.practical + self.written
 
     @property
-    def total_possible(self):
+    def total_possible(self) -> int:
         return self.subject.total_marks
 
     @property
-    def percentage(self):
+    def percentage(self) -> float:
         return (
-            (self.total_marks / float(self.total_possible)) * 100
+            round((self.total_marks / self.total_possible) * 100)
             if self.total_possible
             else 0
         )
 
     @property
-    def grade(self):
+    def grade(self) -> str:
         pct = self.percentage
         grades = [
             (80, 'A+'),
@@ -78,10 +78,12 @@ class Result(models.Model):
 
     def clean_subjects(self):
         if self.subject not in self.aclass.Subject.all():
-            raise ValidationError({
-                "subject": f"{self.subject.name}\
+            raise ValidationError(
+                {
+                    "subject": f"{self.subject.name}\
                 is not assigned to class {self.aclass.name}."
-            })
+                }
+            )
 
     def clean(self):
         self.clean_marking()
@@ -95,5 +97,5 @@ class Result(models.Model):
         unique_together = ('student', 'subject', 'exam_type')
 
     def __str__(self):
-        return f"{self.student} –\
-            {self.subject.code}: {self.total_marks}/{self.total_possible}"
+        return f"{self.aclass} roll: {self.student.roll_number} –\
+            {self.subject.name}: {self.total_marks}/{self.total_possible}"

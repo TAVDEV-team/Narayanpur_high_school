@@ -3,7 +3,7 @@ from rest_framework import serializers
 
 
 class FundTransactionSerializer(serializers.ModelSerializer):
-    fund = Fund.get_solo()
+    fund = Fund.objects.get(id=1)
 
     class Meta:
         model = FundTransaction

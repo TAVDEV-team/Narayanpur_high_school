@@ -1,5 +1,3 @@
-from .result import ResultSerializer
+from .result_serializer import ResultSerializer
 
-__all__ = [
-    ResultSerializer
-]
+__all__ = [ResultSerializer]
