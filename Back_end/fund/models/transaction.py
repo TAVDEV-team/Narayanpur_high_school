@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
-from fund.models import Fund
+
+from .fund_model import Fund
 
 
 class FundTransaction(models.Model):
