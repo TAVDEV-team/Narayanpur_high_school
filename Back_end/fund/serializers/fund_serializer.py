@@ -5,13 +5,11 @@ from rest_framework import serializers
 
 class FundSerializer(serializers.ModelSerializer):
     balance = serializers.SerializerMethodField()
-    school_name = serializers.SerializerMethodField()
 
     class Meta:
         model = Fund
         fields = [
             "id",
-            "school_name",
             "balance",
             "created_at",
             "updated_at",
