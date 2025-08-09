@@ -5,6 +5,7 @@ from nphs_school.serializers import (AboutSerializer, AClassSerializer,
 
 from rest_framework import status, viewsets
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 
 class AboutViewSet(viewsets.ModelViewSet):
@@ -44,7 +45,12 @@ class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notice.objects.all()
     serializer_class = NoticeSerializer
 
-    def list(self, request):
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path=r"approved/",
+    )
+    def approved_list(self, request):
         notice = Notice.objects.filter(approved_by_headmaster=True)
         serializer = NoticeSerializer(notice, many=True)
         return Response(serializer.data)
