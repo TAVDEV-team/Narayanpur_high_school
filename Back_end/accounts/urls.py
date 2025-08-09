@@ -11,7 +11,9 @@ router.register(r"students", StudentAccountViewSet, basename="student")
 router.register(r"teachers", TeacherAccountViewSet, basename="teacher")
 router.register(r"headmaster", HeadMasterAccountViewSet, basename="headmaster")
 router.register(
-    r"office-helpers", OfficeHelpersAccountViewSet, basename="office-helper"
+    r"office-helpers",
+    OfficeHelpersAccountViewSet,
+    basename="office-helper"
 )
 
 urlpatterns = [

@@ -3,7 +3,20 @@ from django.db import models
 
 
 class Subject(models.Model):
+    class SubjectType(models.TextChoices):
+        COMPULSORY = "compulsory", "Compulsory"
+        RELIGIOUS = "religious", "Religious"
+        GROUP = "group", "Group"
+        GROUP_OPTIONAL = "group_optional", "Group_Optional"
+        OPTIONAL = "optional", "Optional"
+        EXTRA = "extra", "Extra"
+
     name = models.CharField(max_length=120, unique=True)
+    subject_type = models.CharField(
+        max_length=20,
+        choices=SubjectType.choices,
+        default='compulsory'
+    )
     code = models.CharField(max_length=4, unique=True)
     written_marks = models.PositiveIntegerField(default=0)
     practical_marks = models.PositiveIntegerField(default=0)

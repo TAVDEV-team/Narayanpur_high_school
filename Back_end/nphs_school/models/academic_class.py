@@ -1,33 +1,113 @@
 from django.db import models
-
 from .subject import Subject
+from django.core.exceptions import ValidationError
 
-CLASS_CHOICES = [(str(i), f"Class {i}") for i in range(6, 11)]
+CLASS_CHOICES = (
+    [
+        ("6", "Class 6"),
+        ("7", "Class 7"),
+        ("8", "Class 8"),
+        ("9_science", "Class 9 Science"),
+        ("10_science", "Class 10 Science"),
+        ("9_business", "Class 9 Business"),
+        ("10_business", "Class 10 Business"),
+        ("9_humanities", "Class 9 Humanities"),
+        ("10_humanities", "Class 10 Humanities"),
+    ]
+)
 
 
 class AClass(models.Model):
-    """
-    Represents an academic class unit (e.g., Class 6, SSC2025 batch).
+    name = models.CharField(
+        max_length=20,
+        choices=CLASS_CHOICES,
+        unique=True)
 
-    Fields:
-        name (CharField): Human-readable class name (e.g., '6', '10 Science').
-        room_number : Where the class helds on
-        created_at (DateTimeField): Timestamp of creation.
-        updated_at (DateTimeField): Auto-updated on change.
+    compulsory = models.ManyToManyField(
+        Subject,
+        related_name="main_classes",
+        blank=True
+    )
+    group_subjects = models.ManyToManyField(
+        Subject,
+        related_name="group_classes",
+        blank=True
+    )
+    religious = models.ManyToManyField(
+        Subject,
+        related_name="religional_classes",
+        blank=True
+    )
+    extra = models.ManyToManyField(
+         Subject,
+         related_name="extra",
+         blank=True
+    )
 
-    Methods:
-        __str__: Returns a readable label\
-         for admin/lists (e.g., "Class 10 - Mr. Karim").
-
-    Notes:
-        - `total_students` can be manually synced or auto-counted via relation.
-    """
-
-    name = models.CharField(max_length=12, choices=CLASS_CHOICES, unique=True)
-    Subject = models.ManyToManyField(Subject)
-    room_number = models.CharField(max_length=4)
+    room_number = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Class {self.name} "
+        return dict(CLASS_CHOICES).get(self.name, self.name)
+
+    def clean(self):
+        if not self.pk:
+            return
+
+        print(Subject.SubjectType.COMPULSORY)
+
+        errors = {}
+
+        # Check compulsory subjects
+        wrong_compulsory = [
+            sub.name for sub in self.compulsory.all()
+            if sub.subject_type != Subject.SubjectType.COMPULSORY
+        ]
+        if wrong_compulsory:
+            errors['compulsory'] = [
+                f"{name} is not compulsory" for name in wrong_compulsory
+            ]
+
+        # Check group subjects
+        wrong_group = [
+            sub.name for sub in self.group_subjects.all()
+            if sub.subject_type not in
+            [
+                Subject.SubjectType.GROUP,
+                Subject.SubjectType.GROUP_OPTIONAL
+            ]
+        ]
+        if wrong_group:
+            errors['group_subjects'] = [
+                f"{name} is not a group or group_optional subject"
+                for name in wrong_group
+            ]
+
+        # Check religious subjects
+        wrong_religious = [
+            sub.name for sub in self.religious.all()
+            if sub.subject_type != Subject.SubjectType.RELIGIOUS
+        ]
+        if wrong_religious:
+            errors['religious'] = [
+                f"{name} is not religious" for name in wrong_religious
+            ]
+
+        # Check extra subjects
+        wrong_extra = [
+            sub.name for sub in self.extra.all()
+            if sub.subject_type != Subject.SubjectType.EXTRA
+        ]
+        if wrong_extra:
+            errors['extra'] = [
+                f"{name} is not extra" for name in wrong_extra
+            ]
+
+        # Raise all collected errors at once
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        return super().save(*args, **kwargs)
