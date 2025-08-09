@@ -13,21 +13,20 @@ class ResultManager(models.Manager):
         return sum(r.total_possible for r in results)
 
     def percentage(self, student_id) -> float:
-        return (
+        return round(
             (
                 self.total_marks_for_student(student_id)
                 / float(self.total_possible)
-            )
-            * 100
-            if self.total_possible
-            else 0
-        )
+            ) * 100,
+            2
+        ) if self.total_possible else 0
 
     # def overall_result(self,student_id,exam_type):
     #     total_obtain_marks=self.total_marks_for_student(student_id,exam_type)
     #     total_possible_marks=self.
 
     def detail_result(self, result):
+
         return {
             "mcq": result.mcq,
             "written": result.written,

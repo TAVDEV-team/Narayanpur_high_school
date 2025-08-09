@@ -2,6 +2,7 @@ from nphs_school.models import About, AClass, Batch, Notice, School, Subject
 from nphs_school.serializers import (AboutSerializer, AClassSerializer,
                                      BatchSerializer, NoticeSerializer,
                                      SchoolSerializer, Subjecterializer)
+
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
@@ -42,6 +43,11 @@ class BatchViewSet(viewsets.ModelViewSet):
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notice.objects.all()
     serializer_class = NoticeSerializer
+
+    def list(self, request):
+        notice = Notice.objects.filter(approved_by_headmaster=True)
+        serializer = NoticeSerializer(notice, many=True)
+        return Response(serializer.data)
 
 
 class SubjectViewSet(viewsets.ModelViewSet):

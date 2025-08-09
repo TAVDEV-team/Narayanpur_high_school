@@ -42,8 +42,7 @@ class Batch(models.Model):
         return cls.objects.filter(is_graduated=True)
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            self.label = f"SSC-{self.graduation_year}"
+        self.label = f"SSC-{self.graduation_year}"
         super().save(*args, **kwargs)
 
     def __str__(self):

@@ -64,7 +64,7 @@ class Result(models.Model):
         errors = {}
         if self.mcq > self.subject.mcq_marks:
             errors['mcq'] = "MCQ marks cannot exceed total MCQ marks"
-        if self.writing > self.subject.written_marks:
+        if self.written > self.subject.written_marks:
             errors['writing'] = (
                 "Writing marks cannot exceed total writing marks"
             )
@@ -77,7 +77,7 @@ class Result(models.Model):
             raise ValidationError(errors)
 
     def clean_subjects(self):
-        if self.subject not in self.aclass.Subject.all():
+        if self.subject not in self.aclass.main_subjects.all():
             raise ValidationError(
                 {
                     "subject": f"{self.subject.name}\
