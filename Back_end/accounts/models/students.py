@@ -1,23 +1,42 @@
 from accounts.models import Account
 from django.db import models, transaction
-from nphs_school.models import Batch
+from nphs_school.models import Batch, Subject
 
-GROUP_CHOICES = [
-    (grp, grp.title()) for grp in ["science", "humanities", "business studies"]
-]
+
+class GroupChoices(models.TextChoices):
+    SCIENCE = "science", "Science"
+    HUMANITIES = "humanities", "Humanities"
+    BUSINESS = "business studies", "Business Studies"
 
 
 class StudentAccount(models.Model):
+
     account = models.OneToOneField(
         Account, on_delete=models.CASCADE, related_name="student_profile"
     )
-    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
+    batch = models.ForeignKey(
+        Batch,
+        on_delete=models.CASCADE
+    )
     roll_number = models.PositiveIntegerField(editable=False)
     group = models.CharField(
-        max_length=20, choices=GROUP_CHOICES, null=True, blank=True
+        max_length=20,
+        choices=GroupChoices.choices,
+        null=True,
+        blank=True
     )
 
+    subjects = models.ManyToManyField(
+        Subject,
+        through="StudentSubject",
+        related_name="students"
+    )
+
+    class Meta:
+        unique_together = ("batch", "roll_number")
+
     def save(self, *args, **kwargs):
+        self.full_clean()
         if not self.pk and not self.roll_number:
             with transaction.atomic():
                 last_roll = (
@@ -27,12 +46,27 @@ class StudentAccount(models.Model):
                     .first()
                 )
                 self.roll_number = (
-                    (last_roll.roll_number + 1) if last_roll else 1
-                )
+                    (last_roll.roll_number + 1)
+                    if last_roll else 1)
         super().save(*args, **kwargs)
 
+    def __str__(self):
+        return str(self.account)
+
+
+class StudentSubject(models.Model):
+    class SubjectType(models.TextChoices):
+        COMPULSORY = "compulsory", "Compulsory"
+        RELIGIOUS = "religious", "Religious"
+        GROUP = "group", "Group"
+        OPTIONAL = "optional", "Optional"
+
+    student = models.ForeignKey(StudentAccount, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    subject_type = models.CharField(max_length=20, choices=SubjectType.choices)
+
     class Meta:
-        unique_together = ("batch", "roll_number")
+        unique_together = ("student", "subject", "subject_type")
 
     def __str__(self):
-        return f"{self.account.full_name}"
+        return f"{self.subject} {self.student}"
