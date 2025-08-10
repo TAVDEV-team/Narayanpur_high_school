@@ -48,10 +48,13 @@ class NoticeViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=["get"],
-        url_path=r"approved/",
+        url_path=r"approved",
     )
     def approved_list(self, request):
-        notice = Notice.objects.filter(approved_by_headmaster=True)
+        notice = Notice.objects.filter(
+            approved_by_headmaster=True,
+            is_active=True
+        )
         serializer = NoticeSerializer(notice, many=True)
         return Response(serializer.data)
 
