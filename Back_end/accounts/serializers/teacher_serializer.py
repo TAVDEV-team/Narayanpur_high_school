@@ -1,6 +1,7 @@
+from rest_framework import serializers
+
 from accounts.models import TeacherAccount
 from nphs_school.serializers import AClassSerializer, Subjecterializer
-from rest_framework import serializers
 
 from .account_serializer import AccountSerializer
 

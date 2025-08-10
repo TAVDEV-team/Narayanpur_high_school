@@ -1,0 +1,81 @@
+{
+  "student": {
+    "student_name": "Abdullah all Mamun",
+    "student_roll": 1,
+    "religion": "islam",
+    "bathc": "2020"
+  },
+  "total_obtained": 196,
+  "total_possible": 300,
+  "percentage": 65.33,
+  "results": [
+    {
+      "subject": {
+        "name": "Bangla 1st paper",
+        "mcq_total": 30,
+        "written_total": 70,
+        "practicle_total": 0,
+        "total": 100
+      },
+      "result": {
+        "mcq": 21,
+        "written": 70,
+        "practicle": 0,
+        "obtained": 91,
+        "percentage": 91,
+        "grade": "A+"
+      }
+    },
+    {
+      "subject": {
+        "name": "Bangla 2nd (6-8)",
+        "mcq_total": 0,
+        "written_total": 50,
+        "practicle_total": 0,
+        "total": 50
+      },
+      "result": {
+        "mcq": 0,
+        "written": 32,
+        "practicle": 0,
+        "obtained": 32,
+        "percentage": 64,
+        "grade": "A-"
+      }
+    },
+    {
+      "subject": {
+        "name": "ENGLISH 1st paper",
+        "mcq_total": 0,
+        "written_total": 100,
+        "practicle_total": 0,
+        "total": 100
+      },
+      "result": {
+        "mcq": 0,
+        "written": 40,
+        "practicle": 0,
+        "obtained": 40,
+        "percentage": 40,
+        "grade": "C"
+      }
+    },
+    {
+      "subject": {
+        "name": "ENGLISH 2ND paper (6-8)",
+        "mcq_total": 0,
+        "written_total": 50,
+        "practicle_total": 0,
+        "total": 50
+      },
+      "result": {
+        "mcq": 0,
+        "written": 33,
+        "practicle": 0,
+        "obtained": 33,
+        "percentage": 66,
+        "grade": "A-"
+      }
+    }
+  ]
+}

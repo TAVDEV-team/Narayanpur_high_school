@@ -1,8 +1,9 @@
-from accounts.models import Account
 from django.core.exceptions import ValidationError
 from django.db import models
-from nphs_school.models import AClass, Subject
 from solo.models import SingletonModel
+
+from accounts.models import Account
+from nphs_school.models import AClass, Subject
 
 
 class TeacherAccount(models.Model):
