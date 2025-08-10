@@ -1,7 +1,8 @@
-from fund.models import Fund, FundTransaction
-from fund.serializers import FundSerializer, FundTransactionSerializer
 from rest_framework import status, viewsets
 from rest_framework.response import Response
+
+from fund.models import Fund, FundTransaction
+from fund.serializers import FundSerializer, FundTransactionSerializer
 
 
 class FundViewSet(viewsets.ReadOnlyModelViewSet):

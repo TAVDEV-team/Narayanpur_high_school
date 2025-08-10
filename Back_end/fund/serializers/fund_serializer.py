@@ -1,6 +1,7 @@
 from drf_spectacular.utils import extend_schema_field
-from fund.models import Fund
 from rest_framework import serializers
+
+from fund.models import Fund
 
 
 class FundSerializer(serializers.ModelSerializer):
