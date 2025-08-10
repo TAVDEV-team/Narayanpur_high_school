@@ -1,5 +1,8 @@
+from datetime import date
+
 from django.core.exceptions import ValidationError
 from django.db import models, transaction
+from django.utils.timezone import now
 
 from .fund_model import Fund
 
@@ -17,12 +20,20 @@ class FundTransaction(models.Model):
         default=1,
         editable=False,
     )
-    type = models.CharField(max_length=7, choices=TRANSACTION_TYPES)
+    date = models.DateField(default=date.today)
+    type = models.CharField(
+        max_length=7,
+        choices=TRANSACTION_TYPES
+    )
     amount = models.PositiveIntegerField(default=0)
     reason = models.CharField(max_length=255)
     payment_method = models.CharField(max_length=100)
-    date = models.DateTimeField(auto_now_add=True)
-    after_transaction_balance = models.IntegerField(default=0, editable=False)
+
+    created_at = models.DateTimeField(default=now, editable=False)
+    after_transaction_balance = models.IntegerField(
+        default=0,
+        editable=False
+    )
 
     def clean(self):
         if self.type not in dict(self.TRANSACTION_TYPES):

@@ -1,5 +1,6 @@
-from fund.models import Fund, FundTransaction
 from rest_framework import serializers
+
+from fund.models import Fund, FundTransaction
 
 
 class FundTransactionSerializer(serializers.ModelSerializer):
@@ -15,6 +16,7 @@ class FundTransactionSerializer(serializers.ModelSerializer):
             "payment_method",
             "after_transaction_balance",
             "date",
+            "created_at",
         ]
         read_only_fields = ["after_transaction_balance"]
 
