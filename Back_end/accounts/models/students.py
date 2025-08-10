@@ -1,5 +1,6 @@
-from accounts.models import Account
 from django.db import models, transaction
+
+from accounts.models import Account
 from nphs_school.models import Batch, Subject
 
 

@@ -1,5 +1,6 @@
-from accounts.models import HeadMasterAccount
 from rest_framework import serializers
+
+from accounts.models import HeadMasterAccount
 
 from .teacher_serializer import TeacherSerializer
 
