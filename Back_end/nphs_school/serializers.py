@@ -1,5 +1,6 @@
-from nphs_school.models import About, AClass, Batch, Notice, School, Subject
 from rest_framework import serializers
+
+from nphs_school.models import About, AClass, Batch, Notice, School, Subject
 
 
 class AboutSerializer(serializers.ModelSerializer):

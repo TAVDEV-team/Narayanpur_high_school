@@ -1,6 +1,7 @@
-from accounts.models import Account
 from django.db import transaction
 from rest_framework import serializers
+
+from accounts.models import Account
 
 from .user_serializer import UserSerializer
 

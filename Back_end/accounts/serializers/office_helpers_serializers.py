@@ -1,5 +1,6 @@
-from accounts.models import OfficeHelpersAccount
 from rest_framework import serializers
+
+from accounts.models import OfficeHelpersAccount
 
 from .user_serializer import UserSerializer
 

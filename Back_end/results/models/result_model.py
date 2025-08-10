@@ -1,6 +1,7 @@
-from accounts.models import StudentAccount
 from django.core.exceptions import ValidationError
 from django.db import models
+
+from accounts.models import StudentAccount
 from nphs_school.models import AClass, Subject
 
 from .result_manager import ResultManager
@@ -77,7 +78,7 @@ class Result(models.Model):
             raise ValidationError(errors)
 
     def clean_subjects(self):
-        if self.subject not in self.aclass.main_subjects.all():
+        if self.subject not in self.aclass.compulsory.all():
             raise ValidationError(
                 {
                     "subject": f"{self.subject.name}\
