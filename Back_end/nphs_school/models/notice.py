@@ -19,7 +19,6 @@ class Notice(models.Model):
         max_length=300,
         unique=True,
         blank=True,
-        default="notice of narayan pur high school"
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
