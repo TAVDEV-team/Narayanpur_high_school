@@ -59,6 +59,8 @@ class ResultManager(models.Manager):
     # ---------- SUBJECT LIST BUILDER ----------
     def subjects_of_class(self, student):
         student_class = student.batch.current_class
+        if student_class is None:
+            raise f"sorry the {student} is not assaigned to any class"
 
         # Start with direct class subjects
         subject_list = list(student_class.compulsory.all()) + list(
