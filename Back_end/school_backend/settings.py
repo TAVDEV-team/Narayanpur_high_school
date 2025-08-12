@@ -14,6 +14,8 @@ from datetime import timedelta
 from pathlib import Path
 
 from decouple import config
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -56,6 +58,7 @@ INSTALLED_APPS = [
     "nphs_school",
     "fund",
     "results",
+    "storages",
 ]
 
 MIDDLEWARE = [
@@ -153,15 +156,37 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
+
+# Static files (CSS, JS, etc.)
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-# Default primary key field type
-# https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
+SUPABASE_PUBLIC_URL = f"{config('SUPABASE_URL')}\
+    /storage/v1/object/public/media"
+# settings.py
+USE_S3 = config("USE_S3", default=False, cast=bool)
 
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+if USE_S3:
+    DEFAULT_FILE_STORAGE = "storages.backends.s3boto3.S3Boto3Storage"
+    STORAGES = {
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+        "default": {
+            "BACKEND": "school_backend.storage_backends.SupabasePublicStorage",
+            "OPTIONS": {
+                "access_key": config("AWS_ACCESS_KEY_ID"),
+                "secret_key": config("AWS_SECRET_ACCESS_KEY"),
+                "bucket_name": config("AWS_STORAGE_BUCKET_NAME"),
+                "region_name": config("AWS_S3_REGION_NAME"),
+                "endpoint_url": config("AWS_S3_ENDPOINT_URL"),
+            },
+        },
+    }
+    MEDIA_URL = f"{config('AWS_S3_ENDPOINT_URL').rstrip('/')}\
+    /{config('AWS_STORAGE_BUCKET_NAME')}/"
+else:
+    DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
+    MEDIA_URL = "/media/"
+    MEDIA_ROOT = BASE_DIR / "media"
