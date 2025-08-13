@@ -1,14 +1,14 @@
 from rest_framework import serializers
 
 from accounts.models import TeacherAccount
-from nphs_school.serializers import AClassSerializer, Subjecterializer
+from nphs_school.serializers import AClassSerializer, SubjectSerializer
 
 from .account_serializer import AccountSerializer
 
 
 class TeacherSerializer(serializers.ModelSerializer):
     account = AccountSerializer()
-    base_subject_detail = Subjecterializer(
+    base_subject_detail = SubjectSerializer(
         source="base_subject", read_only=True
     )
     class_teacher_of_detail = AClassSerializer(

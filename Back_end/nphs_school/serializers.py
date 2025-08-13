@@ -27,7 +27,7 @@ class BatchSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class Subjecterializer(serializers.ModelSerializer):
+class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject
         fields = "__all__"

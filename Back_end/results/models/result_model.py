@@ -4,6 +4,7 @@ from django.db import models
 from accounts.models import StudentAccount
 from nphs_school.models import AClass, Subject
 
+from .exam import Exam
 from .result_manager import ResultManager
 
 
@@ -11,21 +12,14 @@ class Result(models.Model):
     student = models.ForeignKey(StudentAccount, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     aclass = models.ForeignKey(AClass, on_delete=models.CASCADE, default=1)
-
-    exam_type = models.CharField(
-        max_length=10,
-        choices=[
-            ('midterm', 'Midterm'),
-            ('final', 'Final'),
-            ('test', 'Test'),
-        ],
+    exam = models.ForeignKey(
+        Exam, on_delete=models.CASCADE, null=True, blank=True
     )
 
-    objects = ResultManager()
     mcq = models.PositiveIntegerField(default=0)
     practical = models.PositiveIntegerField(default=0)
     written = models.PositiveIntegerField(default=0)
-
+    objects = ResultManager()
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -66,7 +60,7 @@ class Result(models.Model):
         if self.mcq > self.subject.mcq_marks:
             errors['mcq'] = "MCQ marks cannot exceed total MCQ marks"
         if self.written > self.subject.written_marks:
-            errors['writing'] = (
+            errors['written'] = (
                 "Writing marks cannot exceed total writing marks"
             )
         if self.practical > self.subject.practical_marks:
@@ -81,22 +75,39 @@ class Result(models.Model):
         if self.subject not in self.aclass.compulsory.all():
             raise ValidationError(
                 {
-                    "subject": f"{self.subject.name}\
-                is not assigned to class {self.aclass.name}."
+                    "subject": (
+                        f"{self.subject.name}\
+                        is not assigned to class\
+                            {self.aclass.name}."
+                    )
                 }
             )
 
+    def clean_exam(self):
+        if self.exam is None:
+            raise ValidationError("must select a exam ")
+
     def clean(self):
         self.clean_marking()
+        self.clean_exam()
         self.clean_subjects()
 
     def save(self, *args, **kwargs):
-        self.full_clean()
+        try:
+            self.full_clean()  # This ensures all validations are applied
+        except ValidationError as e:
+            # Log or handle the validation errors as needed
+            raise e
         super().save(*args, **kwargs)
 
     class Meta:
-        unique_together = ('student', 'subject', 'exam_type')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['student', 'subject', 'exam'],
+                name='unique_exam_result',
+            )
+        ]
 
     def __str__(self):
         return f"{self.aclass} roll: {self.student.roll_number} –\
-            {self.subject.name}: {self.total_marks}/{self.total_possible}"
+                {self.subject.name}: {self.total_marks}/{self.total_possible}"
