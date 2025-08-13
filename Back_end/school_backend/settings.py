@@ -162,8 +162,7 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-SUPABASE_PUBLIC_URL = f"{config('SUPABASE_URL')}\
-    /storage/v1/object/public/media"
+SUPABASE_PUBLIC_URL = f"{config('SUPABASE_URL')}/storage/v1/object/public/media"  # noqa: E501
 # settings.py
 USE_S3 = config("USE_S3", default=False, cast=bool)
 
@@ -184,8 +183,7 @@ if USE_S3:
             },
         },
     }
-    MEDIA_URL = f"{config('AWS_S3_ENDPOINT_URL').rstrip('/')}\
-    /{config('AWS_STORAGE_BUCKET_NAME')}/"
+    MEDIA_URL = f"{config('AWS_S3_ENDPOINT_URL').rstrip('/')}{config('AWS_STORAGE_BUCKET_NAME')}/"  # noqa: E501
 else:
     DEFAULT_FILE_STORAGE = "django.core.files.storage.FileSystemStorage"
     MEDIA_URL = "/media/"

@@ -28,7 +28,6 @@ class ResultManager(models.Manager):
 
     # ---------- DETAIL BUILDERS ----------
     def detail_result(self, result):
-        print(result)
         return {
             "mcq": result.mcq,
             "written": result.written,
