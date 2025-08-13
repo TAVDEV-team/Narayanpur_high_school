@@ -27,7 +27,7 @@ class ResultSerializer(serializers.ModelSerializer):
         model = Result
         fields = [
             "class_name",
-            'exam_type',
+            'exam',
             "subject_name",
             "student_name",
             "student_roll",

@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from nphs_school.models import About, AClass, Batch, Notice, School, Subject
 from nphs_school.serializers import (AboutSerializer, AClassSerializer,
                                      BatchSerializer, NoticeSerializer,
-                                     SchoolSerializer, Subjecterializer)
+                                     SchoolSerializer,
+                                     SubjectSerializer)
 
 
 class AboutViewSet(viewsets.ModelViewSet):
@@ -61,4 +62,4 @@ class NoticeViewSet(viewsets.ModelViewSet):
 
 class SubjectViewSet(viewsets.ModelViewSet):
     queryset = Subject.objects.all()
-    serializer_class = Subjecterializer
+    serializer_class = SubjectSerializer

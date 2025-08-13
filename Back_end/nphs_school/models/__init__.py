@@ -11,5 +11,5 @@ __all__ = [
     'Batch',
     'Notice',
     'School',
-    'Subject',
+    'Subject'
 ]

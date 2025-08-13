@@ -13,6 +13,7 @@ router.register(r"batches", BatchViewSet)
 router.register(r"notices", NoticeViewSet)
 router.register(r"Subject", SubjectViewSet)
 
+
 about_list = AboutViewSet.as_view(
     {
         "get": "list",

@@ -1,24 +1,26 @@
 from django.db import models
-
 from accounts.models import StudentAccount
 from nphs_school.models import Subject
+from .exam import Exam
 
 
 class ResultManager(models.Manager):
     # ---------- AGGREGATE QUERIES ----------
-    def total_marks_for_student(self, student_id, exam_type):
-        results = self.filter(student_id=student_id, exam_type=exam_type)
+    def total_marks_for_student(self, student_id, exam_id):
+        # Now filter by exam_id (ForeignKey to Exam)
+        results = self.filter(student_id=student_id, exam_id=exam_id)
         return sum(r.total_marks for r in results)
 
-    def total_possible_for_student(self, student_id, exam_type):
-        results = self.filter(student_id=student_id, exam_type=exam_type)
+    def total_possible_for_student(self, student_id, exam_id):
+        # Now filter by exam_id (ForeignKey to Exam)
+        results = self.filter(student_id=student_id, exam_id=exam_id)
         return sum(r.total_possible for r in results)
 
-    def percentage(self, student_id, exam_type) -> float:
-        total_possible = self.total_possible_for_student(student_id, exam_type)
+    def percentage(self, student_id, exam_id) -> float:
+        total_possible = self.total_possible_for_student(student_id, exam_id)
         return (
             (
-                self.total_marks_for_student(student_id, exam_type)
+                self.total_marks_for_student(student_id, exam_id)
                 / float(total_possible)
             )
             * 100
@@ -40,6 +42,7 @@ class ResultManager(models.Manager):
     def student_details(self, student):
         return {
             "student_name": student.account.full_name,
+            "class": student.batch.current_class.name,
             "student_roll": student.roll_number,
             "religion": student.account.religion,
             "batch": str(student.batch),
@@ -58,8 +61,9 @@ class ResultManager(models.Manager):
     # ---------- SUBJECT LIST BUILDER ----------
     def subjects_of_class(self, student):
         student_class = student.batch.current_class
+        print(student_class)
         if student_class is None:
-            raise f"sorry the {student} is not assaigned to any class"
+            raise f"sorry the {student} is not assigned to any class"
 
         # Start with direct class subjects
         subject_list = list(student_class.compulsory.all()) + list(
@@ -85,14 +89,14 @@ class ResultManager(models.Manager):
         return subject_list
 
     # ---------- REPORT CARD ----------
-    def report_card_for(self, student_id, exam_type):
+    def report_card_for(self, student_id, exam_id):
         student = StudentAccount.objects.get(id=student_id)
         subject_list = self.subjects_of_class(student)
         student_details = self.student_details(student)
 
-        # Get all results for this student + exam type
+        # Get all results for this student + exam_id
         results_qs = self.filter(
-            student_id=student_id, exam_type=exam_type
+            student_id=student_id, exam_id=exam_id
         ).select_related("subject")
         results_map = {
             res.subject_id: res for res in results_qs
@@ -132,6 +136,7 @@ class ResultManager(models.Manager):
             )
 
         return {
+            "exam": Exam.objects.get(id=exam_id).exam_title.title(),
             "student": student_details,
             "total_obtained": total_obtained,
             "total_possible": total_possible,
