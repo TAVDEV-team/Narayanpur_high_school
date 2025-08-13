@@ -4,34 +4,19 @@ from django.db import models
 from accounts.models import StudentAccount
 from nphs_school.models import AClass, Subject
 
-from .result_manager import ResultManager
 from .exam import Exam
+from .result_manager import ResultManager
 
 
 class Result(models.Model):
-    student = models.ForeignKey(
-        StudentAccount,
-        on_delete=models.CASCADE
-    )
-    subject = models.ForeignKey(
-        Subject,
-        on_delete=models.CASCADE
-        )
-    aclass = models.ForeignKey(
-        AClass,
-        on_delete=models.CASCADE,
-        default=1
-    )
+    student = models.ForeignKey(StudentAccount, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    aclass = models.ForeignKey(AClass, on_delete=models.CASCADE, default=1)
     exam = models.ForeignKey(
-        Exam,
-        on_delete=models.CASCADE,
-        null=True,
-        blank=True
-        )
+        Exam, on_delete=models.CASCADE, null=True, blank=True
+    )
 
-    mcq = models.PositiveIntegerField(
-        default=0
-        )
+    mcq = models.PositiveIntegerField(default=0)
     practical = models.PositiveIntegerField(default=0)
     written = models.PositiveIntegerField(default=0)
     objects = ResultManager()
@@ -48,9 +33,11 @@ class Result(models.Model):
 
     @property
     def percentage(self) -> float:
-        return round(
-            (self.total_marks / self.total_possible)
-            * 100) if self.total_possible else 0
+        return (
+            round((self.total_marks / self.total_possible) * 100)
+            if self.total_possible
+            else 0
+        )
 
     @property
     def grade(self) -> str:
@@ -71,17 +58,15 @@ class Result(models.Model):
     def clean_marking(self):
         errors = {}
         if self.mcq > self.subject.mcq_marks:
-            errors['mcq'] = (
-                "MCQ marks cannot exceed total MCQ marks"
-                )
+            errors['mcq'] = "MCQ marks cannot exceed total MCQ marks"
         if self.written > self.subject.written_marks:
             errors['written'] = (
                 "Writing marks cannot exceed total writing marks"
-                )
+            )
         if self.practical > self.subject.practical_marks:
             errors['practical'] = (
                 "Practical marks cannot exceed total practical marks"
-                )
+            )
 
         if errors:
             raise ValidationError(errors)
@@ -93,15 +78,14 @@ class Result(models.Model):
                     "subject": (
                         f"{self.subject.name}\
                         is not assigned to class\
-                            {self.aclass.name}.")
-                    }
+                            {self.aclass.name}."
+                    )
+                }
             )
 
     def clean_exam(self):
         if self.exam is None:
-            raise ValidationError(
-                "must select a exam "
-            )
+            raise ValidationError("must select a exam ")
 
     def clean(self):
         self.clean_marking()
@@ -120,11 +104,10 @@ class Result(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['student', 'subject', 'exam'],
-                name='unique_exam_result'
-                )
+                name='unique_exam_result',
+            )
         ]
 
     def __str__(self):
-        return f"{self.aclass} roll:\
-            {self.student.roll_number} –\
+        return f"{self.aclass} roll: {self.student.roll_number} –\
                 {self.subject.name}: {self.total_marks}/{self.total_possible}"
