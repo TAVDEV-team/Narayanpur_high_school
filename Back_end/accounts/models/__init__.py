@@ -9,5 +9,5 @@ __all__ = [
     "StudentAccount",
     "HeadMasterAccount",
     "TeacherAccount",
-    "StudentSubject"
+    "StudentSubject",
 ]
