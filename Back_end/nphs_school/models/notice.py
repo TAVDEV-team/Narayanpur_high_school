@@ -9,7 +9,8 @@ class Notice(models.Model):
     description = models.TextField()
     approved_by_headmaster = models.BooleanField(
         default=False,
-        db_index=True
+        db_index=True,
+        # editable=False
     )
     notice_for_date = models.DateField(
         help_text="The date when the notice needs to be published.",
@@ -20,6 +21,7 @@ class Notice(models.Model):
         max_length=300,
         unique=True,
         blank=True,
+        editable=False,
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

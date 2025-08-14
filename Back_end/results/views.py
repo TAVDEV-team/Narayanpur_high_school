@@ -5,7 +5,8 @@ from django.shortcuts import get_object_or_404
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import Paragraph, SimpleDocTemplate, Table, TableStyle
+from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
+                                TableStyle)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -17,6 +18,7 @@ from .serializers import ExamSerializer, ResultSerializer
 
 
 def generate_report_card_pdf(report_data):
+    # school =
     buffer = BytesIO()
     doc = SimpleDocTemplate(buffer, pagesize=letter)
     styles = getSampleStyleSheet()
@@ -28,29 +30,27 @@ def generate_report_card_pdf(report_data):
     title_style = styles['Title']
     title_style.fontSize = 28
     title_style.alignment = 1  # Center-aligned
-    title_style.spaceAfter = 10  # Space after title
+    title_style.spaceAfter = 100  # Space after title
 
-    title = Paragraph("NARAYANPUR HIGH SCHOOL", title_style)
+    title = Paragraph(report_data['school'].upper(), title_style)
     content.append(title)
 
     # Subtitle Styling
     sub_title_style = styles['Title']
-    sub_title_style.fontSize = 12
+    sub_title_style.fontSize = 14
     sub_title_style.alignment = 1  # Center-aligned
     sub_title_style.spaceAfter = 10
-    content.append(
-        Paragraph("Amjad Nagar, Chaddagram, Cumilla 3500", sub_title_style)
-    )
+    content.append(Paragraph(report_data['address'], sub_title_style))
     exam = Paragraph(f"{report_data['exam'].title()}", sub_title_style)
     content.append(exam)
 
     # Student Information Styling
     about_style = styles['Normal']
-    about_style.fontSize = 10
-    about_style.alignment = 0  # Left-aligned
+    about_style.fontSize = 11
+    # about_style.alignment = 3  # Left-aligned (default for normal text)
     about_style.spaceAfter = 2  # Space after each line
-    about_style.fontName = 'Helvetica-Bold'
 
+    # Add student info in left-aligned paragraphs
     for key in ['name', 'class', 'roll', 'date_of_birth', 'religion']:
         content.append(
             Paragraph(
@@ -58,8 +58,7 @@ def generate_report_card_pdf(report_data):
                 about_style,
             )
         )
-    content.append(Paragraph('', title_style))
-    content.append(Paragraph('', title_style))
+    content.append(Spacer(1, 24))
     # Adding table for results
     table_data = [
         [
@@ -119,8 +118,7 @@ def generate_report_card_pdf(report_data):
 
     # Adding the table to the content
     content.append(table)
-    content.append(Paragraph('', title_style))
-    content.append(Paragraph('', title_style))
+    content.append(Spacer(1, 30))
     table_data = [["Total", "Obtained", "Rank", "Percentage", "Status"]]
     table_data.append(
         [
@@ -153,9 +151,7 @@ def generate_report_card_pdf(report_data):
     )
     content.append(table)
 
-    content.append(Paragraph('', title_style))
-    content.append(Paragraph('', title_style))
-    content.append(Paragraph('', title_style))
+    content.append(Spacer(1, 100))
     content.append(Paragraph('-------------------------', about_style))
     content.append(Paragraph('Gurdian Signature', about_style))
     # Finalizing the PDF

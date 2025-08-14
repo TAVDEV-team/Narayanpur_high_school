@@ -2,7 +2,7 @@ from django.db import models
 from django.db.models import F, Max, Sum
 
 from accounts.models import StudentAccount
-from nphs_school.models import Subject
+from nphs_school.models import About, Subject
 
 from .exam import Exam
 
@@ -193,8 +193,14 @@ class ResultManager(models.Manager):
                     "highest_score": highest if highest else 0,
                 }
             )
-
+        school = About.objects.get(id=1)
+        school_name = school.name
+        school_eiin = school.eiin
+        school_address = school.location_address
         return {
+            "school": school_name,
+            "eiin": school_eiin,
+            "address": school_address,
             "exam": Exam.objects.get(id=exam_id).exam_title.title(),
             "student": student_details,
             "total_obtained": total_obtained,
