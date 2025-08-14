@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "fund",
     "results",
     "storages",
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
