@@ -17,6 +17,15 @@ class Account(models.Model):
     religion = models.CharField(
         max_length=10, choices=RELIGION_CHOICES, default="islam"
     )
+    # gender =models.CharField(
+    #     max_length='10',
+    #     choices=[
+    #         ('male','Male'),
+    #         ('female', 'FEMALE'),
+    #         ('others','OTHERS')
+    #     ],
+    #     default='male'
+    # )
     joining_date = models.DateField(help_text="when he/she joined the school")
     address = models.TextField()
     last_educational_institute = models.CharField(max_length=120)
