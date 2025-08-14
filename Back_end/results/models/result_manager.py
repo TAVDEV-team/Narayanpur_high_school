@@ -102,6 +102,7 @@ class ResultManager(models.Manager):
             "religion": student.account.religion,
             "batch": str(student.batch),
             'date_of_birth': student.account.date_of_birth,
+            'gender': 'male',
         }
 
     def subject_details(self, subject_id):

@@ -30,7 +30,7 @@ def generate_report_card_pdf(report_data):
     title_style = styles['Title']
     title_style.fontSize = 28
     title_style.alignment = 1  # Center-aligned
-    title_style.spaceAfter = 100  # Space after title
+    title_style.spaceAfter = 50  # Space after title
 
     title = Paragraph(report_data['school'].upper(), title_style)
     content.append(title)
@@ -44,21 +44,104 @@ def generate_report_card_pdf(report_data):
     exam = Paragraph(f"{report_data['exam'].title()}", sub_title_style)
     content.append(exam)
 
-    # Student Information Styling
-    about_style = styles['Normal']
-    about_style.fontSize = 11
-    # about_style.alignment = 3  # Left-aligned (default for normal text)
-    about_style.spaceAfter = 2  # Space after each line
+    # ====== About Section ======
+    about_data = [
+        ['Name :', report_data['student']['name']],
+        ['Class :', report_data['student']['class']],
+        ['Roll :', report_data['student']['roll']],
+        ['Date Of Birth :', report_data['student']['date_of_birth']],
+        ['Religion :', report_data['student']['religion']],
+        ['Gender :', report_data['student']['gender']],
+    ]
 
-    # Add student info in left-aligned paragraphs
-    for key in ['name', 'class', 'roll', 'date_of_birth', 'religion']:
-        content.append(
-            Paragraph(
-                f"{key.replace('_', ' ').title()}: {report_data['student'][key]}",  # noqa: E501
-                about_style,
-            )
+    about_table = Table(about_data, colWidths=[75, 120])
+    about_table.setStyle(
+        TableStyle(
+            [
+                ('FONTNAME', (0, 0), (0, -1), 'Helvetica-Bold'),  # Labels bold
+                ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+            ]
         )
-    content.append(Spacer(1, 24))
+    )
+
+    # ====== Summary Section ======
+    summary_data = [
+        ['Result', 'Summary'],
+        ['Total', report_data['total_possible']],
+        ['Obtained', report_data['total_obtained']],
+        ['Rank', report_data['class_rank']],
+        ['Percentage', f"{report_data['percentage']}%"],
+        ['Status', report_data['status']],
+    ]
+
+    summary_table = Table(summary_data, colWidths=[80, 70])
+    summary_table.setStyle(
+        TableStyle(
+            [
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('FONTNAME', (0, 0), (-1, -1), 'Helvetica-Bold'),
+                ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('ALIGN', (1, 0), (1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, -1), 4),
+                ('GRID', (0, 0), (-1, -1), 1, colors.black),
+            ]
+        )
+    )
+
+    # ====== Hero Grade Table ======
+    grades_data = [
+        ['Marks', 'Grade'],
+        ['80-100', 'A+'],
+        ['70-79', 'A'],
+        ['60-69', 'A-'],
+        ['50-59', 'B'],
+        ['40-49', 'C'],
+        ['33-39', 'D'],
+        ['0-32', 'F'],
+    ]
+
+    hero_table = Table(grades_data, colWidths=[65, 65])
+    hero_table.setStyle(
+        TableStyle(
+            [
+                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
+                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+                ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+                ('FONTSIZE', (0, 0), (-1, -1), 10),
+                ('BOTTOMPADDING', (0, 0), (-1, 0), 6),
+                ('GRID', (0, 0), (-1, -1), 0.5, colors.black),
+            ]
+        )
+    )
+
+    # ====== Combine into one row ======
+    final_row = [about_table, summary_table, hero_table]
+
+    final_table = Table([final_row], colWidths=[200, 150, 200])
+    final_table.setStyle(
+        TableStyle(
+            [
+                ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+                ('LEFTPADDING', (0, 0), (-1, -1), 4),
+                ('RIGHTPADDING', (0, 0), (-1, -1), 4),
+                ('ALIGN', (2, 0), (-1, -1), 'RIGHT'),
+            ]
+        )
+    )
+
+    content.append(final_table)
+    content.append(Spacer(1, 10))
+
     # Adding table for results
     table_data = [
         [
@@ -118,42 +201,10 @@ def generate_report_card_pdf(report_data):
 
     # Adding the table to the content
     content.append(table)
-    content.append(Spacer(1, 30))
-    table_data = [["Total", "Obtained", "Rank", "Percentage", "Status"]]
-    table_data.append(
-        [
-            report_data['total_possible'],
-            report_data['total_obtained'],
-            report_data['class_rank'],
-            f"{report_data['percentage']}%",
-            report_data['status'],
-        ]
-    )
-    table = Table(table_data, colWidths=[110, 110, 110, 110, 110])
-    table.setStyle(
-        TableStyle(
-            [
-                ('BACKGROUND', (0, 0), (-1, 0), colors.grey),
-                ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
-                ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
-                ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
-                ('GRID', (0, 0), (-1, -1), 1, colors.black),
-                (
-                    'ALIGN',
-                    (1, 0),
-                    (-1, -1),
-                    'CENTER',
-                ),  # Center-align all the data
-                ('ALIGN', (1, 0), (0, -1), 'LEFT'),
-            ]
-        )
-    )
-    content.append(table)
+    content.append(Spacer(1, 50))
 
-    content.append(Spacer(1, 100))
-    content.append(Paragraph('-------------------------', about_style))
-    content.append(Paragraph('Gurdian Signature', about_style))
+    content.append(Paragraph('-------------------------'))
+    content.append(Paragraph('Gurdian Signature'))
     # Finalizing the PDF
     doc.build(content)
 
