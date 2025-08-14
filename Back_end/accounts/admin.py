@@ -1,7 +1,12 @@
 from django.contrib import admin
 
-from .models import (Account, HeadMasterAccount, OfficeHelpersAccount,
-                     StudentAccount, TeacherAccount)
+from .models import (
+    Account,
+    HeadMasterAccount,
+    OfficeHelpersAccount,
+    StudentAccount,
+    TeacherAccount,
+)
 
 admin.site.register(Account)
 admin.site.register(StudentAccount)

@@ -15,22 +15,14 @@ class StudentAccount(models.Model):
     account = models.OneToOneField(
         Account, on_delete=models.CASCADE, related_name="student_profile"
     )
-    batch = models.ForeignKey(
-        Batch,
-        on_delete=models.CASCADE
-    )
+    batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
     roll_number = models.PositiveIntegerField(editable=False)
     group = models.CharField(
-        max_length=20,
-        choices=GroupChoices.choices,
-        null=True,
-        blank=True
+        max_length=20, choices=GroupChoices.choices, null=True, blank=True
     )
 
     subjects = models.ManyToManyField(
-        Subject,
-        through="StudentSubject",
-        related_name="students"
+        Subject, through="StudentSubject", related_name="students"
     )
 
     class Meta:
@@ -47,8 +39,8 @@ class StudentAccount(models.Model):
                     .first()
                 )
                 self.roll_number = (
-                    (last_roll.roll_number + 1)
-                    if last_roll else 1)
+                    (last_roll.roll_number + 1) if last_roll else 1
+                )
         super().save(*args, **kwargs)
 
     def __str__(self):
