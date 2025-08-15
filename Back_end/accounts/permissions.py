@@ -11,14 +11,9 @@ class IsHeadMaster(BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
-
         try:
             headmaster = HeadMasterAccount.objects.get()
         except HeadMasterAccount.DoesNotExist:
             return False
 
-        # Compare request.user's TeacherAccount with HeadMaster's account
-        return (
-            hasattr(request.user, "teacher_profile")
-            and request.user.teacher_profile == headmaster.account
-        )
+        return request.user == headmaster.account.account.user
