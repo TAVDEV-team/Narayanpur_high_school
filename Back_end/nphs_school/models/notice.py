@@ -1,6 +1,5 @@
 from datetime import date
 
-from django.conf import settings
 from django.contrib import admin
 from django.db import models
 from django.utils.text import slugify
@@ -24,16 +23,6 @@ class Notice(models.Model):
     )
     slug = models.SlugField(
         max_length=300, unique=True, blank=True, editable=False
-    )
-
-    # Author info
-    written_by = models.ForeignKey(
-        settings.AUTH_USER_MODEL,
-        null=True,
-        blank=True,
-        editable=False,
-        on_delete=models.SET_NULL,
-        related_name="notices_written",
     )
 
     # System fields
