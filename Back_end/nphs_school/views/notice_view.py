@@ -1,51 +1,11 @@
-from rest_framework import status, viewsets
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.permissions import IsHeadMaster, IsTeacher
-from nphs_school.models import About, AClass, Batch, Notice, School, Subject
-from nphs_school.serializers import (
-    AboutSerializer,
-    AClassSerializer,
-    BatchSerializer,
-    NoticeSerializer,
-    SchoolSerializer,
-    SubjectSerializer,
-)
-
-
-class AboutViewSet(viewsets.ModelViewSet):
-    serializer_class = AboutSerializer
-    queryset = About.objects.all()
-
-    def list(self, request):
-        about = About.get_solo()
-        serializer = AboutSerializer(about)
-        return Response(serializer.data)
-
-    def update(self, request):
-        about = About.get_solo()
-        serializer = AboutSerializer(about, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class SchoolViewSet(viewsets.ModelViewSet):
-    queryset = School.objects.all()
-    serializer_class = SchoolSerializer
-
-
-class AClassViewSet(viewsets.ModelViewSet):
-    queryset = AClass.objects.all()
-    serializer_class = AClassSerializer
-
-
-class BatchViewSet(viewsets.ModelViewSet):
-    queryset = Batch.objects.all()
-    serializer_class = BatchSerializer
+from nphs_school.models import Notice
+from nphs_school.serializers import NoticeSerializer
 
 
 class NoticeViewSet(viewsets.ModelViewSet):
@@ -96,8 +56,3 @@ class NoticeViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
-
-
-class SubjectViewSet(viewsets.ModelViewSet):
-    queryset = Subject.objects.all()
-    serializer_class = SubjectSerializer
