@@ -3,47 +3,32 @@ from django.db import models
 
 from .subject import Subject
 
-CLASS_CHOICES = (
-    [
-        ("6", "Class 6"),
-        ("7", "Class 7"),
-        ("8", "Class 8"),
-        ("9_science", "Class 9 Science"),
-        ("10_science", "Class 10 Science"),
-        ("9_business", "Class 9 Business"),
-        ("10_business", "Class 10 Business"),
-        ("9_humanities", "Class 9 Humanities"),
-        ("10_humanities", "Class 10 Humanities"),
-    ]
-)
+CLASS_CHOICES = [
+    ("6", "Class 6"),
+    ("7", "Class 7"),
+    ("8", "Class 8"),
+    ("9_science", "Class 9 Science"),
+    ("10_science", "Class 10 Science"),
+    ("9_business", "Class 9 Business"),
+    ("10_business", "Class 10 Business"),
+    ("9_humanities", "Class 9 Humanities"),
+    ("10_humanities", "Class 10 Humanities"),
+]
 
 
 class AClass(models.Model):
-    name = models.CharField(
-        max_length=20,
-        choices=CLASS_CHOICES,
-        unique=True)
+    name = models.CharField(max_length=20, choices=CLASS_CHOICES, unique=True)
 
     compulsory = models.ManyToManyField(
-        Subject,
-        related_name="main_classes",
-        blank=True
+        Subject, related_name="main_classes", blank=True
     )
     group_subjects = models.ManyToManyField(
-        Subject,
-        related_name="group_classes",
-        blank=True
+        Subject, related_name="group_classes", blank=True
     )
     religious = models.ManyToManyField(
-        Subject,
-        related_name="religional_classes",
-        blank=True
+        Subject, related_name="religional_classes", blank=True
     )
-    extra = models.ManyToManyField(
-         Subject,
-         related_name="extra",
-         blank=True
-    )
+    extra = models.ManyToManyField(Subject, related_name="extra", blank=True)
 
     room_number = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -62,7 +47,8 @@ class AClass(models.Model):
 
         # Check compulsory subjects
         wrong_compulsory = [
-            sub.name for sub in self.compulsory.all()
+            sub.name
+            for sub in self.compulsory.all()
             if sub.subject_type != Subject.SubjectType.COMPULSORY
         ]
         if wrong_compulsory:
@@ -72,11 +58,12 @@ class AClass(models.Model):
 
         # Check group subjects
         wrong_group = [
-            sub.name for sub in self.group_subjects.all()
-            if sub.subject_type not in
-            [
+            sub.name
+            for sub in self.group_subjects.all()
+            if sub.subject_type
+            not in [
                 Subject.SubjectType.GROUP,
-                Subject.SubjectType.GROUP_OPTIONAL
+                Subject.SubjectType.GROUP_OPTIONAL,
             ]
         ]
         if wrong_group:
@@ -87,7 +74,8 @@ class AClass(models.Model):
 
         # Check religious subjects
         wrong_religious = [
-            sub.name for sub in self.religious.all()
+            sub.name
+            for sub in self.religious.all()
             if sub.subject_type != Subject.SubjectType.RELIGIOUS
         ]
         if wrong_religious:
@@ -97,13 +85,12 @@ class AClass(models.Model):
 
         # Check extra subjects
         wrong_extra = [
-            sub.name for sub in self.extra.all()
+            sub.name
+            for sub in self.extra.all()
             if sub.subject_type != Subject.SubjectType.EXTRA
         ]
         if wrong_extra:
-            errors['extra'] = [
-                f"{name} is not extra" for name in wrong_extra
-            ]
+            errors['extra'] = [f"{name} is not extra" for name in wrong_extra]
 
         # Raise all collected errors at once
         if errors:

@@ -5,9 +5,14 @@ from rest_framework.response import Response
 
 from accounts.permissions import IsHeadMaster, IsTeacher
 from nphs_school.models import About, AClass, Batch, Notice, School, Subject
-from nphs_school.serializers import (AboutSerializer, AClassSerializer,
-                                     BatchSerializer, NoticeSerializer,
-                                     SchoolSerializer, SubjectSerializer)
+from nphs_school.serializers import (
+    AboutSerializer,
+    AClassSerializer,
+    BatchSerializer,
+    NoticeSerializer,
+    SchoolSerializer,
+    SubjectSerializer,
+)
 
 
 class AboutViewSet(viewsets.ModelViewSet):

@@ -5,11 +5,4 @@ from .notice import Notice
 from .school import School
 from .subject import Subject
 
-__all__ = [
-    'About',
-    'AClass',
-    'Batch',
-    'Notice',
-    'School',
-    'Subject'
-]
+__all__ = ['About', 'AClass', 'Batch', 'Notice', 'School', 'Subject']

@@ -21,19 +21,13 @@ class FundTransaction(models.Model):
         editable=False,
     )
     date = models.DateField(default=date.today)
-    type = models.CharField(
-        max_length=7,
-        choices=TRANSACTION_TYPES
-    )
+    type = models.CharField(max_length=7, choices=TRANSACTION_TYPES)
     amount = models.PositiveIntegerField(default=0)
     reason = models.CharField(max_length=255)
     payment_method = models.CharField(max_length=100)
 
     created_at = models.DateTimeField(default=now, editable=False)
-    after_transaction_balance = models.IntegerField(
-        default=0,
-        editable=False
-    )
+    after_transaction_balance = models.IntegerField(default=0, editable=False)
 
     def clean(self):
         if self.type not in dict(self.TRANSACTION_TYPES):

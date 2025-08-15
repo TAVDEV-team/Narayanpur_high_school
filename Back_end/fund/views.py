@@ -1,10 +1,10 @@
 from rest_framework import status, viewsets
-from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
+from accounts.permissions import IsHeadMaster
 from fund.models import Fund, FundTransaction
 from fund.serializers import FundSerializer, FundTransactionSerializer
-from accounts.permissions import IsHeadMaster
 
 
 class FundViewSet(viewsets.ReadOnlyModelViewSet):
