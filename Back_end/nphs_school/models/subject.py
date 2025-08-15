@@ -13,9 +13,7 @@ class Subject(models.Model):
 
     name = models.CharField(max_length=120, unique=True)
     subject_type = models.CharField(
-        max_length=20,
-        choices=SubjectType.choices,
-        default='compulsory'
+        max_length=20, choices=SubjectType.choices, default='compulsory'
     )
     code = models.CharField(max_length=4, unique=True)
     written_marks = models.PositiveIntegerField(default=0)

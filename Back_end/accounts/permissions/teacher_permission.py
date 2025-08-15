@@ -1,5 +1,6 @@
-from accounts.models import TeacherAccount
 from rest_framework.permissions import BasePermission
+
+from accounts.models import TeacherAccount
 
 
 class IsTeacher(BasePermission):

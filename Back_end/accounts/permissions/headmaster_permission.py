@@ -1,5 +1,6 @@
-from accounts.models import HeadMasterAccount
 from rest_framework.permissions import BasePermission
+
+from accounts.models import HeadMasterAccount
 
 
 class IsHeadMaster(BasePermission):

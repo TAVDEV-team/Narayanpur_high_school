@@ -10,11 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
+import logging
 from datetime import timedelta
 from pathlib import Path
 
 from decouple import config
-import logging
+
 logging.basicConfig(level=logging.DEBUG)
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -163,7 +164,9 @@ STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
-SUPABASE_PUBLIC_URL = f"{config('SUPABASE_URL')}/storage/v1/object/public/media"  # noqa: E501
+SUPABASE_PUBLIC_URL = (
+    f"{config('SUPABASE_URL')}/storage/v1/object/public/media"  # noqa: E501
+)
 # settings.py
 USE_S3 = config("USE_S3", default=False, cast=bool)
 
