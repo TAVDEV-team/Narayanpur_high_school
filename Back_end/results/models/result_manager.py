@@ -1,89 +1,82 @@
 from django.db import models
 from django.db.models import F, Max, Sum
+from django.shortcuts import get_object_or_404
 
 from accounts.models import StudentAccount
-from nphs_school.models import About, Subject
+from nphs_school.models import About, AClass, Subject
 
 from .exam import Exam
 
 
 class ResultManager(models.Manager):
-    # ---------- AGGREGATE QUERIES ----------
+    # ---------------- AGGREGATE QUERIES ----------------
+
     def total_marks_for_student(self, student_id, exam_id):
-        # Now filter by exam_id (ForeignKey to Exam)
-        results = self.filter(student_id=student_id, exam_id=exam_id)
-        return sum(r.total_marks for r in results)
+        return (
+            self.filter(student_id=student_id, exam_id=exam_id).aggregate(
+                total=Sum(F('mcq') + F('written') + F('practical'))
+            )['total']
+            or 0
+        )
 
     def total_possible_for_student(self, student_id, exam_id):
-        # Now filter by exam_id (ForeignKey to Exam)
-        results = self.filter(student_id=student_id, exam_id=exam_id)
-        return sum(r.total_possible for r in results)
+        return (
+            self.filter(student_id=student_id, exam_id=exam_id).aggregate(
+                total=Sum(
+                    F('subject__mcq_marks')
+                    + F('subject__written_marks')
+                    + F('subject__practical_marks')
+                )
+            )['total']
+            or 0
+        )
 
     def percentage(self, student_id, exam_id) -> float:
         total_possible = self.total_possible_for_student(student_id, exam_id)
-        return (
-            (
-                self.total_marks_for_student(student_id, exam_id)
-                / float(total_possible)
-            )
-            * 100
-            if total_possible
-            else 0
-        )
+        if total_possible == 0:
+            return 0
+        total_obtained = self.total_marks_for_student(student_id, exam_id)
+        return round((total_obtained / total_possible) * 100, 2)
 
     def highest_score_of_subject(self, aclass, subject):
-        # Annotating total_marks and then applying aggregation
         return (
             self.filter(aclass=aclass, subject=subject)
             .annotate(total_marks=F('mcq') + F('practical') + F('written'))
             .aggregate(Max('total_marks'))['total_marks__max']
+            or 0
         )
 
     def class_rank(self, student, exam_id):
-        """
-        Get the class rank for a student based on total marks in the exam.
-        """
-        # Step 2: Get the class of the student
         student_class = student.batch.current_class
-
-        # Step 3: Aggregate total marks for all students in the class
         results_qs = (
             self.filter(
                 exam_id=exam_id, student__batch__current_class=student_class
             )
             .values('student')
             .annotate(
-                total_marks=Sum(F('mcq') + F('practical') + F('written'))
+                total_marks=Sum(F('mcq') + F('written') + F('practical'))
             )
             .order_by('-total_marks')
         )
+        student_total = next(
+            (
+                r['total_marks']
+                for r in results_qs
+                if r['student'] == student.id
+            ),
+            0,
+        )
 
-        # Step 4: Find the student's total marks
-        student_result = results_qs.get(student=student)
-        student_total_marks = student_result['total_marks']
-
-        # Step 5: Rank the student within the class
         rank = 1
-        for result in results_qs:
-            if result['total_marks'] > student_total_marks:
+        for res in results_qs:
+            if res['total_marks'] > student_total:
                 rank += 1
             else:
                 break
-
         return rank
 
-    # def highest_score(self, student, exam_id):
-    #     """
-    #     Get the highest scoring student in the class for a given exam.
-    #     """
-    #     aclass=student.batch.current_class
-    #     highest_result = self.filter(exam_id=exam_id, aclass=aclass) \
-    #                          .annotate(total_marks=F('mcq') + F('practical') + F('written')) \  # noqa: E501
-    #                          .order_by('-total_marks') \
-    #                          .first()
+    # ---------------- DETAIL BUILDERS ----------------
 
-    #     return highest_result
-    # ---------- DETAIL BUILDERS ----------
     def detail_result(self, result):
         return {
             "mcq": result.mcq,
@@ -95,18 +88,18 @@ class ResultManager(models.Manager):
         }
 
     def student_details(self, student):
+        current_class = getattr(student.batch, 'current_class', None)
         return {
-            "name": student.account.full_name,
-            "class": student.batch.current_class.name,
+            "name": student.account.full_name.title(),
+            "class": current_class.name if current_class else None,
             "roll": student.roll_number,
-            "religion": student.account.religion,
+            "religion": student.account.religion.title(),
             "batch": str(student.batch),
             'date_of_birth': student.account.date_of_birth,
-            'gender': student.account.gender,
+            'gender': student.account.gender.title(),
         }
 
-    def subject_details(self, subject_id):
-        subject = Subject.objects.get(id=subject_id)
+    def subject_details(self, subject):
         return {
             "name": subject.name,
             "mcq_total": subject.mcq_marks,
@@ -115,56 +108,49 @@ class ResultManager(models.Manager):
             "total": subject.total_marks,
         }
 
-    # ---------- SUBJECT LIST BUILDER ----------
+    # ---------------- SUBJECT LIST ----------------
+
     def subjects_of_class(self, student):
         student_class = student.batch.current_class
+        if not student_class:
+            raise ValueError(f"{student} is not assigned to any class")
 
-        if student_class is None:
-            raise f"sorry the {student} is not assigned to any class"
-
-        # Start with direct class subjects
-        subject_list = list(student_class.compulsory.all()) + list(
+        subjects = list(student_class.compulsory.all()) + list(
             student_class.group_subjects.all()
         )
-
-        # Religion-specific subject
         code_map = {
             "islam": "111",
             "hindu": "112",
             "buddhist": "113",
             "christian": "114",
         }
-        reli = student.account.religion
-        if reli in code_map:
-            sub = Subject.objects.filter(code=code_map[reli]).first()
+        religion_code = code_map.get(student.account.religion)
+        if religion_code:
+            sub = Subject.objects.filter(code=religion_code).first()
             if sub:
-                subject_list.append(sub)
+                subjects.append(sub)
 
-        # Extra subjects
-        subject_list.extend(student_class.extra.all())
+        subjects.extend(student_class.extra.all())
+        return subjects
 
-        return subject_list
+    # ---------------- REPORT CARD ----------------
 
-    # ---------- REPORT CARD ----------
     def report_card_for(self, student_id, exam_id):
         student = StudentAccount.objects.get(id=student_id)
-        subject_list = self.subjects_of_class(student)
-        student_details = self.student_details(student)
+        subjects = self.subjects_of_class(student)
+        student_info = self.student_details(student)
 
         results_qs = self.filter(
             student_id=student_id, exam_id=exam_id
         ).select_related("subject")
         results_map = {res.subject_id: res for res in results_qs}
 
-        result_details = []
-        total_obtained = 0
-        total_possible = 0
+        total_obtained = total_possible = 0
         status = "PASSED"
-        for subject in subject_list:
-            result = results_map.get(subject.id)
-            highest = self.highest_score_of_subject(
-                student.batch.current_class, subject
-            )
+        result_details = []
+
+        for sub in subjects:
+            result = results_map.get(sub.id)
             if result:
                 obtained = result.total_marks
                 possible = result.total_possible
@@ -172,47 +158,95 @@ class ResultManager(models.Manager):
                 if detail["grade"] == 'F':
                     status = "FAILED"
             else:
-                status = "FAILED"
                 obtained = 0
-                possible = subject.total_marks
+                possible = sub.total_marks
                 detail = {
                     "mcq": 0,
                     "written": 0,
                     "practical": 0,
                     "obtained": 0,
                     "percentage": 0,
-                    "grade": None,
+                    "grade": 'F',
                 }
+                status = "FAILED"
 
             total_obtained += obtained
             total_possible += possible
 
             result_details.append(
                 {
-                    "subject": self.subject_details(subject.id),
+                    "subject": self.subject_details(sub),
                     "result": detail,
-                    "highest_score": highest if highest else 0,
+                    "highest_score": self.highest_score_of_subject(
+                        student.batch.current_class, sub
+                    ),
                 }
             )
+
         school = About.objects.get(id=1)
-        school_name = school.name
-        school_eiin = school.eiin
-        school_address = school.location_address
+        exam_title = Exam.objects.get(id=exam_id).exam_title.title()
         return {
-            "school": school_name,
-            "eiin": school_eiin,
-            "address": school_address,
-            "exam": Exam.objects.get(id=exam_id).exam_title.title(),
-            "student": student_details,
+            "school": school.name,
+            "eiin": school.eiin,
+            "address": school.location_address,
+            "exam": exam_title,
+            "student": student_info,
             "total_obtained": total_obtained,
             "total_possible": total_possible,
             "status": status,
             "class_rank": self.class_rank(student, exam_id),
-            # "highest_score":self.highest_score(student,exam_id),
             "percentage": (
                 round((total_obtained / total_possible * 100), 2)
                 if total_possible
                 else 0
             ),
             "results": result_details,
+        }
+
+    # ---------------- CLASS RESULT SUMMARY ----------------
+
+    def class_result(self, class_id, exam_id):
+        aclass = get_object_or_404(AClass, id=class_id)
+        students = StudentAccount.objects.filter(batch__current_class=aclass)
+        total_students = len(students)
+        passed = 0
+        failed = 0
+        overall_percentage = 0
+        total_marks = 0
+        class_results = []
+        for student in students:
+            report_data = self.report_card_for(student.id, exam_id)
+            name = report_data['student']['name']
+            roll = report_data['student']['roll']
+            rank = report_data['class_rank']
+            obtained = report_data['total_obtained']
+            percentage = report_data['percentage']
+            status = report_data['status']
+            if total_marks == 0:
+                total_marks = report_data['total_possible']
+            overall_percentage += percentage
+
+            if status == "FAILED":
+                failed += 1
+            else:
+                passed += 1
+
+            data = {
+                'name': name,
+                'roll': roll,
+                'rank': rank,
+                'obtained': obtained,
+                'percentage': percentage,
+                'status': status,
+            }
+            class_results.append(data)
+        overall_percentage /= total_students
+
+        return {
+            'total_students': total_students,
+            'total_marks': total_marks,
+            'overall_percentage': overall_percentage,
+            'passed': passed,
+            'failed': failed,
+            'student_results': class_results,
         }

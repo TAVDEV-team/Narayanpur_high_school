@@ -9,7 +9,7 @@ from .account_serializer import AccountSerializer
 class StudentSerializer(serializers.ModelSerializer):
     account = AccountSerializer()
     aclass = serializers.CharField(source="batch.current_class")
-    batch_label = serializers.CharField(source="batch.label")
+    batch_label = serializers.CharField(source="batch.label", read_only=True)
 
     class Meta:
         model = StudentAccount
