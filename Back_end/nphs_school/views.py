@@ -1,23 +1,13 @@
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from nphs_school.models import (
-    About,
-    AClass,
-    Batch,
-    Notice,
-    School,
-    Subject
-    )
-from nphs_school.serializers import (
-    AboutSerializer,
-    AClassSerializer,
-    BatchSerializer,
-    NoticeSerializer,
-    SchoolSerializer,
-    SubjectSerializer
-    )
+from accounts.permissions import IsHeadMaster, IsTeacher
+from nphs_school.models import About, AClass, Batch, Notice, School, Subject
+from nphs_school.serializers import (AboutSerializer, AClassSerializer,
+                                     BatchSerializer, NoticeSerializer,
+                                     SchoolSerializer, SubjectSerializer)
 
 
 class AboutViewSet(viewsets.ModelViewSet):
@@ -60,14 +50,46 @@ class NoticeViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=["get"],
-        url_path=r"approved",
+        url_path="approved",
+        permission_classes=[AllowAny],
     )
     def approved_list(self, request):
-        notice = Notice.objects.filter(
-            approved_by_headmaster=True,
-            is_active=True
-        )
-        serializer = NoticeSerializer(notice, many=True)
+        notices = Notice.objects.filter(
+            approved_by_headmaster=True, is_active=True
+        ).order_by("-notice_for_date", "-created_at")
+        return self._paginate_and_respond(notices)
+
+    @action(
+        detail=False,
+        methods=["get"],
+        url_path="pending",
+        permission_classes=[IsTeacher],
+    )
+    def pending_list(self, request):
+        pending = Notice.objects.filter(
+            approved_by_headmaster=False, is_active=True
+        ).order_by("-created_at")
+        return self._paginate_and_respond(pending)
+
+    def perform_create(self, serializer):
+        serializer.save(written_by=self.request.user)
+
+    @action(
+        detail=True,
+        url_path="approve",
+        permission_classes=[IsAuthenticated, IsHeadMaster],
+    )
+    def approve_notice(self, request, pk=None):
+        notice = self.get_object()  # DRF automatically uses pk from URL
+        notice.approve(request.user)
+        return Response({"detail": "Notice approved successfully."})
+
+    def _paginate_and_respond(self, queryset):
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
 
