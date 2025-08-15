@@ -10,7 +10,7 @@ class Notice(models.Model):
     approved_by_headmaster = models.BooleanField(
         default=False,
         db_index=True,
-        # editable=False
+        editable=False
     )
     notice_for_date = models.DateField(
         help_text="The date when the notice needs to be published.",
