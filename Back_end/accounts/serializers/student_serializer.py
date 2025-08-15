@@ -8,11 +8,14 @@ from .account_serializer import AccountSerializer
 
 class StudentSerializer(serializers.ModelSerializer):
     account = AccountSerializer()
+    aclass = serializers.CharField(source="batch.current_class")
+    batch_label = serializers.CharField(source="batch.label")
 
     class Meta:
         model = StudentAccount
         fields = [
-            "batch",
+            "aclass",
+            "batch_label",
             "group",
             "roll_number",
             "account",
