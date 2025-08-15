@@ -3,7 +3,6 @@ from datetime import date
 from django.conf import settings
 from django.contrib import admin
 from django.db import models
-from django.utils import timezone
 from django.utils.text import slugify
 
 
@@ -75,7 +74,6 @@ class Notice(models.Model):
     # Business method: approve notice
     def approve(self, approver):
         self.approved_by_headmaster = True
-        self.approved_at = timezone.now()
         self.save(update_fields=["approved_by_headmaster", "approved_at"])
 
     # Slug generation
