@@ -1,76 +1,123 @@
-from rest_framework import status, viewsets
-from rest_framework.decorators import action
-from rest_framework.response import Response
-
-from nphs_school.models import (
-    About,
-    AClass,
-    Batch,
-    Notice,
-    School,
-    Subject
-    )
-from nphs_school.serializers import (
-    AboutSerializer,
-    AClassSerializer,
-    BatchSerializer,
-    NoticeSerializer,
-    SchoolSerializer,
-    SubjectSerializer
-    )
+# from accounts.permissions import IsHeadMaster, IsTeacher
+# from nphs_school.models import About, AClass, Batch, Notice, School, Subject
+# from nphs_school.serializers import (
+#     AboutSerializer,
+#     AClassSerializer,
+#     BatchSerializer,
+#     NoticeSerializer,
+#     SchoolSerializer,
+#     SubjectSerializer,
+# )
+# from rest_framework import status, viewsets
+# from rest_framework.decorators import action
+# from rest_framework.permissions import IsAuthenticated
+# from rest_framework.response import Response
 
 
-class AboutViewSet(viewsets.ModelViewSet):
-    serializer_class = AboutSerializer
-    queryset = About.objects.all()
+# class AboutViewSet(viewsets.ModelViewSet):
+#     serializer_class = AboutSerializer
+#     queryset = About.objects.all()
 
-    def list(self, request):
-        about = About.get_solo()
-        serializer = AboutSerializer(about)
-        return Response(serializer.data)
+#     def list(self, request):
+#         about = About.get_solo()
+#         serializer = AboutSerializer(about)
+#         return Response(serializer.data)
 
-    def update(self, request):
-        about = About.get_solo()
-        serializer = AboutSerializer(about, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class SchoolViewSet(viewsets.ModelViewSet):
-    queryset = School.objects.all()
-    serializer_class = SchoolSerializer
+#     def update(self, request):
+#         about = About.get_solo()
+#         serializer = AboutSerializer(about, data=request.data, partial=True)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response\
+# (serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AClassViewSet(viewsets.ModelViewSet):
-    queryset = AClass.objects.all()
-    serializer_class = AClassSerializer
+# class SchoolViewSet(viewsets.ModelViewSet):
+#     queryset = School.objects.all()
+#     serializer_class = SchoolSerializer
 
 
-class BatchViewSet(viewsets.ModelViewSet):
-    queryset = Batch.objects.all()
-    serializer_class = BatchSerializer
+# class AClassViewSet(viewsets.ModelViewSet):
+#     queryset = AClass.objects.all()
+#     serializer_class = AClassSerializer
 
 
-class NoticeViewSet(viewsets.ModelViewSet):
-    queryset = Notice.objects.all()
-    serializer_class = NoticeSerializer
-
-    @action(
-        detail=False,
-        methods=["get"],
-        url_path=r"approved",
-    )
-    def approved_list(self, request):
-        notice = Notice.objects.filter(
-            approved_by_headmaster=True,
-            is_active=True
-        )
-        serializer = NoticeSerializer(notice, many=True)
-        return Response(serializer.data)
+# class BatchViewSet(viewsets.ModelViewSet):
+#     queryset = Batch.objects.all()
+#     serializer_class = BatchSerializer
 
 
-class SubjectViewSet(viewsets.ModelViewSet):
-    queryset = Subject.objects.all()
-    serializer_class = SubjectSerializer
+# from rest_framework import viewsets
+# from rest_framework.decorators import action
+# from rest_framework.permissions import AllowAny
+# from rest_framework.response import Response
+
+# from .models import Notice
+# from .serializers import NoticeSerializer
+
+
+# class NoticeViewSet(viewsets.ModelViewSet):
+#     queryset = Notice.objects.all()
+#     serializer_class = NoticeSerializer
+
+#     # def get_queryset(self):
+#     #     """
+#     #     - Headmasters/teachers see all
+#     #     - Public sees only approved & active
+#     #     """
+#     #     qs = super().\
+# get_queryset().order_by("-notice_for_date", "-created_at")
+#     #     user = self.request.user
+#     #     if not user.is_authenticated or\
+#  not getattr(user, "is_headmaster", False):
+#     #         qs = qs.filter(approved_by_headmaster=True, is_active=True)
+#     #     return qs
+
+#     @action(
+#         detail=False,
+#         methods=["get"],
+#         url_path="approved",
+#         permission_classes=[AllowAny],
+#     )
+#     def approved_list(self, request):
+#         notices = Notice.objects.filter(
+#             approved_by_headmaster=True, is_active=True
+#         ).order_by("-notice_for_date", "-created_at")
+#         return self._paginate_and_respond(notices)
+
+#     @action(
+#         detail=False,
+#         methods=["get"],
+#         url_path="pending",
+#         permission_classes=[IsTeacher],
+#     )
+#     def pending_list(self, request):
+#         pending = Notice.objects.filter(
+#             approved_by_headmaster=False, is_active=True
+#         ).order_by("-created_at")
+#         return self._paginate_and_respond(pending)
+
+#     @action(
+#         detail=True,
+#         methods=["post"],
+#         url_path="approve",
+#         permission_classes=[IsAuthenticated, IsHeadMaster],
+#     )
+#     def approve_notice(self, request, pk=None):
+#         notice = self.get_object()  # DRF automatically uses pk from URL
+#         notice.approve(request.user)
+#         return Response({"detail": "Notice approved successfully."})
+
+#     def _paginate_and_respond(self, queryset):
+#         page = self.paginate_queryset(queryset)
+#         if page is not None:
+#             serializer = self.get_serializer(page, many=True)
+#             return self.get_paginated_response(serializer.data)
+#         serializer = self.get_serializer(queryset, many=True)
+#         return Response(serializer.data)
+
+
+# class SubjectViewSet(viewsets.ModelViewSet):
+#     queryset = Subject.objects.all()
+#     serializer_class = SubjectSerializer
