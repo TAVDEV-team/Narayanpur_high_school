@@ -256,6 +256,15 @@ class ResultViewSet(viewsets.ModelViewSet):
 
         return pdf_response
 
+    @action(
+        detail=False,
+        methods=['get'],
+        url_path=r"class_result/(?P<exam_id>[^/.]+)/(?P<class_id>[^/.]+)",
+    )
+    def class_result_summary(self, request, class_id=None, exam_id=None):
+        res = Result.objects.class_result(class_id, exam_id)
+        return Response(res)
+
 
 class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.objects.all()
