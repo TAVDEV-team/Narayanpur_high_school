@@ -1,5 +1,5 @@
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
+# from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from rest_framework.permissions import AllowAny
@@ -11,9 +11,9 @@ from fund.serializers import FundSerializer, FundTransactionSerializer
 class FundViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Fund.objects.all()
     serializer_class = FundSerializer
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
     # permission_classes = [IsAuthenticated, IsHeadMaster]
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
 
 class FundTransactionViewSet(viewsets.ModelViewSet):
