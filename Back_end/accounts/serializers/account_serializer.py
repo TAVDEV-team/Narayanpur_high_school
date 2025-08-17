@@ -9,13 +9,11 @@ from .user_serializer import UserSerializer
 class AccountSerializer(serializers.ModelSerializer):
     user = UserSerializer()
     display_gender = serializers.CharField(
-        source='get_gender_display',
-        read_only=True
-        )
+        source='get_gender_display', read_only=True
+    )
     display_religion = serializers.CharField(
-        source='get_religion_display',
-        read_only=True
-        )
+        source='get_religion_display', read_only=True
+    )
 
     class Meta:
         model = Account

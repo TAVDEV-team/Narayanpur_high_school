@@ -1,3 +1,5 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -8,6 +10,10 @@ from nphs_school.models import AClass
 from nphs_school.serializers import AClassSerializer
 
 
+@method_decorator(cache_page(60 * 5), name="list")  # cache list view 5 mins
+@method_decorator(
+    cache_page(60 * 5), name="retrieve"
+)  # cache detail view 5 mins
 class AClassViewSet(viewsets.ModelViewSet):
     queryset = AClass.objects.all()
     serializer_class = AClassSerializer
