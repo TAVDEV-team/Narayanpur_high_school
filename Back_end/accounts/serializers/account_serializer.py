@@ -8,6 +8,14 @@ from .user_serializer import UserSerializer
 
 class AccountSerializer(serializers.ModelSerializer):
     user = UserSerializer()
+    display_gender = serializers.CharField(
+        source='get_gender_display',
+        read_only=True
+        )
+    display_religion = serializers.CharField(
+        source='get_religion_display',
+        read_only=True
+        )
 
     class Meta:
         model = Account
@@ -18,7 +26,9 @@ class AccountSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "mobile",
             "religion",
+            "display_religion",
             "gender",
+            "display_gender",
             "address",
             "joining_date",
             "last_educational_institute",
