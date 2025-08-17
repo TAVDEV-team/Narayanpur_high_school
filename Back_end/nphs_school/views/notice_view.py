@@ -1,3 +1,6 @@
+from django.core.cache import cache
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -8,6 +11,8 @@ from nphs_school.models import Notice
 from nphs_school.serializers import NoticeSerializer
 
 
+@method_decorator(cache_page(60 * 5), name="list")
+@method_decorator(cache_page(60 * 5), name="retrieve")
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notice.objects.all()
     serializer_class = NoticeSerializer
@@ -30,6 +35,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
         url_path="pending",
         permission_classes=[IsTeacher],
     )
+    @method_decorator(cache_page(60 * 5))  # add this
     def pending_list(self, request):
         pending = Notice.objects.filter(
             approved_by_headmaster=False, is_active=True
@@ -38,12 +44,14 @@ class NoticeViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(written_by=self.request.user)
+        cache.delete_pattern("views.decorators.cache*")
 
     @action(
         detail=True,
         url_path="approve",
         permission_classes=[IsAuthenticated, IsHeadMaster],
     )
+    @method_decorator(cache_page(60 * 5))  # add this
     def approve_notice(self, request, pk=None):
         notice = self.get_object()  # DRF automatically uses pk from URL
         notice.approve(request.user)
