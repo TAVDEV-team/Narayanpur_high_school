@@ -2,6 +2,8 @@ from io import BytesIO
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
@@ -220,6 +222,8 @@ def generate_report_card_pdf(report_data):
     return pdf
 
 
+@method_decorator(cache_page(60 * 5), name="list")
+@method_decorator(cache_page(60 * 5), name="retrieve")
 class ResultViewSet(viewsets.ModelViewSet):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
@@ -229,6 +233,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=["get"],
         url_path=r"card/(?P<exam_type>[^/.]+)/(?P<id>[^/.]+)",
     )
+    @method_decorator(cache_page(60 * 5))
     def report_card(self, request, id=None, exam_type=None):
         student = get_object_or_404(StudentAccount, id=id)
         report = Result.objects.report_card_for(student.id, exam_type)
@@ -239,6 +244,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=["get"],
         url_path=r"card_pdf/(?P<exam_type>[^/.]+)/(?P<id>[^/.]+)",
     )
+    @method_decorator(cache_page(60 * 5))
     def report_card_pdf(self, request, id=None, exam_type=None):
         student = get_object_or_404(StudentAccount, id=id)
         report = Result.objects.report_card_for(student.id, exam_type)
@@ -261,11 +267,14 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=['get'],
         url_path=r"class_result/(?P<exam_id>[^/.]+)/(?P<class_id>[^/.]+)",
     )
+    @method_decorator(cache_page(60 * 5))
     def class_result_summary(self, request, class_id=None, exam_id=None):
-        res = Result.objects.class_result(class_id, exam_id)
-        return Response(res)
+        result = Result.objects.class_result(class_id, exam_id)
+        return Response(result)
 
 
+@method_decorator(cache_page(60 * 5), name="list")
+@method_decorator(cache_page(60 * 5), name="retrieve")
 class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
