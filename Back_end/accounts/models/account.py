@@ -19,7 +19,7 @@ class Account(models.Model):
     )
     gender = models.CharField(
         max_length=10,
-        choices=[('male', 'Male'), ('female', 'FEMALE'), ('others', 'OTHERS')],
+        choices=[('male', 'Male'), ('female', 'Female'), ('others', 'Others')],
         default='male',
     )
     joining_date = models.DateField(help_text="when he/she joined the school")
