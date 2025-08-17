@@ -18,6 +18,7 @@ class AccountSerializer(serializers.ModelSerializer):
             "date_of_birth",
             "mobile",
             "religion",
+            "gender",
             "address",
             "joining_date",
             "last_educational_institute",
