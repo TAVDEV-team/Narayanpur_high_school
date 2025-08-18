@@ -62,14 +62,17 @@ class ResultSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         student = attrs.get("student")
         subject = attrs.get("subject")
-        exam_type = attrs.get("exam_type")
-        aclass = student.batch.aclass
+        exam_id = attrs.get("exam_type")
+        aclass = student.batch.current_class
 
-        if not aclass.subjects.filter(id=subject.id).exists():
-            raise ValidationError("Invalid subject for this class")
+        if not aclass.compulsory.filter(id=subject.id).exists():
+            if not aclass.group_subjects.filter(id=subject.id).exists():
+                if not aclass.religious.filter(id=subject.id).exists():
+                    if not aclass.extra.filter(id=subject.id).exists():
+                        raise ValidationError("Invalid subject for this class")
 
         if Result.objects.filter(
-            student=student, subject=subject, exam_type=exam_type
+            student=student, subject=subject, exam_id=exam_id
         ).exists():
             raise ValidationError("Result for this exam already exists.")
 
