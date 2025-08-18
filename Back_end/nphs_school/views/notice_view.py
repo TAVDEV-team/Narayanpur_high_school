@@ -16,6 +16,7 @@ from nphs_school.serializers import NoticeSerializer
 class NoticeViewSet(viewsets.ModelViewSet):
     queryset = Notice.objects.all()
     serializer_class = NoticeSerializer
+    permission_classes = [AllowAny]
 
     @action(
         detail=False,

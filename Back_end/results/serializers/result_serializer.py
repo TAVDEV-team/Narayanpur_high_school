@@ -7,7 +7,16 @@ from ..models import Result
 class ResultSerializer(serializers.ModelSerializer):
 
     subject_name = serializers.CharField(source="subject.name", read_only=True)
+    # subject = serializers.CharField(source="subject.id",write_only=True)
+
+    # aclass = serializers.CharField(source = "aclass.id", write_only = True)
     class_name = serializers.CharField(source="aclass.__str__", read_only=True)
+
+    exam_title = serializers.CharField(
+        source="exam.exam_title", read_only=True
+    )
+
+    # student = serializers.CharField(source = "student.id", write_only = True)
     mcq_max = serializers.IntegerField(
         source="subject.mcq_marks", read_only=True
     )
@@ -27,9 +36,14 @@ class ResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = Result
         fields = [
+            "id",
+            "aclass",
             "class_name",
-            'exam',
+            "exam",
+            "exam_title",
+            "subject",
             "subject_name",
+            "student",
             "student_name",
             "student_roll",
             "mcq",
