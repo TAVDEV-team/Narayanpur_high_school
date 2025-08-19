@@ -61,6 +61,17 @@ class ResultSerializer(serializers.ModelSerializer):
         if not student or not subject or not exam:
             raise ValidationError("Student, subject and exam are required.")
 
+        if Result.objects.filter(
+            student=student, subject=subject, exam=exam
+        ).exists():
+            raise ValidationError(
+                {
+                    "non_field_errors": [
+                        f"Result for this {student} of  {exam} already exists."
+                    ]
+                }
+            )
+
         # 🔹 Fetch subject max marks
         mcq_max = subject.mcq_marks or 0
         written_max = subject.written_marks or 0
@@ -79,17 +90,19 @@ class ResultSerializer(serializers.ModelSerializer):
         if written < 0 or written > written_max:
             raise ValidationError(
                 {
-                    "written":
-                    f"Invalid Written mark:\
-                    must be between 0 and {written_max}"
+                    "written": (
+                        "Invalid Written mark:"
+                        f" must be between 0 and {written_max}"
+                    )
                 }
             )
         if practical < 0 or practical > practical_max:
             raise ValidationError(
                 {
-                    "practical":
-                    f"Invalid Practical mark\
-                    : must be between 0 and {practical_max}"
+                    "practical": (
+                        "Invalid Practical mark:"
+                        f"must be between 0 and {practical_max}"
+                    )
                 }
             )
 
@@ -103,8 +116,10 @@ class ResultSerializer(serializers.ModelSerializer):
         ):
             raise ValidationError(
                 {
-                    "subject":
-                    "This subject does not belong to the student's class"
+                    "subject": (
+                        "This subject does not"
+                        " belong to the student's class"
+                    )
                 }
             )
 
