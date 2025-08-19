@@ -44,7 +44,6 @@ class NoticeViewSet(viewsets.ModelViewSet):
         return self._paginate_and_respond(pending)
 
     def perform_create(self, serializer):
-        serializer.save(written_by=self.request.user)
         cache.delete_pattern("views.decorators.cache*")
 
     @action(
