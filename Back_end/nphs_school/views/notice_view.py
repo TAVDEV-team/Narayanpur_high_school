@@ -1,12 +1,12 @@
-from django.core.cache import cache
+# from django.core.cache import cache
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-
-from accounts.permissions import IsHeadMaster
+# , IsAuthenticated
+# from accounts.permissions import IsHeadMaster
 from nphs_school.models import Notice
 from nphs_school.serializers import NoticeSerializer
 
@@ -34,7 +34,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=["get"],
         url_path="pending",
-        permission_classes=[AllowAny]
+        permission_classes=[AllowAny],
         # permission_classes=[IsTeacher],
     )
     @method_decorator(cache_page(60 * 5))
@@ -44,14 +44,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
         ).order_by("-created_at")
         return self._paginate_and_respond(pending)
 
-    def perform_create(self, serializer):
-        cache.delete_pattern("views.decorators.cache*")
-
-    @action(
-        detail=True,
-        url_path="approve",
-        permission_classes=[IsAuthenticated, IsHeadMaster],
-    )
+    @action(detail=True, url_path="approve", permission_classes=[AllowAny])
     @method_decorator(cache_page(60 * 5))
     def approve_notice(self, request, pk=None):
         notice = self.get_object()
