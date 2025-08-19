@@ -7,16 +7,10 @@ from ..models import Result
 class ResultSerializer(serializers.ModelSerializer):
 
     subject_name = serializers.CharField(source="subject.name", read_only=True)
-    # subject = serializers.CharField(source="subject.id",write_only=True)
-
-    # aclass = serializers.CharField(source = "aclass.id", write_only = True)
     class_name = serializers.CharField(source="aclass.__str__", read_only=True)
-
     exam_title = serializers.CharField(
         source="exam.exam_title", read_only=True
     )
-
-    # student = serializers.CharField(source = "student.id", write_only = True)
     mcq_max = serializers.IntegerField(
         source="subject.mcq_marks", read_only=True
     )
@@ -62,15 +56,79 @@ class ResultSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         student = attrs.get("student")
         subject = attrs.get("subject")
-        exam_type = attrs.get("exam_type")
-        aclass = student.batch.aclass
+        exam = attrs.get("exam")
 
-        if not aclass.subjects.filter(id=subject.id).exists():
-            raise ValidationError("Invalid subject for this class")
+        if not student or not subject or not exam:
+            raise ValidationError("Student, subject and exam are required.")
 
         if Result.objects.filter(
-            student=student, subject=subject, exam_type=exam_type
+            student=student, subject=subject, exam=exam
         ).exists():
-            raise ValidationError("Result for this exam already exists.")
+            raise ValidationError(
+                {
+                    "non_field_errors": [
+                        f"Result for this {student} of  {exam} already exists."
+                    ]
+                }
+            )
+
+        # 🔹 Fetch subject max marks
+        mcq_max = subject.mcq_marks or 0
+        written_max = subject.written_marks or 0
+        practical_max = subject.practical_marks or 0
+
+        # 🔹 Extract input marks
+        mcq = attrs.get("mcq", 0) or 0
+        written = attrs.get("written", 0) or 0
+        practical = attrs.get("practical", 0) or 0
+
+        # 🔹 Range validations
+        if mcq < 0 or mcq > mcq_max:
+            raise ValidationError(
+                {"mcq": f"Invalid MCQ mark: must be between 0 and {mcq_max}"}
+            )
+        if written < 0 or written > written_max:
+            raise ValidationError(
+                {
+                    "written": (
+                        "Invalid Written mark:"
+                        f" must be between 0 and {written_max}"
+                    )
+                }
+            )
+        if practical < 0 or practical > practical_max:
+            raise ValidationError(
+                {
+                    "practical": (
+                        "Invalid Practical mark:"
+                        f"must be between 0 and {practical_max}"
+                    )
+                }
+            )
+
+        # 🔹 Subject eligibility check
+        aclass = student.batch.current_class
+        if not (
+            aclass.compulsory.filter(id=subject.id).exists()
+            or aclass.group_subjects.filter(id=subject.id).exists()
+            or aclass.religious.filter(id=subject.id).exists()
+            or aclass.extra.filter(id=subject.id).exists()
+        ):
+            raise ValidationError(
+                {
+                    "subject": (
+                        "This subject does not"
+                        " belong to the student's class"
+                    )
+                }
+            )
+
+        # 🔹 Duplicate prevention
+        if Result.objects.filter(
+            student=student, subject=subject, exam=exam
+        ).exists():
+            raise ValidationError(
+                "Result for this student, subject and exam already exists."
+            )
 
         return attrs
