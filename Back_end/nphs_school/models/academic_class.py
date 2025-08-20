@@ -1,3 +1,4 @@
+from django.apps import apps
 from django.core.exceptions import ValidationError
 from django.db import models
 
@@ -40,8 +41,6 @@ class AClass(models.Model):
     def clean(self):
         if not self.pk:
             return
-
-        print(Subject.SubjectType.COMPULSORY)
 
         errors = {}
 
@@ -99,3 +98,7 @@ class AClass(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         return super().save(*args, **kwargs)
+
+    def students(self):
+        StudentAccount = apps.get_model("accounts", "StudentAccount")
+        return StudentAccount.objects.filter(batch__current_class=self)

@@ -231,23 +231,23 @@ class ResultViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=["get"],
-        url_path=r"card/(?P<exam_type>[^/.]+)/(?P<id>[^/.]+)",
+        url_path=r"card/(?P<exam_id>[^/.]+)/(?P<id>[^/.]+)",
     )
     @method_decorator(cache_page(60 * 5))
-    def report_card(self, request, id=None, exam_type=None):
+    def report_card(self, request, id=None, exam_id=None):
         student = get_object_or_404(StudentAccount, id=id)
-        report = Result.objects.report_card_for(student.id, exam_type)
+        report = Result.objects.report_card_for(student.id, exam_id)
         return Response(report, status=status.HTTP_200_OK)
 
     @action(
         detail=False,
         methods=["get"],
-        url_path=r"card_pdf/(?P<exam_type>[^/.]+)/(?P<id>[^/.]+)",
+        url_path=r"card_pdf/(?P<exam_id>[^/.]+)/(?P<id>[^/.]+)",
     )
     @method_decorator(cache_page(60 * 5))
-    def report_card_pdf(self, request, id=None, exam_type=None):
+    def report_card_pdf(self, request, id=None, exam_id=None):
         student = get_object_or_404(StudentAccount, id=id)
-        report = Result.objects.report_card_for(student.id, exam_type)
+        report = Result.objects.report_card_for(student.id, exam_id)
 
         # Generate the PDF content
         pdf_content = generate_report_card_pdf(report)

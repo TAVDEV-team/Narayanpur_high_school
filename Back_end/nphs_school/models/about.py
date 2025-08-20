@@ -31,7 +31,8 @@ class About(SingletonModel):
     """
 
     name = models.CharField(
-        max_length=200, default=" High School",
+        max_length=200,
+        default=" High School",
     )
     eiin = models.CharField(max_length=7, default="105000")
     established_at = models.DateField(default=date(1980, 1, 1))
