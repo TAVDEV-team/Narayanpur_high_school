@@ -3,6 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from accounts.views import HeadMasterAccountViewSet  # LogoutView,
 from accounts.views import (
+    GoverningBodyViewSet,
     OfficeHelpersAccountViewSet,
     StudentAccountViewSet,
     TeacherAccountViewSet,
@@ -18,7 +19,7 @@ router = DefaultRouter()
 router.register(r"students", StudentAccountViewSet, basename="student")
 router.register(r"teachers", TeacherAccountViewSet, basename="teacher")
 router.register(r"headmaster", HeadMasterAccountViewSet, basename="headmaster")
-
+router.register(r"governing", GoverningBodyViewSet, basename="governing")
 router.register(
     r"office-helpers", OfficeHelpersAccountViewSet, basename="office-helper"
 )
