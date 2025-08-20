@@ -1,4 +1,5 @@
 from .account_views import LogoutView
+from .governing_views import GoverningBodyViewSet
 from .headmaster_views import HeadMasterAccountViewSet
 from .officehelpers_views import OfficeHelpersAccountViewSet
 from .student_view import StudentAccountViewSet
@@ -10,4 +11,5 @@ __all__ = [
     'OfficeHelpersAccountViewSet',
     'StudentAccountViewSet',
     'TeacherAccountViewSet',
+    'GoverningBodyViewSet',
 ]

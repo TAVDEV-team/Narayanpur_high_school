@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from accounts.serializers import StudentSerializer
 from nphs_school.models import About, AClass, Batch, Notice, School, Subject
 
 
@@ -45,6 +46,12 @@ class NoticeSerializer(serializers.ModelSerializer):
 
 
 class AClassSerializer(serializers.ModelSerializer):
+
+    total_students = serializers.SerializerMethodField()
+    male_students = serializers.SerializerMethodField()
+    female_students = serializers.SerializerMethodField()
+    students = StudentSerializer(many=True, read_only=True)
+
     compulsory = serializers.PrimaryKeyRelatedField(
         many=True, queryset=Subject.objects.all(), write_only=True
     )
@@ -77,6 +84,10 @@ class AClassSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "room_number",
+            "total_students",
+            "male_students",
+            "female_students",
+            "students",
             "compulsory",
             "compulsory_detail",
             "group_subjects",
@@ -88,6 +99,7 @@ class AClassSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
+
         read_only_fields = ["created_at", "updated_at"]
 
     def validate(self, attrs):
@@ -165,3 +177,12 @@ class AClassSerializer(serializers.ModelSerializer):
             instance.extra.set(extra)
 
         return instance
+
+    def get_total_students(self, obj):
+        return obj.students().count()
+
+    def get_male_students(self, obj):
+        return obj.students().filter(account__gender="male").count()
+
+    def get_female_students(self, obj):
+        return obj.students().filter(account__gender="female").count()
