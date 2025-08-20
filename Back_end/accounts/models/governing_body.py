@@ -1,6 +1,7 @@
 from django.db import models
 
-from accounts.models import Account, HeadMasterAccount
+from accounts.models import Account
+from .teacher import HeadMasterAccount
 
 
 class GoverningBody(models.Model):
