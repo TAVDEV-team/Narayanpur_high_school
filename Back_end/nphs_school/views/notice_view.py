@@ -42,7 +42,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
     def pending_list(self, request):
         pending = Notice.objects.filter(
             approved_by_headmaster=False, is_active=True
-        ).order_by("-created_at")
+        ).order_by("-notice_for_date", "-created_at")
         return self._paginate_and_respond(pending)
 
     @action(detail=True, url_path="approve", permission_classes=[AllowAny])
