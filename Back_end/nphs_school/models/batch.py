@@ -18,9 +18,6 @@ class Batch(models.Model):
     """
 
     label = models.CharField(max_length=20, unique=True, editable=False)
-    current_class = models.ForeignKey(
-        "AClass", on_delete=models.SET_NULL, null=True, blank=True
-    )
     is_graduated = models.BooleanField(
         default=False, help_text="Mark this batch as graduated or archived."
     )

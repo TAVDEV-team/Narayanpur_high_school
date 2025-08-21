@@ -19,7 +19,9 @@ CLASS_CHOICES = [
 
 class AClass(models.Model):
     name = models.CharField(max_length=20, choices=CLASS_CHOICES, unique=True)
-
+    batch = models.ForeignKey(
+        'Batch', on_delete=models.SET_NULL, null=True, blank=True
+    )
     compulsory = models.ManyToManyField(
         Subject, related_name="main_classes", blank=True
     )
