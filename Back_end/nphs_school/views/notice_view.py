@@ -25,6 +25,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
         url_path="approved",
         permission_classes=[AllowAny],
     )
+    @method_decorator(cache_page(60 * 5))
     def approved_list(self, request):
         notices = Notice.objects.filter(
             approved_by_headmaster=True, is_active=True
@@ -38,7 +39,6 @@ class NoticeViewSet(viewsets.ModelViewSet):
         permission_classes=[AllowAny],
         # permission_classes=[IsTeacher],
     )
-    @method_decorator(cache_page(60 * 5))
     def pending_list(self, request):
         pending = Notice.objects.filter(
             approved_by_headmaster=False, is_active=True
@@ -46,7 +46,6 @@ class NoticeViewSet(viewsets.ModelViewSet):
         return self._paginate_and_respond(pending)
 
     @action(detail=True, url_path="approve", permission_classes=[AllowAny])
-    @method_decorator(cache_page(60 * 5))
     def approve_notice(self, request, pk=None):
         notice = self.get_object()
         notice.approve(request.user)
