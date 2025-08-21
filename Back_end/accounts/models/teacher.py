@@ -41,7 +41,7 @@ class TeacherAccount(models.Model):
 
 
 class HeadMasterAccount(SingletonModel):
-    account = models.ForeignKey(
+    teacher = models.ForeignKey(
         TeacherAccount,
         on_delete=models.CASCADE,
         related_name="headmaster_profile",
@@ -50,7 +50,7 @@ class HeadMasterAccount(SingletonModel):
 
     def __str__(self):
         return (
-            f"Headmaster: {self.account.account.full_name}"
-            if self.account
+            f"Headmaster: {self.teacher.account.full_name}"
+            if self.teacher
             else "Unassigned Headmaster"
         )
