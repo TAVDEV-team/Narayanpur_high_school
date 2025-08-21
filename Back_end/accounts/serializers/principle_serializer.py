@@ -6,9 +6,9 @@ from .teacher_serializer import TeacherSerializer
 
 
 class HeadMasterSerializer(serializers.ModelSerializer):
-    account = TeacherSerializer()
+    teacher = TeacherSerializer()
 
     class Meta:
         model = HeadMasterAccount
-        fields = ["account", "appointed_date"]
+        fields = ["teacher", "appointed_date"]
         depth = 0
