@@ -24,6 +24,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         account_data = validated_data.pop("account")
+
         with transaction.atomic():
             account_serializer = AccountSerializer(data=account_data)
             account_serializer.is_valid(raise_exception=True)
