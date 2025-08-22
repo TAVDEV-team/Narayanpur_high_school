@@ -206,7 +206,7 @@ class ResultManager(models.Manager):
     def class_result(self, class_id, exam_id):
         aclass = get_object_or_404(AClass, id=class_id)
         students = StudentAccount.objects.filter(batch=aclass.batch)
-        exam = Exam.objects.get(exam_id)
+        exam = Exam.objects.get(id=exam_id)
         total_students = len(students)
         passed = 0
         failed = 0
