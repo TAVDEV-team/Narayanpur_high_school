@@ -64,7 +64,7 @@ class StudentSerializer(serializers.ModelSerializer):
             email_dummy = account_data['user']['email']
             if email_dummy == "dummy_email@gmail.com":
                 email_made = f"{user_name.lower()}@gmail.com"
-            account_data['user']['email'] = email_made
+                account_data['user']['email'] = email_made
             # create account first
             account_serializer = AccountSerializer(data=account_data)
             account_serializer.is_valid(raise_exception=True)
