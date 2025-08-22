@@ -271,7 +271,7 @@ class ResultViewSet(viewsets.ModelViewSet):
     )
     @method_decorator(cache_page(60 * 5))
     def report_card_pdf(self, request, student_id=None, exam_id=None):
-        student = get_object_or_404(StudentAccount, student_id=id)
+        student = get_object_or_404(StudentAccount, id=student_id)
         report = Result.objects.report_card_for(student.id, exam_id)
 
         # Generate the PDF content
