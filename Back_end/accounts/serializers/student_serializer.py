@@ -11,7 +11,7 @@ class StudentSerializer(serializers.ModelSerializer):
 
     account = AccountSerializer()
     class_name = serializers.CharField(write_only=True)
-    group = serializers.CharField(write_only=True)
+    group = serializers.CharField(write_only=True, default='science')
 
     aclass = serializers.CharField(source="class", read_only=True)
     batch_label = serializers.CharField(source="batch.label", read_only=True)
@@ -46,7 +46,6 @@ class StudentSerializer(serializers.ModelSerializer):
         }
         if aclass_id in group_map:
             aclass_name = group_map[aclass_id].get(validated_data["group"])
-            print(aclass_name)
         else:
             aclass_name = aclass_id
         aclass = AClass.objects.get(name=aclass_name)
