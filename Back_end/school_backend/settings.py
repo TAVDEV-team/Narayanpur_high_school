@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "nphs_school",
     "fund",
     "results",
+    "gallery",
     "storages",
     'rest_framework_simplejwt.token_blacklist',
 ]
