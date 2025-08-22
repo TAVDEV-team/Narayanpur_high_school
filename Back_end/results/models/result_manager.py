@@ -242,6 +242,7 @@ class ResultManager(models.Manager):
             overall_percentage /= total_students
 
         return {
+            'class': aclass.name,
             'total_students': total_students,
             'total_marks': total_marks,
             'overall_percentage': overall_percentage,
