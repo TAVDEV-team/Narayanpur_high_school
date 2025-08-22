@@ -88,6 +88,7 @@ class ResultManager(models.Manager):
     def student_details(self, student):
         current_class = getattr(student.batch, 'current_class', None)
         return {
+            'id': student.id,
             "name": student.account.full_name.title(),
             "class": current_class.name if current_class else None,
             "roll": student.roll_number,
@@ -215,6 +216,7 @@ class ResultManager(models.Manager):
         class_results = []
         for student in students:
             report_data = self.report_card_for(student.id, exam_id)
+            student_id = report_data['student']['id']
             name = report_data['student']['name']
             roll = report_data['student']['roll']
             rank = report_data['class_rank']
@@ -231,6 +233,7 @@ class ResultManager(models.Manager):
                 passed += 1
 
             data = {
+                'id': student_id,
                 'name': name,
                 'roll': roll,
                 'rank': rank,

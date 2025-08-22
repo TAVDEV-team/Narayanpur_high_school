@@ -18,8 +18,8 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentAccount
         fields = [
-            "aclass_id",  # client provides this
-            "aclass",  # read-only name
+            "aclass_id",
+            "aclass",
             "batch_label",
             "group",
             "roll_number",
@@ -32,6 +32,15 @@ class StudentSerializer(serializers.ModelSerializer):
         aclass = validated_data.pop("aclass_id")
 
         with transaction.atomic():
+            last_roll = (
+                StudentAccount.objects.select_for_update()
+                .filter(batch=aclass.batch)
+                .order_by("-roll_number")
+                .first()
+            )
+            number = (last_roll.roll_number + 1) if last_roll else 1
+            user_name = f"{str(aclass.batch)}{number}"
+            account_data['user']['username'] = user_name
             # create account first
             account_serializer = AccountSerializer(data=account_data)
             account_serializer.is_valid(raise_exception=True)

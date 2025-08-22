@@ -267,11 +267,11 @@ class ResultViewSet(viewsets.ModelViewSet):
     @action(
         detail=False,
         methods=["get"],
-        url_path=r"card_pdf/(?P<exam_id>[^/.]+)/(?P<id>[^/.]+)",
+        url_path=r"card_pdf/(?P<exam_id>[^/.]+)/(?P<student_id>[^/.]+)",
     )
     @method_decorator(cache_page(60 * 5))
-    def report_card_pdf(self, request, id=None, exam_id=None):
-        student = get_object_or_404(StudentAccount, id=id)
+    def report_card_pdf(self, request, student_id=None, exam_id=None):
+        student = get_object_or_404(StudentAccount, student_id=id)
         report = Result.objects.report_card_for(student.id, exam_id)
 
         # Generate the PDF content
