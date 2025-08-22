@@ -62,7 +62,7 @@ class StudentSerializer(serializers.ModelSerializer):
             user_name = f"{str(aclass.batch)}{number}"
             account_data['user']['username'] = user_name
             email_dummy = account_data['user']['email']
-            if email_dummy == "dummy_email@frontend.com":
+            if email_dummy == "dummy_email@gmail.com":
                 email_made = f"{user_name.lower()}@gmail.com"
             account_data['user']['email'] = email_made
             # create account first
