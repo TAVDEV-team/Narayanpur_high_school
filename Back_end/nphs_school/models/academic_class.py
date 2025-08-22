@@ -103,4 +103,4 @@ class AClass(models.Model):
 
     def students(self):
         StudentAccount = apps.get_model("accounts", "StudentAccount")
-        return StudentAccount.objects.filter(batch__current_class=self)
+        return StudentAccount.objects.filter(batch=self.batch)
