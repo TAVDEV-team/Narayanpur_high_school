@@ -209,19 +209,13 @@ def generate_report_card_pdf(report_data):
     # Adding the table to the content
     content.append(table)
 
-    # Add spacing before signatures section
-    content.append(Spacer(1, 50))
-
-    styles = getSampleStyleSheet()
-    styleN = styles["Normal"]
-    content.append(Paragraph("Signatures", styleN))
     content.append(Spacer(1, 20))  # extra space above lines
 
     data = [
         [
-            "..............",
+            "....................",
             "............................",
-            "............................",
+            ".....................",
         ],  # dotted signature lines
         ["Guardian", "Class Teacher", "Head Master"],
     ]
@@ -235,10 +229,6 @@ def generate_report_card_pdf(report_data):
                 ("ALIGN", (0, 0), (0, 1), "LEFT"),
                 ("ALIGN", (1, 0), (1, 1), "CENTER"),
                 ("ALIGN", (2, 0), (2, 1), "RIGHT"),
-                # Add dotted short lines
-                ("LINEABOVE", (0, 0), (0, 0), 0.5, colors.black),
-                ("LINEABOVE", (1, 0), (1, 0), 0.5, colors.black),
-                ("LINEABOVE", (2, 0), (2, 0), 0.5, colors.black),
                 # Add some padding so lines don't touch text
                 ("TOPPADDING", (0, 0), (-1, 0), 15),
                 ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
@@ -257,8 +247,8 @@ def generate_report_card_pdf(report_data):
     return pdf
 
 
-@method_decorator(cache_page(60 * 5), name="list")
-@method_decorator(cache_page(60 * 5), name="retrieve")
+# @method_decorator(cache_page(60 * 5), name="list")
+# @method_decorator(cache_page(60 * 5), name="retrieve")
 class ResultViewSet(viewsets.ModelViewSet):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
@@ -268,7 +258,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=["get"],
         url_path=r"card/(?P<exam_id>[^/.]+)/(?P<id>[^/.]+)",
     )
-    @method_decorator(cache_page(60 * 5))
+    # @method_decorator(cache_page(60 * 5))
     def report_card(self, request, id=None, exam_id=None):
         student = get_object_or_404(StudentAccount, id=id)
         report = Result.objects.report_card_for(student.id, exam_id)
@@ -279,7 +269,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=["get"],
         url_path=r"card_pdf/(?P<exam_id>[^/.]+)/(?P<id>[^/.]+)",
     )
-    @method_decorator(cache_page(60 * 5))
+    # @method_decorator(cache_page(60 * 5))
     def report_card_pdf(self, request, id=None, exam_id=None):
         student = get_object_or_404(StudentAccount, id=id)
         report = Result.objects.report_card_for(student.id, exam_id)
@@ -302,14 +292,14 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=['get'],
         url_path=r"class_result/(?P<exam_id>[^/.]+)/(?P<class_id>[^/.]+)",
     )
-    @method_decorator(cache_page(60 * 5))
+    # @method_decorator(cache_page(60 * 5))
     def class_result_summary(self, request, class_id=None, exam_id=None):
         result = Result.objects.class_result(class_id, exam_id)
         return Response(result)
 
 
-# @method_decorator(cache_page(60 * 5), name="list")
-# @method_decorator(cache_page(60 * 5), name="retrieve")
+@method_decorator(cache_page(60 * 5), name="list")
+@method_decorator(cache_page(60 * 5), name="retrieve")
 class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
