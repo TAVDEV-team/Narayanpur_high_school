@@ -2,14 +2,7 @@ from django.db import models
 
 
 class Exam(models.Model):
-    exam_title = models.CharField(
-        max_length=50,
-        choices=[
-            ('midterm', 'Midterm'),
-            ('final', 'Final'),
-            ('test', 'Test'),
-        ],
-    )
+    exam_title = models.CharField(max_length=50)
     starting_date = models.DateField()
 
     created_at = models.DateTimeField(auto_now_add=True)

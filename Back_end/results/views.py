@@ -208,10 +208,45 @@ def generate_report_card_pdf(report_data):
 
     # Adding the table to the content
     content.append(table)
+
+    # Add spacing before signatures section
     content.append(Spacer(1, 50))
 
-    content.append(Paragraph('-------------------------'))
-    content.append(Paragraph('Gurdian Signature'))
+    styles = getSampleStyleSheet()
+    styleN = styles["Normal"]
+    content.append(Paragraph("Signatures", styleN))
+    content.append(Spacer(1, 20))  # extra space above lines
+
+    data = [
+        [
+            "..............",
+            "............................",
+            "............................",
+        ],  # dotted signature lines
+        ["Guardian", "Class Teacher", "Head Master"],
+    ]
+
+    table = Table(data, colWidths=[170, 175, 170])
+
+    table.setStyle(
+        TableStyle(
+            [
+                # Align labels
+                ("ALIGN", (0, 0), (0, 1), "LEFT"),
+                ("ALIGN", (1, 0), (1, 1), "CENTER"),
+                ("ALIGN", (2, 0), (2, 1), "RIGHT"),
+                # Add dotted short lines
+                ("LINEABOVE", (0, 0), (0, 0), 0.5, colors.black),
+                ("LINEABOVE", (1, 0), (1, 0), 0.5, colors.black),
+                ("LINEABOVE", (2, 0), (2, 0), 0.5, colors.black),
+                # Add some padding so lines don't touch text
+                ("TOPPADDING", (0, 0), (-1, 0), 15),
+                ("BOTTOMPADDING", (0, 0), (-1, 0), 10),
+            ]
+        )
+    )
+
+    content.append(table)
     # Finalizing the PDF
     doc.build(content)
 
@@ -273,8 +308,8 @@ class ResultViewSet(viewsets.ModelViewSet):
         return Response(result)
 
 
-@method_decorator(cache_page(60 * 5), name="list")
-@method_decorator(cache_page(60 * 5), name="retrieve")
+# @method_decorator(cache_page(60 * 5), name="list")
+# @method_decorator(cache_page(60 * 5), name="retrieve")
 class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
