@@ -269,7 +269,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=["get"],
         url_path=r"card_pdf/(?P<exam_id>[^/.]+)/(?P<id>[^/.]+)",
     )
-    # @method_decorator(cache_page(60 * 5))
+    @method_decorator(cache_page(60 * 5))
     def report_card_pdf(self, request, id=None, exam_id=None):
         student = get_object_or_404(StudentAccount, id=id)
         report = Result.objects.report_card_for(student.id, exam_id)
@@ -292,7 +292,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=['get'],
         url_path=r"class_result/(?P<exam_id>[^/.]+)/(?P<class_id>[^/.]+)",
     )
-    # @method_decorator(cache_page(60 * 5))
+    @method_decorator(cache_page(60 * 5))
     def class_result_summary(self, request, class_id=None, exam_id=None):
         result = Result.objects.class_result(class_id, exam_id)
         return Response(result)
