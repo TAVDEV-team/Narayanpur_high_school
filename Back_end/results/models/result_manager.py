@@ -47,11 +47,9 @@ class ResultManager(models.Manager):
         )
 
     def class_rank(self, student, exam_id):
-        student_class = student.batch.current_class
+        student_class = AClass.objects.get(batch=student.batch)
         results_qs = (
-            self.filter(
-                exam_id=exam_id, student__batch__current_class=student_class
-            )
+            self.filter(exam_id=exam_id, student__batch=student_class.batch)
             .values('student')
             .annotate(
                 total_marks=Sum(F('mcq') + F('written') + F('practical'))
@@ -111,7 +109,7 @@ class ResultManager(models.Manager):
     # ---------------- SUBJECT LIST ----------------
 
     def subjects_of_class(self, student):
-        student_class = student.batch.current_class
+        student_class = AClass.objects.get(batch=student.batch)
         if not student_class:
             raise ValueError(f"{student} is not assigned to any class")
 
@@ -207,8 +205,10 @@ class ResultManager(models.Manager):
 
     def class_result(self, class_id, exam_id):
         aclass = get_object_or_404(AClass, id=class_id)
-        students = StudentAccount.objects.filter(batch__current_class=aclass)
+        students = StudentAccount.objects.filter(batch=aclass.batch)
+        print("#####################################")
         total_students = len(students)
+        print('#########333', aclass, students)
         passed = 0
         failed = 0
         overall_percentage = 0
@@ -240,7 +240,8 @@ class ResultManager(models.Manager):
                 'status': status,
             }
             class_results.append(data)
-        overall_percentage /= total_students
+        if overall_percentage != 0:
+            overall_percentage /= total_students
 
         return {
             'total_students': total_students,

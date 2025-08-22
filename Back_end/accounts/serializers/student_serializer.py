@@ -12,7 +12,7 @@ class StudentSerializer(serializers.ModelSerializer):
     aclass_id = serializers.PrimaryKeyRelatedField(
         queryset=AClass.objects.all(), write_only=True
     )
-    aclass = serializers.CharField(source="batch.aclass.name", read_only=True)
+    aclass = serializers.CharField(source="class", read_only=True)
     batch_label = serializers.CharField(source="batch.label", read_only=True)
 
     class Meta:

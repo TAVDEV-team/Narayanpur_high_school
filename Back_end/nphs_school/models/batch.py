@@ -34,6 +34,12 @@ class Batch(models.Model):
     def active_batches(cls):
         return cls.objects.filter(is_graduated=False)
 
+    @property
+    def current_class(self):
+        from nphs_school.models import AClass
+
+        return AClass.objects.filter(batch=self).first()
+
     @classmethod
     def archived_batches(cls):
         return cls.objects.filter(is_graduated=True)

@@ -269,6 +269,7 @@ class ResultViewSet(viewsets.ModelViewSet):
     )
     @method_decorator(cache_page(60 * 5))
     def class_result_summary(self, request, class_id=None, exam_id=None):
+        print(exam_id, class_id)
         result = Result.objects.class_result(class_id, exam_id)
         return Response(result)
 
