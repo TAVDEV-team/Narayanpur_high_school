@@ -206,9 +206,7 @@ class ResultManager(models.Manager):
     def class_result(self, class_id, exam_id):
         aclass = get_object_or_404(AClass, id=class_id)
         students = StudentAccount.objects.filter(batch=aclass.batch)
-        print("#####################################")
         total_students = len(students)
-        print('#########333', aclass, students)
         passed = 0
         failed = 0
         overall_percentage = 0
