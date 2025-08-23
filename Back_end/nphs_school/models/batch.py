@@ -1,4 +1,5 @@
 from django.db import models
+from datetime import date
 
 
 class Batch(models.Model):
@@ -17,14 +18,17 @@ class Batch(models.Model):
         - `class_` may be null for alumni or archived batches.
     """
 
+    def default_graduation_year():
+        return str(date.today().year + 5)
+
     label = models.CharField(max_length=20, unique=True, editable=False)
     is_graduated = models.BooleanField(
         default=False, help_text="Mark this batch as graduated or archived."
     )
     graduation_year = models.CharField(
         max_length=4,
-        choices=[(str(y), str(y)) for y in range(1980, 2035)],
-        default="2020",
+        choices=[(str(y), str(y)) for y in range(1980, 2055)],
+        default=default_graduation_year,
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
