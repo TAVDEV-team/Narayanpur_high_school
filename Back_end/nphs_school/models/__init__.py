@@ -5,6 +5,7 @@ from .notice import Notice
 from .routine import Routine
 from .school import School
 from .subject import Subject
+from .syllabus import Syllabus
 
 __all__ = [
     'About',
@@ -14,4 +15,5 @@ __all__ = [
     'School',
     'Subject',
     'Routine',
+    'Syllabus',
 ]

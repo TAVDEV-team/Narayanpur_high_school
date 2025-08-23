@@ -9,6 +9,7 @@ from nphs_school.models import (
     School,
     Subject,
     Routine,
+    Syllabus,
 )
 
 
@@ -200,3 +201,9 @@ class RoutineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Routine
         fields = "__all__"
+
+
+class SyllabusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Syllabus
+        fields = ["id", "title", "file", "uploaded_at"]

@@ -8,6 +8,7 @@ from nphs_school.models import (
     School,
     Subject,
     Routine,
+    Syllabus,
 )
 
 # class AboutAdmin(admin.ModelAdmin):
@@ -24,3 +25,4 @@ admin.site.register(Batch)
 admin.site.register(Subject)
 admin.site.register(Notice)
 admin.site.register(Routine)
+admin.site.register(Syllabus)
