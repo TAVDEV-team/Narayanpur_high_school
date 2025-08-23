@@ -40,3 +40,16 @@ class TeacherSerializer(serializers.ModelSerializer):
             if obj.class_teacher_of
             else None
         )
+
+    def create(self, validated_data):
+        account_data = validated_data.pop("account")
+
+        account_serializer = AccountSerializer(data=account_data)
+        account_serializer.is_valid(raise_exception=True)
+        account = account_serializer.save()
+
+        teacher = TeacherAccount.objects.create(
+            account=account, **validated_data
+        )
+
+        return teacher
