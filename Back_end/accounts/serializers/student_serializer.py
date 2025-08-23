@@ -8,13 +8,12 @@ from .account_serializer import AccountSerializer
 
 
 class StudentSerializer(serializers.ModelSerializer):
-
     account = AccountSerializer()
     class_name = serializers.CharField(write_only=True)
-    group = serializers.CharField(write_only=True, default='science')
+    group = serializers.CharField(write_only=True, default="science")
 
-    aclass = serializers.CharField(source="class", read_only=True)
     batch_label = serializers.CharField(source="batch.label", read_only=True)
+    aclass = serializers.SerializerMethodField()  # ✅ fix
 
     class Meta:
         model = StudentAccount
@@ -23,15 +22,21 @@ class StudentSerializer(serializers.ModelSerializer):
             "group",
             "aclass",
             "batch_label",
-            "group",
             "roll_number",
             "account",
         ]
         read_only_fields = ["roll_number", "aclass", "batch_label"]
 
+    # ✅ now DRF knows how to render it
+    def get_aclass(self, obj):
+        aclass = obj.batch.current_class
+        return str(aclass) if aclass else None
+
     def create(self, validated_data):
         account_data = validated_data.pop("account")
         aclass_id = validated_data.pop("class_name")
+
+        # resolve class name from mapping
         group_map = {
             "9": {
                 "science": "9_science",
@@ -59,11 +64,14 @@ class StudentSerializer(serializers.ModelSerializer):
             )
             number = (last_roll.roll_number + 1) if last_roll else 1
             user_name = f"{str(aclass.batch)}{number}"
-            account_data['user']['username'] = user_name
-            email_dummy = account_data['user']['email']
-            if email_dummy == "dummy_email@gmail.com":
-                email_made = f"{user_name.lower()}@gmail.com"
-                account_data['user']['email'] = email_made
+
+            # normalize dummy email + username
+            account_data["user"]["username"] = user_name
+            if account_data["user"]["email"] == "dummy_email@gmail.com":
+                account_data["user"][
+                    "email"
+                ] = f"{user_name.lower()}@gmail.com"
+
             # create account first
             account_serializer = AccountSerializer(data=account_data)
             account_serializer.is_valid(raise_exception=True)
@@ -76,6 +84,7 @@ class StudentSerializer(serializers.ModelSerializer):
                     "This class has no batch assigned."
                 )
 
+            # finally create student
             student = StudentAccount.objects.create(
                 account=account, batch=batch, **validated_data
             )
