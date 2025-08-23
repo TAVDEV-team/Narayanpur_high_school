@@ -8,6 +8,7 @@ from nphs_school.views import (
     NoticeViewSet,
     SchoolViewSet,
     SubjectViewSet,
+    RoutineViewSet,
 )
 
 router = DefaultRouter()
@@ -18,7 +19,7 @@ router.register(r"classes", AClassViewSet)
 router.register(r"batches", BatchViewSet)
 router.register(r"notices", NoticeViewSet)
 router.register(r"Subject", SubjectViewSet)
-
+router.register(r"routine", RoutineViewSet)
 
 about_list = AboutViewSet.as_view(
     {

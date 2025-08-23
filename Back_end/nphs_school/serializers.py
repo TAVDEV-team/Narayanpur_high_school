@@ -1,7 +1,15 @@
 from rest_framework import serializers
 
 from accounts.serializers import StudentSerializer
-from nphs_school.models import About, AClass, Batch, Notice, School, Subject
+from nphs_school.models import (
+    About,
+    AClass,
+    Batch,
+    Notice,
+    School,
+    Subject,
+    Routine,
+)
 
 
 class AboutSerializer(serializers.ModelSerializer):
@@ -186,3 +194,9 @@ class AClassSerializer(serializers.ModelSerializer):
 
     def get_female_students(self, obj):
         return obj.students().filter(account__gender="female").count()
+
+
+class RoutineSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Routine
+        fields = "__all__"

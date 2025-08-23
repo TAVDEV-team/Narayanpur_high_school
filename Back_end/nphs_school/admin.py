@@ -1,6 +1,14 @@
 from django.contrib import admin
 
-from nphs_school.models import About, AClass, Batch, Notice, School, Subject
+from nphs_school.models import (
+    About,
+    AClass,
+    Batch,
+    Notice,
+    School,
+    Subject,
+    Routine,
+)
 
 # class AboutAdmin(admin.ModelAdmin):
 #     search_fields = ['name']
@@ -15,3 +23,4 @@ admin.site.register(AClass)
 admin.site.register(Batch)
 admin.site.register(Subject)
 admin.site.register(Notice)
+admin.site.register(Routine)

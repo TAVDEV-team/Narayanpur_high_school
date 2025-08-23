@@ -44,7 +44,7 @@ class Routine(models.Model):
             "aclass",
             "day",
             "slot",
-        )  # no duplicate routines in same slot
+        )
 
     def __str__(self):
         return f"{self.aclass} - {self.get_day_display()} - {self.get_slot_display()} - {self.subject}"  # noqa: E501
