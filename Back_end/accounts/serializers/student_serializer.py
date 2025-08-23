@@ -13,7 +13,7 @@ class StudentSerializer(serializers.ModelSerializer):
     group = serializers.CharField(write_only=True, default="science")
 
     batch_label = serializers.CharField(source="batch.label", read_only=True)
-    aclass = serializers.SerializerMethodField()  # ✅ fix
+    aclass = serializers.SerializerMethodField()
 
     class Meta:
         model = StudentAccount
@@ -27,7 +27,6 @@ class StudentSerializer(serializers.ModelSerializer):
         ]
         read_only_fields = ["roll_number", "aclass", "batch_label"]
 
-    # ✅ now DRF knows how to render it
     def get_aclass(self, obj):
         aclass = obj.batch.current_class
         return str(aclass) if aclass else None
@@ -36,7 +35,6 @@ class StudentSerializer(serializers.ModelSerializer):
         account_data = validated_data.pop("account")
         aclass_id = validated_data.pop("class_name")
 
-        # resolve class name from mapping
         group_map = {
             "9": {
                 "science": "9_science",
