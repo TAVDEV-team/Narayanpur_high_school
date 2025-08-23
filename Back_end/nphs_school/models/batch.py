@@ -23,7 +23,7 @@ class Batch(models.Model):
     )
     graduation_year = models.CharField(
         max_length=4,
-        choices=[(str(y), str(y)) for y in range(1980, 2031)],
+        choices=[(str(y), str(y)) for y in range(1980, 2035)],
         default="2020",
     )
 
