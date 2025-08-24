@@ -5,9 +5,9 @@ from nphs_school.models import (
     AClass,
     Batch,
     Notice,
+    Routine,
     School,
     Subject,
-    Routine,
     Syllabus,
 )
 

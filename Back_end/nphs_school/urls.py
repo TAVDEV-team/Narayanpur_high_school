@@ -6,9 +6,9 @@ from nphs_school.views import (
     AClassViewSet,
     BatchViewSet,
     NoticeViewSet,
+    RoutineViewSet,
     SchoolViewSet,
     SubjectViewSet,
-    RoutineViewSet,
     SyllabusViewSet,
 )
 
