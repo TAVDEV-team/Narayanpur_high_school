@@ -61,7 +61,9 @@ class StudentSerializer(serializers.ModelSerializer):
                 .first()
             )
             number = (last_roll.roll_number + 1) if last_roll else 1
-            user_name = f"{str(aclass.batch)}{number}"
+            user_name = (
+                f"{str(aclass.batch).replace("-", "_").lower()}{number}"
+            )
 
             # normalize dummy email + username
             account_data["user"]["username"] = user_name
