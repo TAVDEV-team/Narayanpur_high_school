@@ -18,6 +18,7 @@ class StudentSerializer(serializers.ModelSerializer):
     class Meta:
         model = StudentAccount
         fields = [
+            "id",
             "class_name",
             "group",
             "aclass",
