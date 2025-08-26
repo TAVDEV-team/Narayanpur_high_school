@@ -46,8 +46,8 @@ class ResultManager(models.Manager):
             or 0
         )
 
-    def class_rank(self, student, exam_id):
-        student_class = AClass.objects.get(batch=student.batch)
+    def class_rank(self, student, exam_id, class_id):
+        student_class = AClass.objects.get(id=class_id)
         results_qs = (
             self.filter(exam_id=exam_id, student__batch=student_class.batch)
             .values('student')
@@ -109,8 +109,8 @@ class ResultManager(models.Manager):
 
     # ---------------- SUBJECT LIST ----------------
 
-    def subjects_of_class(self, student):
-        student_class = AClass.objects.get(batch=student.batch)
+    def subjects_of_class(self, student, class_id):
+        student_class = AClass.objects.get(id=class_id)
         if not student_class:
             raise ValueError(f"{student} is not assigned to any class")
 
@@ -134,9 +134,9 @@ class ResultManager(models.Manager):
 
     # ---------------- REPORT CARD ----------------
 
-    def report_card_for(self, student_id, exam_id):
+    def report_card_for(self, student_id, exam_id, class_id):
         student = StudentAccount.objects.get(id=student_id)
-        subjects = self.subjects_of_class(student)
+        subjects = self.subjects_of_class(student, class_id)
         student_info = self.student_details(student)
 
         results_qs = self.filter(
@@ -193,7 +193,7 @@ class ResultManager(models.Manager):
             "total_obtained": total_obtained,
             "total_possible": total_possible,
             "status": status,
-            "class_rank": self.class_rank(student, exam_id),
+            "class_rank": self.class_rank(student, exam_id, class_id),
             "percentage": (
                 round((total_obtained / total_possible * 100), 2)
                 if total_possible
@@ -215,7 +215,7 @@ class ResultManager(models.Manager):
         total_marks = 0
         class_results = []
         for student in students:
-            report_data = self.report_card_for(student.id, exam_id)
+            report_data = self.report_card_for(student.id, exam_id, class_id)
             student_id = report_data['student']['id']
             name = report_data['student']['name']
             roll = report_data['student']['roll']
