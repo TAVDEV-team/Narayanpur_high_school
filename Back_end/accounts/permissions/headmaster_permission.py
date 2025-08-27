@@ -15,5 +15,4 @@ class IsHeadMaster(BasePermission):
             headmaster = HeadMasterAccount.objects.get()
         except HeadMasterAccount.DoesNotExist:
             return False
-
-        return request.user == headmaster.account.account.user
+        return request.user == headmaster.teacher.account.user
