@@ -72,13 +72,19 @@ class Result(models.Model):
             raise ValidationError(errors)
 
     def clean_subjects(self):
-        if self.subject not in self.aclass.compulsory.all():
+        valid_subjects = (
+            list(self.aclass.compulsory.all())
+            + list(self.aclass.group_subjects.all())
+            + list(self.aclass.religious.all())
+            + list(self.aclass.extra.all())
+        )
+
+        if self.subject not in valid_subjects:
             raise ValidationError(
                 {
                     "subject": (
-                        f"{self.subject.name}\
-                        is not assigned to class\
-                            {self.aclass.name}."
+                        f"{self.subject.name}"
+                        f"is not assigned to class {self.aclass.name}."
                     )
                 }
             )
