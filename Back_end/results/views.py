@@ -262,7 +262,7 @@ class ResultViewSet(viewsets.ModelViewSet):
     def report_card(
         self, request, student_id=None, exam_id=None, class_id=None
     ):
-        student = get_object_or_404(StudentAccount, id=id)
+        student = get_object_or_404(StudentAccount, id=student_id)
         report = Result.objects.report_card_for(student.id, exam_id, class_id)
         return Response(report, status=status.HTTP_200_OK)
 

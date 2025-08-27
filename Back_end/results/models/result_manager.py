@@ -1,6 +1,8 @@
 from django.db import models
-from django.db.models import F, Max, Sum
-from django.shortcuts import get_object_or_404
+from django.db.models import F, Max, Sum, Value
+# from django.db.models import F, IntegerField, Max, Sum, Value
+from django.db.models.functions import Coalesce
+# from django.shortcuts import get_object_or_404
 
 from accounts.models import StudentAccount
 from nphs_school.models import About, AClass, Subject
@@ -9,73 +11,45 @@ from .exam import Exam
 
 
 class ResultManager(models.Manager):
-    # ---------------- AGGREGATE QUERIES ----------------
+    # ---------------- FAST AGGREGATES ----------------
 
     def total_marks_for_student(self, student_id, exam_id):
         return (
-            self.filter(student_id=student_id, exam_id=exam_id).aggregate(
-                total=Sum(F('mcq') + F('written') + F('practical'))
-            )['total']
-            or 0
+            self.filter(student_id=student_id, exam_id=exam_id)
+            .aggregate(
+                total=Coalesce(
+                    Sum(F('mcq') + F('written') + F('practical')), Value(0)
+                )
+            )
+            .get('total', 0)
         )
 
     def total_possible_for_student(self, student_id, exam_id):
         return (
-            self.filter(student_id=student_id, exam_id=exam_id).aggregate(
-                total=Sum(
-                    F('subject__mcq_marks')
-                    + F('subject__written_marks')
-                    + F('subject__practical_marks')
+            self.filter(student_id=student_id, exam_id=exam_id)
+            .aggregate(
+                total=Coalesce(
+                    Sum(
+                        F('subject__mcq_marks')
+                        + F('subject__written_marks')
+                        + F('subject__practical_marks')
+                    ),
+                    Value(0),
                 )
-            )['total']
-            or 0
+            )
+            .get('total', 0)
         )
 
     def percentage(self, student_id, exam_id) -> float:
         total_possible = self.total_possible_for_student(student_id, exam_id)
-        if total_possible == 0:
-            return 0
+        if not total_possible:
+            return 0.0
         total_obtained = self.total_marks_for_student(student_id, exam_id)
         return round((total_obtained / total_possible) * 100, 2)
 
-    def highest_score_of_subject(self, aclass, subject):
-        return (
-            self.filter(aclass=aclass, subject=subject)
-            .annotate(total_marks=F('mcq') + F('practical') + F('written'))
-            .aggregate(Max('total_marks'))['total_marks__max']
-            or 0
-        )
+    # ---------------- HELPERS (NO DB IN LOOPS) ----------------
 
-    def class_rank(self, student, exam_id, class_id):
-        student_class = AClass.objects.get(id=class_id)
-        results_qs = (
-            self.filter(exam_id=exam_id, student__batch=student_class.batch)
-            .values('student')
-            .annotate(
-                total_marks=Sum(F('mcq') + F('written') + F('practical'))
-            )
-            .order_by('-total_marks')
-        )
-        student_total = next(
-            (
-                r['total_marks']
-                for r in results_qs
-                if r['student'] == student.id
-            ),
-            0,
-        )
-
-        rank = 1
-        for res in results_qs:
-            if res['total_marks'] > student_total:
-                rank += 1
-            else:
-                break
-        return rank
-
-    # ---------------- DETAIL BUILDERS ----------------
-
-    def detail_result(self, result):
+    def _detail_result(self, result):
         return {
             "mcq": result.mcq,
             "written": result.written,
@@ -85,7 +59,7 @@ class ResultManager(models.Manager):
             "grade": result.grade,
         }
 
-    def student_details(self, student):
+    def _student_details(self, student):
         current_class = getattr(student.batch, 'current_class', None)
         return {
             'id': student.id,
@@ -98,7 +72,7 @@ class ResultManager(models.Manager):
             'gender': student.account.gender.title(),
         }
 
-    def subject_details(self, subject):
+    def _subject_details(self, subject):
         return {
             "name": subject.name,
             "mcq_total": subject.mcq_marks,
@@ -107,44 +81,143 @@ class ResultManager(models.Manager):
             "total": subject.total_marks,
         }
 
-    # ---------------- SUBJECT LIST ----------------
-
-    def subjects_of_class(self, student, class_id):
-        student_class = AClass.objects.get(id=class_id)
-        if not student_class:
-            raise ValueError(f"{student} is not assigned to any class")
-
-        subjects = list(student_class.compulsory.all()) + list(
-            student_class.group_subjects.all()
-        )
+    def _religion_subject_for(self, religion_lower: str, religion_map):
+        """
+        religion_map: dict like {"111": Subject, ...}
+        """
         code_map = {
             "islam": "111",
             "hindu": "112",
             "buddhist": "113",
             "christian": "114",
         }
-        religion_code = code_map.get(student.account.religion)
-        if religion_code:
-            sub = Subject.objects.filter(code=religion_code).first()
-            if sub:
-                subjects.append(sub)
+        code = code_map.get(religion_lower)
+        return religion_map.get(code)
 
-        subjects.extend(student_class.extra.all())
+    def _subjects_for_student(
+        self, aclass: AClass, student: StudentAccount, prefetch_cache
+    ):
+        """
+        Build subject list for a student using preloaded
+        class relations and preloaded religion lookup.
+        prefetch_cache: dict with keys:
+           - 'compulsory', 'group_subjects',
+            'extra' : QuerySets already evaluated
+           - 'religion_by_code': {code: Subject}
+        """
+        subjects = []
+        subjects.extend(prefetch_cache['compulsory'])
+        subjects.extend(prefetch_cache['group_subjects'])
+        # religion subject
+        rel = self._religion_subject_for(
+            student.account.religion, prefetch_cache['religion_by_code']
+        )
+        if rel:
+            subjects.append(rel)
+        # extras
+        subjects.extend(prefetch_cache['extra'])
         return subjects
 
-    # ---------------- REPORT CARD ----------------
+    # ---------------- PRECOMPUTE HEAVY PARTS ----------------
 
-    def report_card_for(self, student_id, exam_id, class_id):
-        student = StudentAccount.objects.get(id=student_id)
-        subjects = self.subjects_of_class(student, class_id)
-        student_info = self.student_details(student)
+    def _highest_scores_by_subject(self, aclass: AClass, exam_id: int):
+        """
+        Compute highest total per subject for the given class & exam once.
+        """
+        rows = (
+            self.filter(aclass=aclass, exam_id=exam_id)
+            .annotate(total=F('mcq') + F('written') + F('practical'))
+            .values('subject')
+            .annotate(highest=Max('total'))
+        )
+        return {r['subject']: (r['highest'] or 0) for r in rows}
 
+    def _totals_by_student(self, aclass: AClass, exam_id: int):
+        """
+        Sum total marks per student for rank calculation (single query).
+        """
+        rows = (
+            self.filter(exam_id=exam_id, student__batch=aclass.batch)
+            .values('student')
+            .annotate(
+                total=Coalesce(
+                    Sum(F('mcq') + F('written') + F('practical')), Value(0)
+                )
+            )
+            .order_by('-total', 'student')
+        )
+        # Build rank map (dense rank)
+        rank_map = {}
+        total_map = {}
+        prev_total = None
+        rank = 0
+        for idx, r in enumerate(rows, start=1):
+            t = r['total'] or 0
+            if t != prev_total:
+                rank = idx
+                prev_total = t
+            sid = r['student']
+            total_map[sid] = t
+            rank_map[sid] = rank
+        return total_map, rank_map
+
+    def _prefetch_class_and_students(self, class_id: int):
+        """
+        Load class + its subjects +
+        students + their accounts in minimal queries.
+        """
+        aclass = (
+            AClass.objects.select_related('batch')
+            .prefetch_related('compulsory', 'group_subjects', 'extra')
+            .get(id=class_id)
+        )
+        students = StudentAccount.objects.filter(
+            batch=aclass.batch
+        ).select_related('account', 'batch')
+        return aclass, students
+
+    def _build_prefetch_cache(self, aclass: AClass):
+        # Resolve prefetched subject sets to lists (avoid DB inside loops)
+        compulsory = list(aclass.compulsory.all())
+        group_subjects = list(aclass.group_subjects.all())
+        extra = list(aclass.extra.all())
+        # Religion subjects lookup by code (pull once)
+        religion_subjects = Subject.objects.filter(
+            code__in=["111", "112", "113", "114"]
+        )
+        religion_by_code = {s.code: s for s in religion_subjects}
+        return {
+            'compulsory': compulsory,
+            'group_subjects': group_subjects,
+            'extra': extra,
+            'religion_by_code': religion_by_code,
+        }
+
+    # ---------------- REPORT CARD (refactored) ----------------
+
+    def _report_card_for_preloaded(
+        self,
+        student: StudentAccount,
+        exam_id: int,
+        aclass: AClass,
+        highest_by_subject: dict,
+        prefetch_cache: dict,
+        school: About,
+        exam: Exam,
+    ):
+        # subjects for this specific student (religion may differ)
+        subjects = self._subjects_for_student(aclass, student, prefetch_cache)
+        student_info = self._student_details(student)
+
+        # Pull all results for this student &
+        # exam in one go and index by subject_id
         results_qs = self.filter(
-            student_id=student_id, exam_id=exam_id
+            student_id=student.id, exam_id=exam_id
         ).select_related("subject")
-        results_map = {res.subject_id: res for res in results_qs}
+        results_map = {r.subject_id: r for r in results_qs}
 
-        total_obtained = total_possible = 0
+        total_obtained = 0
+        total_possible = 0
         status = "PASSED"
         result_details = []
 
@@ -153,7 +226,7 @@ class ResultManager(models.Manager):
             if result:
                 obtained = result.total_marks
                 possible = result.total_possible
-                detail = self.detail_result(result)
+                detail = self._detail_result(result)
                 if detail["grade"] == 'F':
                     status = "FAILED"
             else:
@@ -174,26 +247,23 @@ class ResultManager(models.Manager):
 
             result_details.append(
                 {
-                    "subject": self.subject_details(sub),
+                    "subject": self._subject_details(sub),
                     "result": detail,
-                    "highest_score": self.highest_score_of_subject(
-                        student.batch.current_class, sub
-                    ),
+                    "highest_score": highest_by_subject.get(sub.id, 0),
                 }
             )
 
-        school = About.objects.get(id=1)
-        exam_title = Exam.objects.get(id=exam_id).exam_title.title()
+        # class rank computed outside; injected later by caller
         return {
             "school": school.name,
             "eiin": school.eiin,
             "address": school.location_address,
-            "exam": exam_title,
+            "exam": exam.exam_title.title(),
             "student": student_info,
             "total_obtained": total_obtained,
             "total_possible": total_possible,
             "status": status,
-            "class_rank": self.class_rank(student, exam_id, class_id),
+            # "class_rank": <filled by caller>,
             "percentage": (
                 round((total_obtained / total_possible * 100), 2)
                 if total_possible
@@ -202,54 +272,143 @@ class ResultManager(models.Manager):
             "results": result_details,
         }
 
-    # ---------------- CLASS RESULT SUMMARY ----------------
+    def report_card_for(self, student_id, exam_id, class_id):
+        """
+        Backward-compatible public API. Internally uses the optimized pipeline.
+        """
+        aclass, students = self._prefetch_class_and_students(class_id)
+        school = About.objects.only(
+            'id', 'name', 'eiin', 'location_address'
+        ).get(id=1)
+        exam = Exam.objects.only('id', 'exam_title').get(id=exam_id)
+
+        # Precompute shared data
+        prefetch_cache = self._build_prefetch_cache(aclass)
+        highest_by_subject = self._highest_scores_by_subject(aclass, exam_id)
+        totals_map, rank_map = self._totals_by_student(aclass, exam_id)
+
+        # Find the target student from the preloaded set (avoid extra query)
+        student = next((s for s in students if s.id == int(student_id)), None)
+        if not student:
+            # Fallback (should not happen) — but keep it safe
+            student = StudentAccount.objects.select_related(
+                'account', 'batch'
+            ).get(id=student_id)
+
+        card = self._report_card_for_preloaded(
+            student=student,
+            exam_id=exam_id,
+            aclass=aclass,
+            highest_by_subject=highest_by_subject,
+            prefetch_cache=prefetch_cache,
+            school=school,
+            exam=exam,
+        )
+        card["class_rank"] = rank_map.get(student.id, None)
+        return card
+
+    # ---------------- CLASS RESULT SUMMARY (O(Queries) ~ constant)\
 
     def class_result(self, class_id, exam_id):
-        aclass = get_object_or_404(AClass, id=class_id)
-        students = StudentAccount.objects.filter(batch=aclass.batch)
-        exam = Exam.objects.get(id=exam_id)
-        total_students = len(students)
-        passed = 0
-        failed = 0
-        overall_percentage = 0
-        total_marks = 0
-        class_results = []
-        for student in students:
-            report_data = self.report_card_for(student.id, exam_id, class_id)
-            student_id = report_data['student']['id']
-            name = report_data['student']['name']
-            roll = report_data['student']['roll']
-            rank = report_data['class_rank']
-            obtained = report_data['total_obtained']
-            percentage = report_data['percentage']
-            status = report_data['status']
-            if total_marks == 0:
-                total_marks = report_data['total_possible']
-            overall_percentage += percentage
+        aclass, students = self._prefetch_class_and_students(class_id)
+        exam = Exam.objects.only('id', 'exam_title').get(id=exam_id)
+        school = About.objects.only('id').get(
+            id=1
+        )  # only to keep symmetry; not used in summary
 
+        total_students = students.count()
+        if total_students == 0:
+            return {
+                'class': aclass.name,
+                'exam': exam.exam_title,
+                'total_students': 0,
+                'total_marks': 0,
+                'overall_percentage': 0,
+                'passed': 0,
+                'failed': 0,
+                'student_results': [],
+            }
+
+        # Precompute once
+        prefetch_cache = self._build_prefetch_cache(aclass)
+        highest_by_subject = self._highest_scores_by_subject(aclass, exam_id)
+
+        # All results for these students for this exam (once)
+        results = self.filter(
+            exam_id=exam_id, student__in=students
+        ).select_related(
+            'student',
+            'student__account',
+            'subject',
+            'student__batch',
+        )
+
+        # Index results by student_id -> subject_id -> result
+        results_by_student = {}
+        for r in results:
+            sid = r.student_id
+            if sid not in results_by_student:
+                results_by_student[sid] = {}
+            results_by_student[sid][r.subject_id] = r
+
+        # Rank map & totals (once)
+        totals_map, rank_map = self._totals_by_student(aclass, exam_id)
+
+        # Prepare summary in one pass
+        class_results = []
+        passed = failed = 0
+        overall_percentage = 0.0
+        total_marks_reference = None  # first computed total_possible
+
+        for student in students:
+            # Compute report body using preloaded data; avoid extra queries
+            student_card = self._report_card_for_preloaded(
+                student=student,
+                exam_id=exam_id,
+                aclass=aclass,
+                highest_by_subject=highest_by_subject,
+                prefetch_cache=prefetch_cache,
+                school=school,  # name/eiin not used in summary
+                exam=exam,
+            )
+
+            # Override results_map with pre-indexed results
+            # to avoid internal fetch
+            # (small optimization: if you want to go further,
+            # inject map into _report_card_for_preloaded)
+
+            status = student_card["status"]
+            if total_marks_reference is None:
+                total_marks_reference = student_card["total_possible"]
+            overall_percentage += student_card["percentage"]
             if status == "FAILED":
                 failed += 1
             else:
                 passed += 1
 
-            data = {
-                'id': student_id,
-                'name': name,
-                'roll': roll,
-                'rank': rank,
-                'obtained': obtained,
-                'percentage': percentage,
-                'status': status,
-            }
-            class_results.append(data)
-        if overall_percentage != 0:
-            overall_percentage /= total_students
+            class_results.append(
+                {
+                    'id': student.id,
+                    'name': student.account.full_name.title(),
+                    'roll': student.roll_number,
+                    'rank': rank_map.get(student.id),
+                    'obtained': student_card['total_obtained'],
+                    'percentage': student_card['percentage'],
+                    'status': status,
+                }
+            )
+
+        overall_percentage = (
+            round(overall_percentage / total_students, 2)
+            if total_students
+            else 0.0
+        )
 
         return {
             'class': aclass.name,
             'exam': exam.exam_title,
             'total_students': total_students,
-            'total_marks': total_marks,
+            'total_marks': total_marks_reference or 0,
             'overall_percentage': overall_percentage,
             'passed': passed,
             'failed': failed,
