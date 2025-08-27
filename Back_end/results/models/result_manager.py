@@ -1,7 +1,9 @@
 from django.db import models
 from django.db.models import F, Max, Sum, Value
+
 # from django.db.models import F, IntegerField, Max, Sum, Value
 from django.db.models.functions import Coalesce
+
 # from django.shortcuts import get_object_or_404
 
 from accounts.models import StudentAccount
@@ -312,9 +314,7 @@ class ResultManager(models.Manager):
     def class_result(self, class_id, exam_id):
         aclass, students = self._prefetch_class_and_students(class_id)
         exam = Exam.objects.only('id', 'exam_title').get(id=exam_id)
-        school = About.objects.only('id').get(
-            id=1
-        )
+        school = About.objects.only('id').get(id=1)
 
         total_students = students.count()
         if total_students == 0:
