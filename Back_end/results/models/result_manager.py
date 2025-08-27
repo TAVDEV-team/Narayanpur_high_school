@@ -314,7 +314,7 @@ class ResultManager(models.Manager):
         exam = Exam.objects.only('id', 'exam_title').get(id=exam_id)
         school = About.objects.only('id').get(
             id=1
-        )  # only to keep symmetry; not used in summary
+        )
 
         total_students = students.count()
         if total_students == 0:
@@ -397,7 +397,7 @@ class ResultManager(models.Manager):
                     'status': status,
                 }
             )
-
+        class_results.sort(key=lambda x: (x['rank'] or 999999, x['roll']))
         overall_percentage = (
             round(overall_percentage / total_students, 2)
             if total_students
