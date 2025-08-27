@@ -61,31 +61,7 @@ class AClassSerializer(serializers.ModelSerializer):
     female_students = serializers.SerializerMethodField()
     students = StudentSerializer(many=True, read_only=True)
 
-    compulsory = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Subject.objects.all(), write_only=True
-    )
-    compulsory_detail = SubjectSerializer(
-        many=True, read_only=True, source="compulsory"
-    )
-
-    group_subjects = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Subject.objects.all(), write_only=True
-    )
-    group_subjects_detail = SubjectSerializer(
-        many=True, read_only=True, source="group_subjects"
-    )
-
-    religious = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Subject.objects.all(), write_only=True
-    )
-    religious_detail = SubjectSerializer(
-        many=True, read_only=True, source="religious"
-    )
-
-    extra = serializers.PrimaryKeyRelatedField(
-        many=True, queryset=Subject.objects.all(), write_only=True
-    )
-    extra_detail = SubjectSerializer(many=True, read_only=True, source="extra")
+    all_subjects = SubjectSerializer(many=True, read_only=True)
 
     class Meta:
         model = AClass
@@ -97,14 +73,7 @@ class AClassSerializer(serializers.ModelSerializer):
             "male_students",
             "female_students",
             "students",
-            "compulsory",
-            "compulsory_detail",
-            "group_subjects",
-            "group_subjects_detail",
-            "religious",
-            "religious_detail",
-            "extra",
-            "extra_detail",
+            "all_subjects",
             "created_at",
             "updated_at",
         ]

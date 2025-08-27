@@ -1,9 +1,7 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import status, viewsets
-from rest_framework.permissions import AllowAny
-
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.permissions import IsHeadMaster
@@ -19,9 +17,7 @@ class FundViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 @method_decorator(cache_page(60 * 5), name="list")
-@method_decorator(
-    cache_page(60 * 5), name="retrieve"
-)
+@method_decorator(cache_page(60 * 5), name="retrieve")
 class FundTransactionViewSet(viewsets.ModelViewSet):
     queryset = FundTransaction.objects.all()
     serializer_class = FundTransactionSerializer
