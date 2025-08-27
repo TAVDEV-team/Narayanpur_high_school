@@ -40,6 +40,15 @@ class AClass(models.Model):
     def __str__(self):
         return dict(CLASS_CHOICES).get(self.name, self.name)
 
+    @property
+    def all_subjects(self):
+        return (
+            list(self.compulsory.all())
+            + list(self.group_subjects.all())
+            + list(self.religious.all())
+            + list(self.extra.all())
+        )
+
     def clean(self):
         if not self.pk:
             return

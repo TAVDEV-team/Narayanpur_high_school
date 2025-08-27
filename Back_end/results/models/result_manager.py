@@ -4,12 +4,12 @@ from django.db.models import F, Max, Sum, Value
 # from django.db.models import F, IntegerField, Max, Sum, Value
 from django.db.models.functions import Coalesce
 
-# from django.shortcuts import get_object_or_404
-
 from accounts.models import StudentAccount
 from nphs_school.models import About, AClass, Subject
 
 from .exam import Exam
+
+# from django.shortcuts import get_object_or_404
 
 
 class ResultManager(models.Manager):
