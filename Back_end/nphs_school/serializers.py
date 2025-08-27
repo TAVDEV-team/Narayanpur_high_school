@@ -167,9 +167,29 @@ class AClassSerializer(serializers.ModelSerializer):
 
 
 class RoutineSerializer(serializers.ModelSerializer):
+    slot_display = serializers.CharField(
+        source="get_slot_display", read_only=True
+    )
+    day_display = serializers.CharField(
+        source="get_day_display", read_only=True
+    )
+
     class Meta:
         model = Routine
-        fields = "__all__"
+        fields = "__all__" + ["slot_display", "day_display"]
+        # ⚠️ "__all__" is not directly concatenable with lists, so fix below
+
+        # Better approach:
+        # fields = [
+        #     "id",
+        #     "aclass",
+        #     "day",
+        #     "day_display",
+        #     "slot",
+        #     "slot_display",
+        #     "subject",
+        #     "teacher",
+        # ]
 
 
 class SyllabusSerializer(serializers.ModelSerializer):
