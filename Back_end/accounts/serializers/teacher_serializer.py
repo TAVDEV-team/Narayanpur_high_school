@@ -1,15 +1,13 @@
 from rest_framework import serializers
-
 from accounts.models import TeacherAccount
-
 from .account_serializer import AccountSerializer
 
 
 class TeacherSerializer(serializers.ModelSerializer):
     account = AccountSerializer()
-
     base_subject_detail = serializers.SerializerMethodField()
     class_teacher_of_detail = serializers.SerializerMethodField()
+    is_headmaster = serializers.SerializerMethodField()
 
     class Meta:
         model = TeacherAccount
@@ -21,6 +19,7 @@ class TeacherSerializer(serializers.ModelSerializer):
             "is_class_teacher",
             "class_teacher_of",
             "class_teacher_of_detail",
+            "is_headmaster",
         ]
 
     def get_base_subject_detail(self, obj):
@@ -41,15 +40,16 @@ class TeacherSerializer(serializers.ModelSerializer):
             else None
         )
 
+    def get_is_headmaster(self, obj):
+        # Assuming TeacherAccount model has a boolean field `is_headmaster`
+        return obj.is_headmaster
+
     def create(self, validated_data):
         account_data = validated_data.pop("account")
-
         account_serializer = AccountSerializer(data=account_data)
         account_serializer.is_valid(raise_exception=True)
         account = account_serializer.save()
-
         teacher = TeacherAccount.objects.create(
             account=account, **validated_data
         )
-
         return teacher

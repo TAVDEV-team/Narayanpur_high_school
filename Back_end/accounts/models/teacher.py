@@ -26,6 +26,14 @@ class TeacherAccount(models.Model):
         related_name="class_teacher",
     )
 
+    @property
+    def is_headmaster(self):
+        try:
+            headmaster = HeadMasterAccount.get_solo()
+            return headmaster.teacher == self
+        except HeadMasterAccount.DoesNotExist:
+            return False
+
     def __str__(self):
         subject = self.base_subject if self.base_subject else "No Subject"
         return f"{self.account.full_name} - {subject}"
