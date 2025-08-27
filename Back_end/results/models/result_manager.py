@@ -167,13 +167,13 @@ class ResultManager(models.Manager):
         students + their accounts in minimal queries.
         """
         aclass = (
-            AClass.objects.select_related('batch', 'batch__current_class')
+            AClass.objects.select_related('batch')
             .prefetch_related('compulsory', 'group_subjects', 'extra')
             .get(id=class_id)
         )
         students = StudentAccount.objects.filter(
             batch=aclass.batch
-        ).select_related('account', 'batch', 'batch__current_class')
+        ).select_related('account', 'batch')
         return aclass, students
 
     def _build_prefetch_cache(self, aclass: AClass):
@@ -292,7 +292,7 @@ class ResultManager(models.Manager):
         if not student:
             # Fallback (should not happen) — but keep it safe
             student = StudentAccount.objects.select_related(
-                'account', 'batch', 'batch__current_class'
+                'account', 'batch'
             ).get(id=student_id)
 
         card = self._report_card_for_preloaded(
@@ -341,7 +341,6 @@ class ResultManager(models.Manager):
             'student__account',
             'subject',
             'student__batch',
-            'student__batch__current_class',
         )
 
         # Index results by student_id -> subject_id -> result
