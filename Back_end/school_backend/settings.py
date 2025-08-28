@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 import logging
-
 from datetime import timedelta
 from pathlib import Path
 

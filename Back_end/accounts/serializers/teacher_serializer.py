@@ -1,5 +1,7 @@
 from rest_framework import serializers
+
 from accounts.models import TeacherAccount
+
 from .account_serializer import AccountSerializer
 
 
