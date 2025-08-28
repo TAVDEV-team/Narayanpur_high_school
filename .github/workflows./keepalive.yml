@@ -1,0 +1,14 @@
+name: Keep Backend Alive
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # every 10 minutes
+  workflow_dispatch:          # manual trigger if needed
+
+jobs:
+  ping-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Curl backend
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" https://narayanpur-high-school.onrender.com/api/nphs/routine/
