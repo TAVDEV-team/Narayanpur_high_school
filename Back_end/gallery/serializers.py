@@ -6,7 +6,14 @@ from .models import Photo, PhotoCategory
 class PhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Photo
-        fields = ["id", "title", "description", "image", "date_uploaded"]
+        fields = [
+            "id",
+            "title",
+            "category",
+            "description",
+            "image",
+            "date_uploaded",
+        ]
 
 
 class PhotoCategorySerializer(serializers.ModelSerializer):
