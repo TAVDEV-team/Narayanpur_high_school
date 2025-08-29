@@ -247,8 +247,8 @@ def generate_report_card_pdf(report_data):
     return pdf
 
 
-# @method_decorator(cache_page(60 * 5), name="list")
-# @method_decorator(cache_page(60 * 5), name="retrieve")
+@method_decorator(cache_page(60 * 5), name="list")
+@method_decorator(cache_page(60 * 5), name="retrieve")
 class ResultViewSet(viewsets.ModelViewSet):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
@@ -258,7 +258,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=["get"],
         url_path=r"card/(?P<exam_id>[^/.]+)/(?P<class_id>[^/.]+)/(?P<student_id>[^/.]+)",  # noqa: E501
     )
-    # @method_decorator(cache_page(60 * 5))
+    @method_decorator(cache_page(60 * 5))
     def report_card(
         self, request, student_id=None, exam_id=None, class_id=None
     ):
@@ -296,7 +296,7 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=['get'],
         url_path=r"class_result/(?P<exam_id>[^/.]+)/(?P<class_id>[^/.]+)",
     )
-    # @method_decorator(cache_page(60 * 5))
+    @method_decorator(cache_page(60 * 5))
     def class_result_summary(self, request, class_id=None, exam_id=None):
         result = Result.objects.class_result(class_id, exam_id)
         return Response(result)

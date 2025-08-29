@@ -1,7 +1,22 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
+
+from accounts.models import Account
+from accounts.serializers import AccountSerializer
+
+
+@method_decorator(cache_page(60 * 5), name="list")  # cache list view 5 mins
+@method_decorator(
+    cache_page(60 * 5), name="retrieve"
+)  # cache detail view 5 mins
+class AccountViewSet(ModelViewSet):
+    queryset = Account.objects.all()
+    serializer_class = AccountSerializer
 
 
 class LogoutView(APIView):

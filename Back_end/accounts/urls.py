@@ -6,6 +6,7 @@ from rest_framework_simplejwt.views import (
 )
 
 from accounts.views import (
+    AccountViewSet,
     GoverningBodyViewSet,
     HeadMasterAccountViewSet,
     LogoutView,
@@ -15,6 +16,7 @@ from accounts.views import (
 )
 
 router = DefaultRouter()
+router.register(r"account", AccountViewSet, basename="account")
 router.register(r"students", StudentAccountViewSet, basename="student")
 router.register(r"teachers", TeacherAccountViewSet, basename="teacher")
 router.register(r"headmaster", HeadMasterAccountViewSet, basename="headmaster")
