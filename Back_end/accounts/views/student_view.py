@@ -1,6 +1,7 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import AllowAny
 
 from accounts.models import StudentAccount
 from accounts.serializers import StudentSerializer
@@ -13,3 +14,4 @@ from accounts.serializers import StudentSerializer
 class StudentAccountViewSet(ModelViewSet):
     queryset = StudentAccount.objects.all()
     serializer_class = StudentSerializer
+    permission_classes = [AllowAny]

@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import AllowAny
 
 from accounts.models import Account
 from accounts.serializers import AccountSerializer
@@ -17,6 +18,7 @@ from accounts.serializers import AccountSerializer
 class AccountViewSet(ModelViewSet):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
+    permission_classes = [AllowAny]
 
 
 class LogoutView(APIView):
