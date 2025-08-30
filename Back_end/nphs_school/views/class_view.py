@@ -1,6 +1,7 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
+from rest_framework.permissions import AllowAny
 
 from nphs_school.models import AClass
 from nphs_school.serializers import AClassSerializer
@@ -11,3 +12,4 @@ from nphs_school.serializers import AClassSerializer
 class AClassViewSet(viewsets.ModelViewSet):
     queryset = AClass.objects.all()
     serializer_class = AClassSerializer
+    permission_classes = [AllowAny]

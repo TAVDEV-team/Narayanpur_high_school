@@ -6,8 +6,8 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-# , IsAuthenticated
-# from accounts.permissions import IsHeadMaster
+
+from accounts.permissions import IsHeadMaster, IsTeacher
 from nphs_school.models import Notice
 from nphs_school.serializers import NoticeSerializer
 
@@ -36,8 +36,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=["get"],
         url_path="pending",
-        permission_classes=[AllowAny],
-        # permission_classes=[IsTeacher],
+        permission_classes=[IsTeacher],
     )
     def pending_list(self, request):
         pending = Notice.objects.filter(
@@ -45,7 +44,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
         ).order_by("-notice_for_date", "-created_at")
         return self._paginate_and_respond(pending)
 
-    @action(detail=True, url_path="approve", permission_classes=[AllowAny])
+    @action(detail=True, url_path="approve", permission_classes=[IsHeadMaster])
     def approve_notice(self, request, pk=None):
         notice = self.get_object()
         notice.approve(request.user)

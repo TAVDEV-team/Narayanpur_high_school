@@ -10,10 +10,10 @@ from accounts.models import Account
 from accounts.serializers import AccountSerializer
 
 
-@method_decorator(cache_page(60 * 5), name="list")  # cache list view 5 mins
+@method_decorator(cache_page(60 * 5), name="list")
 @method_decorator(
     cache_page(60 * 5), name="retrieve"
-)  # cache detail view 5 mins
+)
 class AccountViewSet(ModelViewSet):
     queryset = Account.objects.all()
     serializer_class = AccountSerializer
@@ -22,10 +22,9 @@ class AccountViewSet(ModelViewSet):
 class LogoutView(APIView):
     def post(self, request, *args, **kwargs):
         try:
-            # Access the token from the Authorization header
             refresh_token = request.data.get('refresh')
             token = RefreshToken(refresh_token)
-            token.blacklist()  # Blacklisting the token
+            token.blacklist()
             return Response(
                 {"message": "Logout successful"},
                 status=status.HTTP_205_RESET_CONTENT,
