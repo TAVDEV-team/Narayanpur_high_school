@@ -6,7 +6,6 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
-from rest_framework.permissions import AllowAny
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import (
     Paragraph,
@@ -17,6 +16,7 @@ from reportlab.platypus import (
 )
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from accounts.models import StudentAccount
@@ -309,3 +309,4 @@ class ResultViewSet(viewsets.ModelViewSet):
 class ExamViewSet(viewsets.ModelViewSet):
     queryset = Exam.objects.all()
     serializer_class = ExamSerializer
+    permission_classes = [AllowAny]

@@ -6,7 +6,6 @@ from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
-
 from accounts.permissions import IsHeadMaster, IsTeacher
 from nphs_school.models import Notice
 from nphs_school.serializers import NoticeSerializer

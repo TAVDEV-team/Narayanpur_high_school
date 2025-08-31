@@ -1,6 +1,6 @@
 from rest_framework import status, viewsets
-from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
 
 from nphs_school.models import About
 from nphs_school.serializers import AboutSerializer
