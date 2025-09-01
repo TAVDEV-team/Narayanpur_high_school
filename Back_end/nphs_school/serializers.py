@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from accounts.serializers import StudentSerializer
+from accounts.serializers import StudentSerializer, TeacherSerializer
 from nphs_school.models import (
     About,
     AClass,
@@ -21,9 +21,17 @@ class AboutSerializer(serializers.ModelSerializer):
 
 
 class MessagesSerializer(serializers.ModelSerializer):
+    teacher_serializer = TeacherSerializer()
+
     class Meta:
         model = Messages
-        fields = "__all__"
+        fields = [
+            'id',
+            'message',
+            'created_at',
+            'updated_at',
+            'teacher_serializer',
+        ]
 
 
 class SchoolSerializer(serializers.ModelSerializer):
