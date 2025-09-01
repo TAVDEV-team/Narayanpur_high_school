@@ -35,7 +35,7 @@ class NoticeViewSet(viewsets.ModelViewSet):
         detail=False,
         methods=["get"],
         url_path="pending",
-        permission_classes=[IsTeacher],
+        permission_classes=[IsTeacher, IsHeadMaster],
     )
     def pending_list(self, request):
         pending = Notice.objects.filter(

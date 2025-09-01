@@ -68,6 +68,7 @@ Pygments==2.19.2
 PyJWT==2.10.1
 pytest==8.4.1
 pytest-cov==6.2.1
+pytest-django==4.11.1
 python-dateutil==2.9.0.post0
 python-decouple==3.8
 python-dotenv==1.1.1

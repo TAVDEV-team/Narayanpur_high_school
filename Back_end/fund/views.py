@@ -1,7 +1,6 @@
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import status, viewsets
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from accounts.permissions import IsHeadMaster
@@ -12,7 +11,7 @@ from fund.serializers import FundSerializer, FundTransactionSerializer
 class FundViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Fund.objects.all()
     serializer_class = FundSerializer
-    permission_classes = [IsAuthenticated, IsHeadMaster]
+    permission_classes = [IsHeadMaster]
 
 
 @method_decorator(cache_page(60 * 5), name="list")
@@ -20,7 +19,7 @@ class FundViewSet(viewsets.ReadOnlyModelViewSet):
 class FundTransactionViewSet(viewsets.ModelViewSet):
     queryset = FundTransaction.objects.all()
     serializer_class = FundTransactionSerializer
-    permission_classes = [IsAuthenticated, IsHeadMaster]
+    permission_classes = [IsHeadMaster]
 
     def update(self, request, *args, **kwargs):
         return Response(
