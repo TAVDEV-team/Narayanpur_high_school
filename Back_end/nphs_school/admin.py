@@ -4,6 +4,7 @@ from nphs_school.models import (
     About,
     AClass,
     Batch,
+    Messages,
     Notice,
     Routine,
     School,
@@ -26,3 +27,4 @@ admin.site.register(Subject)
 admin.site.register(Notice)
 admin.site.register(Routine)
 admin.site.register(Syllabus)
+admin.site.register(Messages)

@@ -5,6 +5,7 @@ from nphs_school.models import (
     About,
     AClass,
     Batch,
+    Messages,
     Notice,
     Routine,
     School,
@@ -16,6 +17,12 @@ from nphs_school.models import (
 class AboutSerializer(serializers.ModelSerializer):
     class Meta:
         model = About
+        fields = "__all__"
+
+
+class MessagesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Messages
         fields = "__all__"
 
 
