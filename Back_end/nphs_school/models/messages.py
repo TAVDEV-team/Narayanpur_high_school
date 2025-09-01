@@ -1,7 +1,5 @@
 from django.db import models
 
-# from
-
 
 class Messages(models.Model):
     message_of = models.ForeignKey(

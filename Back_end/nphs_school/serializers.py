@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from accounts.models import TeacherAccount
 from accounts.serializers import StudentSerializer, TeacherSerializer
 from nphs_school.models import (
     About,
@@ -21,16 +21,22 @@ class AboutSerializer(serializers.ModelSerializer):
 
 
 class MessagesSerializer(serializers.ModelSerializer):
-    teacher_serializer = TeacherSerializer()
+    message_of = TeacherSerializer(read_only=True)
+    message_of_id = serializers.PrimaryKeyRelatedField(
+        queryset=TeacherAccount.objects.all(),
+        source="message_of",
+        write_only=True,
+    )
 
     class Meta:
         model = Messages
         fields = [
-            'id',
-            'message',
-            'created_at',
-            'updated_at',
-            'teacher_serializer',
+            "id",
+            "message",
+            "created_at",
+            "updated_at",
+            "message_of",
+            "message_of_id",
         ]
 
 
