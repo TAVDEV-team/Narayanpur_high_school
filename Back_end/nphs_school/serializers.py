@@ -49,7 +49,6 @@ class MessagesSerializer(serializers.ModelSerializer):
             "updated_at",
             "message_of",
             "message_of_id",
-            "base_subject_detail",
         ]
 
 
