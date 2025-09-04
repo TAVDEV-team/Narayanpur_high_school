@@ -1,6 +1,8 @@
 from rest_framework import permissions
 
-from accounts.permissions import IsHeadMaster, IsOfficeHelper, IsTeacher
+from .office_helpers_permissions import IsOfficeHelper
+from .headmaster_permission import IsHeadMaster
+from .teacher_permission import IsTeacher
 
 
 class ReadOnlyOrRestricted(permissions.BasePermission):
