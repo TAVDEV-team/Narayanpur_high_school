@@ -34,11 +34,6 @@ class MessageTeacherSerializer(serializers.ModelSerializer):
 
 class MessagesSerializer(serializers.ModelSerializer):
     message_of = MessageTeacherSerializer(read_only=True)
-    message_of_id = serializers.PrimaryKeyRelatedField(
-        queryset=TeacherAccount.objects.all(),
-        source="message_of",
-        write_only=True,
-    )
 
     class Meta:
         model = Messages
@@ -48,8 +43,18 @@ class MessagesSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
             "message_of",
-            "message_of_id",
         ]
+
+    # def create(self, validated_data):
+    #     # user = self.request
+    #     print(validated_data)
+    #     try:
+    #         teacher = TeacherAccount.objects.get(id=id)
+    #     except TeacherAccount.DoesNotExist:
+    #         raise serializers.ValidationError("This user is not a teacher.")
+
+    #     validated_data["message_of"] = teacher
+    #     return super().create(validated_data)
 
 
 class SchoolSerializer(serializers.ModelSerializer):
