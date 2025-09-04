@@ -1,6 +1,7 @@
 from rest_framework import serializers
+
 from accounts.models import TeacherAccount
-from accounts.serializers import StudentSerializer, TeacherSerializer
+from accounts.serializers import StudentSerializer
 from nphs_school.models import (
     About,
     AClass,
@@ -20,13 +21,26 @@ class AboutSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class MessageTeacherSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(
+        source="account.full_name", read_only=True
+    )
+    image = serializers.ImageField(source="account.image", read_only=True)
+
+    class Meta:
+        model = TeacherAccount
+        fields = ["image", "full_name"]
+
+
 class MessagesSerializer(serializers.ModelSerializer):
-    message_of = TeacherSerializer(read_only=True)
+    message_of = MessageTeacherSerializer(read_only=True)
     message_of_id = serializers.PrimaryKeyRelatedField(
         queryset=TeacherAccount.objects.all(),
         source="message_of",
         write_only=True,
     )
+
+    base_subject_detail = serializers.SerializerMethodField()
 
     class Meta:
         model = Messages
@@ -37,6 +51,7 @@ class MessagesSerializer(serializers.ModelSerializer):
             "updated_at",
             "message_of",
             "message_of_id",
+            "base_subject_detail",
         ]
 
 
