@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import (
 
 from accounts.views import (
     AccountViewSet,
+    ChangePasswordView,
     GoverningBodyViewSet,
     HeadMasterAccountViewSet,
     LogoutView,
@@ -27,6 +28,11 @@ router.register(
 
 urlpatterns = [
     path("", include(router.urls)),
+    path(
+        "change-password/",
+        ChangePasswordView.as_view(),
+        name="change-password",
+    ),
     path("token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
     path("token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("logout/", LogoutView.as_view(), name="logout"),

@@ -54,11 +54,6 @@ class MessagesSerializer(serializers.ModelSerializer):
             "base_subject_detail",
         ]
 
-    def get_base_subject_detail(self, obj):
-        if obj.base_subject:
-            return {"name": obj.base_subject.name}
-        return None
-
 
 class SchoolSerializer(serializers.ModelSerializer):
     class Meta:

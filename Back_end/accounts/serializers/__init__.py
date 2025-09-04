@@ -1,4 +1,5 @@
 from .account_serializer import AccountSerializer
+from .change_password import ChangePasswordSerializer
 from .governing_serializer import GoverningBodySerializer
 from .office_helpers_serializers import OfficeHelpersSerializer
 from .principle_serializer import HeadMasterSerializer
@@ -12,4 +13,5 @@ __all__ = [
     'TeacherSerializer',
     'GoverningBodySerializer',
     'AccountSerializer',
+    'ChangePasswordSerializer',
 ]
