@@ -40,8 +40,6 @@ class MessagesSerializer(serializers.ModelSerializer):
         write_only=True,
     )
 
-    base_subject_detail = serializers.SerializerMethodField()
-
     class Meta:
         model = Messages
         fields = [

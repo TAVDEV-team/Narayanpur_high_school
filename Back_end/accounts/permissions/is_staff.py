@@ -22,6 +22,8 @@ class IsStaff(permissions.BasePermission):
                 or getattr(user, "is_headmaster", False)
             )
         )
+
+
 # from rest_framework import permissions
 # from accounts.models import OfficeHelpersAccount, TeacherAccount
 # import accounts.models.teacher import HeadMasterAccount
