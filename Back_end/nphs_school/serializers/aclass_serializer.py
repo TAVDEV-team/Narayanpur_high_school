@@ -1,104 +1,17 @@
+from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from accounts.models import TeacherAccount
 from accounts.serializers import StudentSerializer
-from nphs_school.models import (
-    About,
-    AClass,
-    Batch,
-    Messages,
-    Notice,
-    Routine,
-    School,
-    Subject,
-    Syllabus,
-)
+from nphs_school.models import AClass, Subject
 
-
-class AboutSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = About
-        fields = "__all__"
-
-
-class MessageTeacherSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(
-        source="account.full_name", read_only=True
-    )
-    image = serializers.ImageField(source="account.image", read_only=True)
-
-    class Meta:
-        model = TeacherAccount
-        fields = ["image", "full_name"]
-
-
-class MessagesSerializer(serializers.ModelSerializer):
-    message_of = MessageTeacherSerializer(read_only=True)
-
-    class Meta:
-        model = Messages
-        fields = [
-            "id",
-            "message",
-            "created_at",
-            "updated_at",
-            "message_of",
-        ]
-
-    # def create(self, validated_data):
-    #     # user = self.request
-    #     print(validated_data)
-    #     try:
-    #         teacher = TeacherAccount.objects.get(id=id)
-    #     except TeacherAccount.DoesNotExist:
-    #         raise serializers.ValidationError("This user is not a teacher.")
-
-    #     validated_data["message_of"] = teacher
-    #     return super().create(validated_data)
-
-
-class SchoolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = School
-        fields = "__all__"
-
-
-class BatchSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Batch
-        fields = "__all__"
-
-
-class SubjectSerializer(serializers.ModelSerializer):
-    total_marks = serializers.IntegerField(read_only=True)
-
-    class Meta:
-        model = Subject
-        fields = [
-            "id",
-            "name",
-            "subject_type",
-            "code",
-            "written_marks",
-            "practical_marks",
-            "mcq_marks",
-            "total_marks",
-        ]
-
-
-class NoticeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Notice
-        fields = "__all__"
+from .subject_serializer import SubjectSerializer
 
 
 class AClassSerializer(serializers.ModelSerializer):
-
     total_students = serializers.SerializerMethodField()
     male_students = serializers.SerializerMethodField()
     female_students = serializers.SerializerMethodField()
     students = StudentSerializer(many=True, read_only=True)
-
     all_subjects = SubjectSerializer(many=True, read_only=True)
 
     class Meta:
@@ -115,12 +28,9 @@ class AClassSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         ]
-
         read_only_fields = ["created_at", "updated_at"]
 
     def validate(self, attrs):
-        # This will run `clean()` in model via `full_clean()` when saving
-        # But we can add explicit validation to catch earlier
         errors = {}
 
         def check_subjects(subjects, allowed_types, field_name):
@@ -169,7 +79,6 @@ class AClassSerializer(serializers.ModelSerializer):
         instance.group_subjects.set(group_subjects)
         instance.religious.set(religious)
         instance.extra.set(extra)
-
         return instance
 
     def update(self, instance, validated_data):
@@ -180,7 +89,6 @@ class AClassSerializer(serializers.ModelSerializer):
 
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
-
         instance.save()
 
         if compulsory is not None:
@@ -194,48 +102,14 @@ class AClassSerializer(serializers.ModelSerializer):
 
         return instance
 
-    def get_total_students(self, obj):
+    @extend_schema_field(int)
+    def get_total_students(self, obj) -> int:
         return obj.students().count()
 
-    def get_male_students(self, obj):
+    @extend_schema_field(int)
+    def get_male_students(self, obj) -> int:
         return obj.students().filter(account__gender="male").count()
 
-    def get_female_students(self, obj):
+    @extend_schema_field(int)
+    def get_female_students(self, obj) -> int:
         return obj.students().filter(account__gender="female").count()
-
-
-class RoutineSerializer(serializers.ModelSerializer):
-    slot_display = serializers.CharField(
-        source="get_slot_display", read_only=True
-    )
-    day_display = serializers.CharField(
-        source="get_day_display", read_only=True
-    )
-
-    class Meta:
-        model = Routine
-        fields = [
-            "id",
-            "aclass",
-            "day",
-            "day_display",
-            "slot",
-            "slot_display",
-            "subject",
-            "teacher",
-        ]
-
-
-class SyllabusSerializer(serializers.ModelSerializer):
-    class_title = serializers.CharField(source="aclass.name", read_only=True)
-
-    class Meta:
-        model = Syllabus
-        fields = [
-            "id",
-            "aclass",
-            "class_title",
-            "title",
-            "file",
-            "uploaded_at",
-        ]
