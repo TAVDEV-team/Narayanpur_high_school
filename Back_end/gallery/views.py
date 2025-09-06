@@ -1,8 +1,9 @@
+from django.utils.decorators import method_decorator
+from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
 
 from accounts.permissions import ReadOnlyOrRestricted
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
+
 from .models import Photo, PhotoCategory
 from .serializers import PhotoCategorySerializer, PhotoSerializer
 

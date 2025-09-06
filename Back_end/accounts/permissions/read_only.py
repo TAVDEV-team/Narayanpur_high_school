@@ -1,7 +1,7 @@
 from rest_framework import permissions
 
-from .office_helpers_permissions import IsOfficeHelper
 from .headmaster_permission import IsHeadMaster
+from .office_helpers_permissions import IsOfficeHelper
 from .teacher_permission import IsTeacher
 
 
