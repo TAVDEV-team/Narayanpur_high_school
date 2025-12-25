@@ -1,5 +1,3 @@
-from django.utils.decorators import method_decorator
-from django.views.decorators.cache import cache_page
 from rest_framework import status, viewsets
 from rest_framework.response import Response
 
@@ -14,8 +12,6 @@ class FundViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsHeadMaster]
 
 
-@method_decorator(cache_page(60 * 5), name="list")
-@method_decorator(cache_page(60 * 5), name="retrieve")
 class FundTransactionViewSet(viewsets.ModelViewSet):
     queryset = FundTransaction.objects.all()
     serializer_class = FundTransactionSerializer
