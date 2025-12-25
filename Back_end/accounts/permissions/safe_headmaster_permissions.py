@@ -2,7 +2,7 @@ from rest_framework import permissions
 from accounts.models import HeadMasterAccount
 
 
-class ISHeadmasterSafe(permissions.BasePermission):
+class IsHeadmasterSafe(permissions.BasePermission):
     """
     Custom permission: Only HeadMaster can modify. But all can Read
     """
