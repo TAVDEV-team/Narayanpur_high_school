@@ -40,7 +40,6 @@ class TeacherAccount(models.Model):
 
     def clean(self):
         if self.is_class_teacher and not self.class_teacher_of:
-            print(self.is_class_teacher, self.base_subject)
             raise ValidationError("Class teacher must be assigned to a class.")
 
     def save(self, *args, **kwargs):

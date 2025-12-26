@@ -35,7 +35,6 @@ class StudentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         account_data = validated_data.pop("account")
         aclass_id = validated_data.pop("class_name")
-        print(account_data)
         group_map = {
             "9": {
                 "science": "9_science",
@@ -70,12 +69,10 @@ class StudentSerializer(serializers.ModelSerializer):
                 account_data["user"][
                     "email"
                 ] = f"{user_name.lower()}@gmail.com"
-            print(account_data['user']['email'])
             # create account first
             account_serializer = AccountSerializer(data=account_data)
             account_serializer.is_valid(raise_exception=True)
             account = account_serializer.save()
-            print(account_serializer)
 
             # resolve batch from class
             batch = aclass.batch
