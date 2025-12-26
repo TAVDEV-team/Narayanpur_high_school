@@ -35,7 +35,7 @@ class StudentSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         account_data = validated_data.pop("account")
         aclass_id = validated_data.pop("class_name")
-
+        print(account_data)
         group_map = {
             "9": {
                 "science": "9_science",
@@ -61,22 +61,21 @@ class StudentSerializer(serializers.ModelSerializer):
                 .order_by("-roll_number")
                 .first()
             )
-            number = (last_roll.roll_number + 1) if last_roll else 1
-            user_name = (
-                f"{str(aclass.batch).replace("-", "_").lower()}{number}"
-            )
+            roll_number = (last_roll.roll_number + 1) if last_roll else 1
+            user_name = f"{str(aclass.batch).replace("-", "_").lower()}_{account_data['religion'][0]}{account_data['gender'][0]}{account_data['user']['first_name'][0:1]}{account_data['user']['last_name'][0:1]}_{roll_number}"  # noqa: E501
 
             # normalize dummy email + username
             account_data["user"]["username"] = user_name
-            if account_data["user"]["email"] == "dummy_email@gmail.com":
+            if account_data["user"]["email"] == "student_email@gmail.com":
                 account_data["user"][
                     "email"
                 ] = f"{user_name.lower()}@gmail.com"
-
+            print(account_data['user']['email'])
             # create account first
             account_serializer = AccountSerializer(data=account_data)
             account_serializer.is_valid(raise_exception=True)
             account = account_serializer.save()
+            print(account_serializer)
 
             # resolve batch from class
             batch = aclass.batch
