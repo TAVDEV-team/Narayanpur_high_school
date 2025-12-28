@@ -12,6 +12,6 @@ from accounts.serializers import StudentSerializer
     cache_page(60 * 5), name="retrieve"
 )  # cache detail view 5 mins
 class StudentAccountViewSet(ModelViewSet):
-    queryset = StudentAccount.objects.all()
+    queryset = StudentAccount.objects.all().order_by('account_id')
     serializer_class = StudentSerializer
     permission_classes = [AllowAny]
