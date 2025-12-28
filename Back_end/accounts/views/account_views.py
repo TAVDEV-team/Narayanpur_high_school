@@ -14,7 +14,7 @@ from accounts.serializers import AccountSerializer
 @method_decorator(cache_page(60 * 5), name="list")
 @method_decorator(cache_page(60 * 5), name="retrieve")
 class AccountViewSet(ModelViewSet):
-    queryset = Account.objects.all()
+    queryset = Account.objects.all().order_by('-created_at')
     serializer_class = AccountSerializer
     permission_classes = [AllowAny]
 
