@@ -251,7 +251,7 @@ def generate_report_card_pdf(report_data):
 @method_decorator(cache_page(60 * 5), name="list")
 @method_decorator(cache_page(60 * 5), name="retrieve")
 class ResultViewSet(viewsets.ModelViewSet):
-    queryset = Result.objects.all()
+    queryset = Result.objects.all().order_by('created_at')
     serializer_class = ResultSerializer
     permission_classes = [AllowAny]
 
@@ -307,6 +307,6 @@ class ResultViewSet(viewsets.ModelViewSet):
 @method_decorator(cache_page(60 * 5), name="list")
 @method_decorator(cache_page(60 * 5), name="retrieve")
 class ExamViewSet(viewsets.ModelViewSet):
-    queryset = Exam.objects.all()
+    queryset = Exam.objects.all().order_by('created_at')
     serializer_class = ExamSerializer
     permission_classes = [AllowAny]

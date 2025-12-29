@@ -6,6 +6,6 @@ from nphs_school.serializers import MessagesSerializer
 
 
 class MessagesViewSet(viewsets.ModelViewSet):
-    queryset = Messages.objects.all()
+    queryset = Messages.objects.all().order_by('created_at')
     serializer_class = MessagesSerializer
     permission_classes = [MessagesPermission]
