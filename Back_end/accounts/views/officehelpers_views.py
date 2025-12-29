@@ -10,6 +10,6 @@ from accounts.permissions import IsHeadmasterSafe
 @method_decorator(cache_page(60 * 5), name="list")
 @method_decorator(cache_page(60 * 5), name="retrieve")
 class OfficeHelpersAccountViewSet(ModelViewSet):
-    queryset = OfficeHelpersAccount.objects.all()
+    queryset = OfficeHelpersAccount.objects.all().order_by('account')
     serializer_class = OfficeHelpersSerializer
     permission_classes = [IsHeadmasterSafe]

@@ -10,6 +10,6 @@ from accounts.permissions import IsHeadmasterSafe
 @method_decorator(cache_page(60 * 5), name="list")
 @method_decorator(cache_page(60 * 5), name="retrieve")
 class TeacherAccountViewSet(ModelViewSet):
-    queryset = TeacherAccount.objects.all()
+    queryset = TeacherAccount.objects.all().order_by('account')
     serializer_class = TeacherSerializer
     permission_classes = [IsHeadmasterSafe]
