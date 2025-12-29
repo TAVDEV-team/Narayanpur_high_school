@@ -6,6 +6,6 @@ from accounts.serializers import GoverningBodySerializer
 
 
 class GoverningBodyViewSet(viewsets.ModelViewSet):
-    queryset = GoverningBody.objects.all()
+    queryset = GoverningBody.objects.all().order_by('account')
     serializer_class = GoverningBodySerializer
     permission_classes = [IsHeadmasterSafe]

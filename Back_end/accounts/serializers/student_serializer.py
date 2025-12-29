@@ -26,13 +26,14 @@ class StudentSerializer(serializers.ModelSerializer):
             "roll_number",
             "account",
         ]
-        read_only_fields = ["roll_number", "aclass", "batch_label"]
+        read_only_fields = ["aclass", "batch_label"]
 
     def get_aclass(self, obj):
         aclass = obj.batch.current_class
         return str(aclass) if aclass else None
 
     def create(self, validated_data):
+        print(validated_data)
         account_data = validated_data.pop("account")
         aclass_id = validated_data.pop("class_name")
         group_map = {
@@ -60,9 +61,11 @@ class StudentSerializer(serializers.ModelSerializer):
                 .order_by("-roll_number")
                 .first()
             )
+            print(account_data)
+            # print(validated_data['roll_number'])
             roll_number = (last_roll.roll_number + 1) if last_roll else 1
             user_name = f"{str(aclass.batch).replace("-", "_").lower()}_{account_data['religion'][0]}{account_data['gender'][0]}{account_data['user']['first_name'][0:1]}{account_data['user']['last_name'][0:1]}_{roll_number}"  # noqa: E501
-
+            validated_data['roll_number'] = roll_number
             # normalize dummy email + username
             account_data["user"]["username"] = user_name
             if account_data["user"]["email"] == "student_email@gmail.com":
