@@ -9,7 +9,6 @@ class TeacherSerializer(serializers.ModelSerializer):
     account = AccountSerializer()
     base_subject_detail = serializers.SerializerMethodField()
     class_teacher_of_detail = serializers.SerializerMethodField()
-    is_headmaster = serializers.SerializerMethodField()
 
     class Meta:
         model = TeacherAccount
@@ -21,7 +20,6 @@ class TeacherSerializer(serializers.ModelSerializer):
             "is_class_teacher",
             "class_teacher_of",
             "class_teacher_of_detail",
-            "is_headmaster",
         ]
 
     def get_base_subject_detail(self, obj):
@@ -41,10 +39,6 @@ class TeacherSerializer(serializers.ModelSerializer):
             if obj.class_teacher_of
             else None
         )
-
-    def get_is_headmaster(self, obj):
-        # Assuming TeacherAccount model has a boolean field `is_headmaster`
-        return obj.is_headmaster
 
     def create(self, validated_data):
         account_data = validated_data.pop("account")
