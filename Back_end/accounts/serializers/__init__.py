@@ -3,8 +3,9 @@ from .change_password import ChangePasswordSerializer
 from .governing_serializer import GoverningBodySerializer
 from .office_helpers_serializers import OfficeHelpersSerializer
 from .principle_serializer import HeadMasterSerializer
-from .student_serializer import StudentSerializer
+from .student_serializer import StudentSerializer, StudentListSerializer
 from .teacher_serializer import TeacherSerializer
+from .custom_token import CustomTokenObtainPairSerializer
 
 __all__ = [
     'OfficeHelpersSerializer',
@@ -14,4 +15,6 @@ __all__ = [
     'GoverningBodySerializer',
     'AccountSerializer',
     'ChangePasswordSerializer',
+    'StudentListSerializer',
+    'CustomTokenObtainPairSerializer',
 ]

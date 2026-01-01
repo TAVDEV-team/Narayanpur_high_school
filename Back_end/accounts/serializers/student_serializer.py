@@ -90,3 +90,34 @@ class StudentSerializer(serializers.ModelSerializer):
             )
 
         return student
+
+
+class StudentListSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(
+        source="account.full_name", read_only=True
+    )
+    aclass = serializers.SerializerMethodField()
+    # batch_label = serializers.CharField(source="batch.label", read_only=True)
+    gender = serializers.CharField(
+        source="account.get_gender_display", read_only=True
+    )
+    religion = serializers.CharField(
+        source="account.get_religion_display", read_only=True
+    )
+
+    class Meta:
+        model = StudentAccount
+        fields = [
+            "id",
+            "full_name",
+            "roll_number",
+            # "group",
+            "aclass",
+            # "batch_label",
+            "gender",
+            "religion",
+        ]
+
+    def get_aclass(self, obj):
+        aclass = obj.batch.current_class
+        return str(aclass) if aclass else None

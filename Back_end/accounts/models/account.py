@@ -3,6 +3,7 @@ import re
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
+from .account_roles import AccountRole
 
 RELIGION_CHOICES = [
     (rel, rel.title()) for rel in ["islam", "hindu", "buddhist", "christian"]
@@ -28,6 +29,9 @@ class Account(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    role = models.CharField(
+        max_length=20, choices=AccountRole.choices, blank=True, null=True
+    )
 
     @property
     def full_name(self) -> str:
