@@ -96,9 +96,14 @@ class StudentListSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(
         source="account.full_name", read_only=True
     )
-    image = serializers.ImageField(source="account.image", read_only=True)
     aclass = serializers.SerializerMethodField()
-    batch_label = serializers.CharField(source="batch.label", read_only=True)
+    # batch_label = serializers.CharField(source="batch.label", read_only=True)
+    gender = serializers.CharField(
+        source="account.get_gender_display", read_only=True
+    )
+    religion = serializers.CharField(
+        source="account.get_religion_display", read_only=True
+    )
 
     class Meta:
         model = StudentAccount
@@ -106,10 +111,11 @@ class StudentListSerializer(serializers.ModelSerializer):
             "id",
             "full_name",
             "roll_number",
-            "group",
+            # "group",
             "aclass",
-            "batch_label",
-            'image',
+            # "batch_label",
+            "gender",
+            "religion",
         ]
 
     def get_aclass(self, obj):
