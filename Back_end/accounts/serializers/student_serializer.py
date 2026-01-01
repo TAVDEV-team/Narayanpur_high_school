@@ -109,6 +109,7 @@ class StudentListSerializer(serializers.ModelSerializer):
             "group",
             "aclass",
             "batch_label",
+            'image',
         ]
 
     def get_aclass(self, obj):
