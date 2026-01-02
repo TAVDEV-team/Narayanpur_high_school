@@ -1,18 +1,15 @@
-from drf_spectacular.utils import extend_schema_field
+# from drf_spectacular.utils import extend_schema_field
 from rest_framework import serializers
 
-from accounts.serializers import StudentSerializer
+from accounts.serializers import StudentListSerializer
 from nphs_school.models import AClass, Subject
 
 from .subject_serializer import SubjectSerializer
 
 
-class AClassSerializer(serializers.ModelSerializer):
-    total_students = serializers.SerializerMethodField()
-    male_students = serializers.SerializerMethodField()
-    female_students = serializers.SerializerMethodField()
-    students = StudentSerializer(many=True, read_only=True)
-    all_subjects = SubjectSerializer(many=True, read_only=True)
+class AClassReadSerializer(serializers.ModelSerializer):
+    students = serializers.SerializerMethodField()
+    all_subjects = serializers.SerializerMethodField()
 
     class Meta:
         model = AClass
@@ -20,9 +17,38 @@ class AClassSerializer(serializers.ModelSerializer):
             "id",
             "name",
             "room_number",
-            "total_students",
-            "male_students",
-            "female_students",
+            "students",
+            "all_subjects",
+            "created_at",
+            "updated_at",
+        ]
+        read_only_fields = fields
+
+    def get_students(self, obj):
+        return StudentListSerializer(
+            obj.students().select_related("account"),
+            many=True,
+        ).data
+
+    def get_all_subjects(self, obj):
+        subjects = (
+            list(obj.compulsory.all())
+            + list(obj.group_subjects.all())
+            + list(obj.religious.all())
+            + list(obj.extra.all())
+        )
+        return SubjectSerializer(subjects, many=True).data
+
+
+class AClassSerializer(serializers.ModelSerializer):
+    students = StudentListSerializer(many=True, read_only=True)
+    all_subjects = SubjectSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AClass
+        fields = [
+            "id",
+            "name",
             "students",
             "all_subjects",
             "created_at",
@@ -102,14 +128,25 @@ class AClassSerializer(serializers.ModelSerializer):
 
         return instance
 
-    @extend_schema_field(int)
-    def get_total_students(self, obj) -> int:
-        return obj.students().count()
+    def get_students(self, obj):
+        return StudentListSerializer(
+            obj.students().select_related("account"), many=True
+        ).data
 
-    @extend_schema_field(int)
-    def get_male_students(self, obj) -> int:
-        return obj.students().filter(account__gender="male").count()
 
-    @extend_schema_field(int)
-    def get_female_students(self, obj) -> int:
-        return obj.students().filter(account__gender="female").count()
+class AClassMetaSerializer(serializers.ModelSerializer):
+    total_students = serializers.IntegerField(read_only=True)
+    male_students = serializers.IntegerField(read_only=True)
+    female_students = serializers.IntegerField(read_only=True)
+
+    class Meta:
+        model = AClass
+        fields = [
+            "id",
+            "name",
+            "room_number",
+            "total_students",
+            "male_students",
+            "female_students",
+        ]
+        read_only_fields = ["created_at", "updated_at"]

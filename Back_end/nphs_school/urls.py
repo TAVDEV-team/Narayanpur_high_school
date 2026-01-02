@@ -1,17 +1,9 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
-from nphs_school.views import (
-    AboutViewSet,
-    AClassViewSet,
-    BatchViewSet,
-    MessagesViewSet,
-    NoticeViewSet,
-    RoutineViewSet,
-    SchoolViewSet,
-    SubjectViewSet,
-    SyllabusViewSet,
-)
+from nphs_school.views import (AboutViewSet, AClassViewSet, BatchViewSet,
+                               MessagesViewSet, NoticeViewSet, RoutineViewSet,
+                               SchoolViewSet, SubjectViewSet, SyllabusViewSet)
 
 router = DefaultRouter()
 
