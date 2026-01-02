@@ -4,7 +4,7 @@ from rest_framework import serializers
 from accounts.serializers import StudentListSerializer
 from nphs_school.models import AClass, Subject
 
-from .subject_serializer import SubjectSerializer
+from .subject_serializer import SubjectListSerializer
 
 
 class AClassReadSerializer(serializers.ModelSerializer):
@@ -37,12 +37,12 @@ class AClassReadSerializer(serializers.ModelSerializer):
             + list(obj.religious.all())
             + list(obj.extra.all())
         )
-        return SubjectSerializer(subjects, many=True).data
+        return SubjectListSerializer(subjects, many=True).data
 
 
 class AClassSerializer(serializers.ModelSerializer):
     students = StudentListSerializer(many=True, read_only=True)
-    all_subjects = SubjectSerializer(many=True, read_only=True)
+    all_subjects = SubjectListSerializer(many=True, read_only=True)
 
     class Meta:
         model = AClass

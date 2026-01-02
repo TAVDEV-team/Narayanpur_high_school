@@ -2,6 +2,7 @@ from django.db.models import Count, Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from rest_framework import viewsets
+
 # from
 # @method_decorator(cache_page(60 * 5), name="list")
 # @method_decorator(cache_page(60 * 5), name="retrieve")
@@ -11,6 +12,14 @@ from rest_framework.response import Response
 
 from nphs_school.models import AClass
 from nphs_school.serializers import AClassMetaSerializer, AClassSerializer
+from rest_framework.pagination import PageNumberPagination
+from accounts.serializers import StudentListSerializer
+
+
+class StudentPagination(PageNumberPagination):
+    page_size = 9
+    page_size_query_param = "page_size"
+    max_page_size = 100
 
 
 class AClassViewSet(viewsets.ModelViewSet):
@@ -49,6 +58,20 @@ class AClassViewSet(viewsets.ModelViewSet):
                 ),
             )
         ).order_by("name")
+
+    @action(detail=True, methods=["get"], url_path="students")
+    def students(self, request, pk=None):
+        aclass = self.get_object()
+
+        qs = (
+            aclass.students().select_related("account").order_by("roll_number")
+        )
+
+        paginator = StudentPagination()
+        page = paginator.paginate_queryset(qs, request)
+
+        serializer = StudentListSerializer(page, many=True)
+        return paginator.get_paginated_response(serializer.data)
 
     @action(detail=True, methods=["get"])
     @method_decorator(cache_page(60 * 5))
