@@ -1,5 +1,6 @@
 from .about_serializer import AboutSerializer
-from .aclass_serializer import AClassSerializer
+from .aclass_serializer import (AClassMetaSerializer, AClassReadSerializer,
+                                AClassSerializer)
 from .batch_serializer import BatchSerializer
 from .message_serializer import MessagesSerializer, MessageTeacherSerializer
 from .notice_serializer import NoticeSerializer
@@ -19,4 +20,6 @@ __all__ = [
     "SchoolSerializer",
     "SubjectSerializer",
     "SyllabusSerializer",
+    "AClassMetaSerializer",
+    'AClassReadSerializer',
 ]
