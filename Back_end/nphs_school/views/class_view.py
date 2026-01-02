@@ -14,9 +14,14 @@ from nphs_school.serializers import AClassMetaSerializer, AClassSerializer
 
 
 class AClassViewSet(viewsets.ModelViewSet):
-    queryset = AClass.objects.all()
+    queryset = AClass.objects.all().order_by('name')
     serializer_class = AClassSerializer
     permission_classes = [AllowAny]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return AClassMetaSerializer
+        return AClassSerializer
 
     def get_queryset(self):
         return (
@@ -43,7 +48,7 @@ class AClassViewSet(viewsets.ModelViewSet):
                     distinct=True,
                 ),
             )
-        )
+        ).order_by("name")
 
     @action(detail=True, methods=["get"])
     @method_decorator(cache_page(60 * 5))
