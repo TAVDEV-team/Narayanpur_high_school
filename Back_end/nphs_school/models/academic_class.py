@@ -17,6 +17,13 @@ CLASS_CHOICES = [
 ]
 
 
+class GroupChoices(models.TextChoices):
+    SCIENCE = "science", "Science"
+    HUMANITIES = "humanities", "Humanities"
+    BUSINESS = "business studies", "Business Studies"
+    NONE = "none", "No Group"
+
+
 class AClass(models.Model):
     name = models.CharField(max_length=20, choices=CLASS_CHOICES, unique=True)
     batch = models.ForeignKey(
@@ -36,6 +43,13 @@ class AClass(models.Model):
     room_number = models.CharField(max_length=10)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    grade = models.PositiveSmallIntegerField(default=0)
+    group = models.CharField(
+        max_length=20,
+        choices=GroupChoices,
+        null=True,
+        blank=True,
+    )
 
     def __str__(self):
         return dict(CLASS_CHOICES).get(self.name, self.name)
@@ -54,7 +68,10 @@ class AClass(models.Model):
             return
 
         errors = {}
-
+        if self.grade < 9 and self.group is not None:
+            raise ValidationError(
+                {"group": "Groups are only allowed for grade 9 and above."}
+            )
         # Check compulsory subjects
         wrong_compulsory = [
             sub.name
@@ -112,4 +129,10 @@ class AClass(models.Model):
 
     def students(self):
         StudentAccount = apps.get_model("accounts", "StudentAccount")
-        return StudentAccount.objects.filter(batch=self.batch)
+        qs = StudentAccount.objects.filter(batch=self.batch)
+
+        if self.group is not None:
+
+            qs = qs.filter(group=self.group)
+
+        return qs

@@ -6,7 +6,7 @@ from .message_serializer import MessagesSerializer, MessageTeacherSerializer
 from .notice_serializer import NoticeSerializer
 from .routine_serializer import RoutineSerializer
 from .school_serializer import SchoolSerializer
-from .subject_serializer import SubjectSerializer
+from .subject_serializer import SubjectListSerializer, SubjectSerializer
 from .syllabus_serializer import SyllabusSerializer
 
 __all__ = [
@@ -22,4 +22,5 @@ __all__ = [
     "SyllabusSerializer",
     "AClassMetaSerializer",
     'AClassReadSerializer',
+    "SubjectListSerializer",
 ]

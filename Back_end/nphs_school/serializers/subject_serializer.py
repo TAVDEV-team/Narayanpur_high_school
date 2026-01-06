@@ -18,3 +18,12 @@ class SubjectSerializer(serializers.ModelSerializer):
             "mcq_marks",
             "total_marks",
         ]
+
+
+class SubjectListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Subject
+        fields = [
+            "id",
+            "name",
+        ]

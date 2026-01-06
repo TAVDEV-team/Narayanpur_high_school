@@ -4,7 +4,7 @@ from rest_framework import serializers
 from accounts.serializers import StudentListSerializer
 from nphs_school.models import AClass, Subject
 
-from .subject_serializer import SubjectSerializer
+from .subject_serializer import SubjectListSerializer
 
 
 class AClassReadSerializer(serializers.ModelSerializer):
@@ -37,12 +37,12 @@ class AClassReadSerializer(serializers.ModelSerializer):
             + list(obj.religious.all())
             + list(obj.extra.all())
         )
-        return SubjectSerializer(subjects, many=True).data
+        return SubjectListSerializer(subjects, many=True).data
 
 
 class AClassSerializer(serializers.ModelSerializer):
     students = StudentListSerializer(many=True, read_only=True)
-    all_subjects = SubjectSerializer(many=True, read_only=True)
+    all_subjects = SubjectListSerializer(many=True, read_only=True)
 
     class Meta:
         model = AClass
@@ -135,9 +135,9 @@ class AClassSerializer(serializers.ModelSerializer):
 
 
 class AClassMetaSerializer(serializers.ModelSerializer):
-    total_students = serializers.IntegerField(read_only=True)
-    male_students = serializers.IntegerField(read_only=True)
-    female_students = serializers.IntegerField(read_only=True)
+    total_students = serializers.SerializerMethodField()
+    male_students = serializers.SerializerMethodField()
+    female_students = serializers.SerializerMethodField()
 
     class Meta:
         model = AClass
@@ -149,4 +149,12 @@ class AClassMetaSerializer(serializers.ModelSerializer):
             "male_students",
             "female_students",
         ]
-        read_only_fields = ["created_at", "updated_at"]
+
+    def get_total_students(self, obj):
+        return obj.students().count()
+
+    def get_male_students(self, obj):
+        return obj.students().filter(account__gender="male").count()
+
+    def get_female_students(self, obj):
+        return obj.students().filter(account__gender="female").count()

@@ -1,6 +1,5 @@
 from django.db import models
 from django.db.models import F, Max, Sum, Value
-
 # from django.db.models import F, IntegerField, Max, Sum, Value
 from django.db.models.functions import Coalesce
 
