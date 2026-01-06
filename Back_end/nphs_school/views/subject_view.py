@@ -2,7 +2,7 @@ from rest_framework import viewsets
 from rest_framework.permissions import AllowAny
 
 from nphs_school.models import Subject
-from nphs_school.serializers import SubjectSerializer, SubjectListSerializer
+from nphs_school.serializers import SubjectListSerializer, SubjectSerializer
 
 
 class SubjectViewSet(viewsets.ModelViewSet):

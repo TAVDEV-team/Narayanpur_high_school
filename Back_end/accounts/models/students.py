@@ -8,6 +8,7 @@ class GroupChoices(models.TextChoices):
     SCIENCE = "science", "Science"
     HUMANITIES = "humanities", "Humanities"
     BUSINESS = "business studies", "Business Studies"
+    NONE = "none", "No Group"
 
 
 class StudentAccount(models.Model):
@@ -16,9 +17,9 @@ class StudentAccount(models.Model):
         Account, on_delete=models.CASCADE, related_name="student_profile"
     )
     batch = models.ForeignKey(Batch, on_delete=models.CASCADE)
-    roll_number = models.PositiveIntegerField(editable=False)
+    roll_number = models.PositiveIntegerField()
     group = models.CharField(
-        max_length=20, choices=GroupChoices.choices, null=True, blank=True
+        max_length=20, choices=GroupChoices.choices, default=GroupChoices.NONE
     )
 
     subjects = models.ManyToManyField(
@@ -26,15 +27,16 @@ class StudentAccount(models.Model):
     )
 
     class Meta:
-        unique_together = ("batch", "roll_number")
+        unique_together = ("batch", "roll_number", "group")
 
     def save(self, *args, **kwargs):
         self.full_clean()
         if not self.pk and not self.roll_number:
+
             with transaction.atomic():
                 last_roll = (
                     StudentAccount.objects.select_for_update()
-                    .filter(batch=self.batch)
+                    .filter(batch=self.batch, group=self.group)
                     .order_by("-roll_number")
                     .first()
                 )

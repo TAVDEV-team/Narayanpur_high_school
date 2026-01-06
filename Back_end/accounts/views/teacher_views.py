@@ -3,8 +3,8 @@ from django.views.decorators.cache import cache_page
 from rest_framework.viewsets import ModelViewSet
 
 from accounts.models import TeacherAccount
-from accounts.serializers import TeacherSerializer
 from accounts.permissions import IsHeadmasterSafe
+from accounts.serializers import TeacherSerializer
 
 
 @method_decorator(cache_page(60 * 5), name="list")
