@@ -135,9 +135,9 @@ class AClassSerializer(serializers.ModelSerializer):
 
 
 class AClassMetaSerializer(serializers.ModelSerializer):
-    total_students = serializers.IntegerField(read_only=True)
-    male_students = serializers.IntegerField(read_only=True)
-    female_students = serializers.IntegerField(read_only=True)
+    total_students = serializers.SerializerMethodField()
+    male_students = serializers.SerializerMethodField()
+    female_students = serializers.SerializerMethodField()
 
     class Meta:
         model = AClass
@@ -149,4 +149,12 @@ class AClassMetaSerializer(serializers.ModelSerializer):
             "male_students",
             "female_students",
         ]
-        read_only_fields = ["created_at", "updated_at"]
+
+    def get_total_students(self, obj):
+        return obj.students().count()
+
+    def get_male_students(self, obj):
+        return obj.students().filter(account__gender="male").count()
+
+    def get_female_students(self, obj):
+        return obj.students().filter(account__gender="female").count()

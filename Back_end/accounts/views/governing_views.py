@@ -1,7 +1,7 @@
 from rest_framework import viewsets
-from accounts.permissions import IsHeadmasterSafe
 
 from accounts.models import GoverningBody
+from accounts.permissions import IsHeadmasterSafe
 from accounts.serializers import GoverningBodySerializer
 
 

@@ -33,18 +33,17 @@ class StudentSerializer(serializers.ModelSerializer):
         return str(aclass) if aclass else None
 
     def create(self, validated_data):
-        print(validated_data)
         account_data = validated_data.pop("account")
         aclass_id = validated_data.pop("class_name")
         group_map = {
             "9": {
                 "science": "9_science",
-                "business": "9_business",
+                "business studies": "9_business",
                 "humanities": "9_humanities",
             },
             "10": {
                 "science": "10_science",
-                "business": "10_business",
+                "business studies": "10_business",
                 "humanities": "10_humanities",
             },
         }
@@ -53,18 +52,21 @@ class StudentSerializer(serializers.ModelSerializer):
         else:
             aclass_name = aclass_id
         aclass = AClass.objects.get(name=aclass_name)
-
+        roll_number = validated_data.pop('roll_number')
         with transaction.atomic():
-            last_roll = (
-                StudentAccount.objects.select_for_update()
-                .filter(batch=aclass.batch)
-                .order_by("-roll_number")
-                .first()
-            )
-            print(account_data)
-            # print(validated_data['roll_number'])
-            roll_number = (last_roll.roll_number + 1) if last_roll else 1
-            user_name = f"{str(aclass.batch).replace("-", "_").lower()}_{account_data['religion'][0]}{account_data['gender'][0]}{account_data['user']['first_name'][0:1]}{account_data['user']['last_name'][0:1]}_{roll_number}"  # noqa: E501
+            if roll_number is None:
+                last_roll = (
+                    StudentAccount.objects.select_for_update()
+                    .filter(batch=self.batch, group=self.group)
+                    .order_by("-roll_number")
+                    .first()
+                )
+                roll_number = (last_roll.roll_number + 1) if last_roll else 1
+            group = validated_data['group']
+            if group:
+                user_name = f"{str(aclass.batch).replace("-", "_").lower()}_{group[0]}_{account_data['religion'][0]}{account_data['gender'][0]}{account_data['user']['first_name'][0:1]}{account_data['user']['last_name'][0:1]}_{roll_number}"  # noqa: E501
+            else:
+                user_name = f"{str(aclass.batch).replace("-", "_").lower()}_{account_data['religion'][0]}{account_data['gender'][0]}{account_data['user']['first_name'][0:1]}{account_data['user']['last_name'][0:1]}_{roll_number}"  # noqa: E501
             validated_data['roll_number'] = roll_number
             # normalize dummy email + username
             account_data["user"]["username"] = user_name
