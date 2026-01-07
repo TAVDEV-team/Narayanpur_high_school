@@ -64,6 +64,9 @@ class TeacherListSerializer(serializers.ModelSerializer):
     religion = serializers.CharField(
         source="account.get_religion_display", read_only=True
     )
+    mobile = serializers.CharField(
+        source="account.mobile", read_only=True
+    )
 
     class Meta:
         model = TeacherAccount
@@ -73,4 +76,5 @@ class TeacherListSerializer(serializers.ModelSerializer):
             "gender",
             "religion",
             "image",
+            "mobile",
         ]
