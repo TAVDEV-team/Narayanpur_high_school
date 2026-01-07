@@ -4,7 +4,7 @@ from rest_framework.viewsets import ModelViewSet
 
 from accounts.models import TeacherAccount
 from accounts.permissions import IsHeadmasterSafe
-from accounts.serializers import TeacherSerializer
+from accounts.serializers import TeacherSerializer, TeacherListSerializer
 
 
 @method_decorator(cache_page(60 * 5), name="list")
@@ -13,3 +13,8 @@ class TeacherAccountViewSet(ModelViewSet):
     queryset = TeacherAccount.objects.all().order_by('account')
     serializer_class = TeacherSerializer
     permission_classes = [IsHeadmasterSafe]
+
+    def get_serializer_class(self):
+        if self.action == "list":
+            return TeacherListSerializer
+        return TeacherListSerializer
