@@ -55,18 +55,17 @@ class TeacherListSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(
         source="account.full_name", read_only=True
     )
-    image = serializers.CharField(
-        source="account.image", read_only=True
-    )
+    image = serializers.ImageField(source="account.image", read_only=True)
     gender = serializers.CharField(
         source="account.get_gender_display", read_only=True
     )
     religion = serializers.CharField(
         source="account.get_religion_display", read_only=True
     )
-    mobile = serializers.CharField(
-        source="account.mobile", read_only=True
-    )
+    mobile = serializers.CharField(source="account.mobile", read_only=True)
+    email = serializers.EmailField(source="account.user.email", read_only=True)
+
+    subject = serializers.SerializerMethodField()
 
     class Meta:
         model = TeacherAccount
@@ -77,4 +76,18 @@ class TeacherListSerializer(serializers.ModelSerializer):
             "religion",
             "image",
             "mobile",
+            "email",
+            "subject",
         ]
+
+    def get_subject(self, obj):
+        subject_name = obj.base_subject.name
+
+        english = {"English 1st paper", "English 2nd paper"}
+        bangla = {"Bangla 1st paper", "Bangla 2nd paper"}
+
+        if subject_name in english:
+            return "English"
+        if subject_name in bangla:
+            return "Bangla"
+        return subject_name
