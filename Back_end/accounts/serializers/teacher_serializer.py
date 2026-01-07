@@ -55,6 +55,9 @@ class TeacherListSerializer(serializers.ModelSerializer):
     full_name = serializers.CharField(
         source="account.full_name", read_only=True
     )
+    image = serializers.CharField(
+        source="account.image", read_only=True
+    )
     gender = serializers.CharField(
         source="account.get_gender_display", read_only=True
     )
@@ -69,4 +72,5 @@ class TeacherListSerializer(serializers.ModelSerializer):
             "full_name",
             "gender",
             "religion",
+            "image",
         ]
