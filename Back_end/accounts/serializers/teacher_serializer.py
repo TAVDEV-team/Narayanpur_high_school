@@ -49,3 +49,24 @@ class TeacherSerializer(serializers.ModelSerializer):
             account=account, **validated_data
         )
         return teacher
+
+
+class TeacherListSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(
+        source="account.full_name", read_only=True
+    )
+    gender = serializers.CharField(
+        source="account.get_gender_display", read_only=True
+    )
+    religion = serializers.CharField(
+        source="account.get_religion_display", read_only=True
+    )
+
+    class Meta:
+        model = TeacherAccount
+        fields = [
+            "id",
+            "full_name",
+            "gender",
+            "religion",
+        ]
