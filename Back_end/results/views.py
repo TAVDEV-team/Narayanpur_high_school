@@ -7,8 +7,13 @@ from django.views.decorators.cache import cache_page
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import getSampleStyleSheet
-from reportlab.platypus import (Paragraph, SimpleDocTemplate, Spacer, Table,
-                                TableStyle)
+from reportlab.platypus import (
+    Paragraph,
+    SimpleDocTemplate,
+    Spacer,
+    Table,
+    TableStyle,
+)
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -243,12 +248,24 @@ def generate_report_card_pdf(report_data):
     return pdf
 
 
-@method_decorator(cache_page(60 * 5), name="list")
-@method_decorator(cache_page(60 * 5), name="retrieve")
+# @method_decorator(cache_page(60 * 5), name="list")
+# @method_decorator(cache_page(60 * 5), name="retrieve")
 class ResultViewSet(viewsets.ModelViewSet):
-    queryset = Result.objects.all().order_by('created_at')
+    queryset = Result.objects.all()
     serializer_class = ResultSerializer
-    permission_classes = [AllowAny]
+
+    def get_queryset(self):
+        qs = super().get_queryset()
+        exam = self.request.query_params.get('exam')
+        subject = self.request.query_params.get('subject')
+        student = self.request.query_params.get('student')
+        if exam:
+            qs = qs.filter(exam=exam)
+        if subject:
+            qs = qs.filter(subject=subject)
+        if student:
+            qs = qs.filter(student=student)
+        return qs
 
     @action(
         detail=False,
@@ -293,9 +310,11 @@ class ResultViewSet(viewsets.ModelViewSet):
         methods=['get'],
         url_path=r"class_result/(?P<exam_id>[^/.]+)/(?P<class_id>[^/.]+)",
     )
-    @method_decorator(cache_page(60 * 5))
+    # @method_decorator(cache_page(60 * 5))
     def class_result_summary(self, request, class_id=None, exam_id=None):
         result = Result.objects.class_result(class_id, exam_id)
+        # paginator = StudentPagination()
+        # page = paginator.paginate_queryset(result, request)
         return Response(result)
 
 

@@ -31,7 +31,7 @@ class AClassViewSet(viewsets.ModelViewSet):
     def students(self, request, pk=None):
 
         aclass = self.get_object()
-        print(aclass)
+
         qs = (
             aclass.students().select_related("account").order_by("roll_number")
         )
