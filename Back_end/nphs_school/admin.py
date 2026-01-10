@@ -1,7 +1,16 @@
 from django.contrib import admin
 
-from nphs_school.models import (About, AClass, Batch, Messages, Notice,
-                                Routine, School, Subject, Syllabus)
+from nphs_school.models import (
+    About,
+    AClass,
+    Batch,
+    Messages,
+    Notice,
+    Routine,
+    School,
+    Subject,
+    Syllabus,
+)
 
 # class AboutAdmin(admin.ModelAdmin):
 #     search_fields = ['name']

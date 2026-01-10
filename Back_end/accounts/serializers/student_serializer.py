@@ -123,3 +123,17 @@ class StudentListSerializer(serializers.ModelSerializer):
     def get_aclass(self, obj):
         aclass = obj.batch.current_class
         return str(aclass) if aclass else None
+
+
+class StudentMinListSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(
+        source="account.full_name", read_only=True
+    )
+
+    class Meta:
+        model = StudentAccount
+        fields = [
+            "id",
+            "full_name",
+            "roll_number",
+        ]

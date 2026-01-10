@@ -4,7 +4,11 @@ from .custom_token import CustomTokenObtainPairSerializer
 from .governing_serializer import GoverningBodySerializer
 from .office_helpers_serializers import OfficeHelpersSerializer
 from .principle_serializer import HeadMasterSerializer
-from .student_serializer import StudentListSerializer, StudentSerializer
+from .student_serializer import (
+    StudentListSerializer,
+    StudentSerializer,
+    StudentMinListSerializer,
+)
 from .teacher_serializer import TeacherSerializer, TeacherListSerializer
 
 __all__ = [
@@ -18,4 +22,5 @@ __all__ = [
     'StudentListSerializer',
     'CustomTokenObtainPairSerializer',
     'TeacherListSerializer',
+    "StudentMinListSerializer",
 ]

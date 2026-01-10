@@ -41,7 +41,7 @@ class AClassReadSerializer(serializers.ModelSerializer):
 
 
 class AClassSerializer(serializers.ModelSerializer):
-    students = StudentListSerializer(many=True, read_only=True)
+    # students = StudentListSerializer(many=True, read_only=True)
     all_subjects = SubjectListSerializer(many=True, read_only=True)
 
     class Meta:
@@ -49,7 +49,7 @@ class AClassSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
-            "students",
+            # "students",
             "all_subjects",
             "created_at",
             "updated_at",
@@ -128,10 +128,10 @@ class AClassSerializer(serializers.ModelSerializer):
 
         return instance
 
-    def get_students(self, obj):
-        return StudentListSerializer(
-            obj.students().select_related("account"), many=True
-        ).data
+    # def get_students(self, obj):
+    #     return StudentListSerializer(
+    #         obj.students().select_related("account"), many=True
+    #     ).data
 
 
 class AClassMetaSerializer(serializers.ModelSerializer):
@@ -158,3 +158,11 @@ class AClassMetaSerializer(serializers.ModelSerializer):
 
     def get_female_students(self, obj):
         return obj.students().filter(account__gender="female").count()
+
+
+class AClassSubjectSerializer(serializers.ModelSerializer):
+    all_subjects = SubjectListSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = AClass
+        fields = ["all_subjects"]
