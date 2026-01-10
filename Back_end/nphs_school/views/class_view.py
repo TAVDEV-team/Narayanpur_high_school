@@ -23,6 +23,8 @@ class StudentPagination(PageNumberPagination):
     max_page_size = 100
 
 
+@method_decorator(cache_page(60 * 60 * 12), name="list")
+@method_decorator(cache_page(60 * 60 * 12), name="retrieve")
 class AClassViewSet(viewsets.ModelViewSet):
     queryset = AClass.objects.all().order_by("grade")
     serializer_class = AClassSerializer
@@ -34,6 +36,7 @@ class AClassViewSet(viewsets.ModelViewSet):
         return AClassSerializer
 
     @action(detail=True, methods=["get"], url_path="students")
+    @method_decorator(cache_page(60 * 60))
     def students(self, request, pk=None):
 
         aclass = self.get_object()
@@ -84,7 +87,7 @@ class AClassViewSet(viewsets.ModelViewSet):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["get"])
-    @method_decorator(cache_page(60 * 5))
+    @method_decorator(cache_page(60 * 60 * 12))
     def meta(self, request, pk=None):
         instance = self.get_object()
         serializer = AClassMetaSerializer(instance)
