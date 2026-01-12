@@ -10,8 +10,8 @@ from rest_framework.response import Response
 
 from accounts.models import StudentAccount
 
-from ..models import Exam, Result
-from ..serializers import ExamSerializer, ResultSerializer
+from ..models import Result
+from ..serializers import ResultSerializer
 from .report_card import generate_report_card_pdf
 
 
@@ -20,6 +20,7 @@ from .report_card import generate_report_card_pdf
 class ResultViewSet(viewsets.ModelViewSet):
     queryset = Result.objects.all()
     serializer_class = ResultSerializer
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         qs = super().get_queryset()
@@ -43,7 +44,6 @@ class ResultViewSet(viewsets.ModelViewSet):
     def report_card(
         self, request, student_id=None, exam_id=None, class_id=None
     ):
-        print(request.user)
         student = get_object_or_404(StudentAccount, id=student_id)
         report = Result.objects.report_card_for(student.id, exam_id, class_id)
         return Response(report, status=status.HTTP_200_OK)
@@ -81,14 +81,4 @@ class ResultViewSet(viewsets.ModelViewSet):
     # @method_decorator(cache_page(60 * 5))
     def class_result_summary(self, request, class_id=None, exam_id=None):
         result = Result.objects.class_result(class_id, exam_id)
-        # paginator = StudentPagination()
-        # page = paginator.paginate_queryset(result, request)
         return Response(result)
-
-
-@method_decorator(cache_page(60 * 5), name="list")
-@method_decorator(cache_page(60 * 5), name="retrieve")
-class ExamViewSet(viewsets.ModelViewSet):
-    queryset = Exam.objects.all().order_by('created_at')
-    serializer_class = ExamSerializer
-    permission_classes = [AllowAny]
