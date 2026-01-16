@@ -1,3 +1,4 @@
-from .views import ResultViewSet
+from .views import ExamViewSet, ResultViewSet
+from .class_fast_result import ClassFastResultAPIView
 
-__all__ = ['ResultViewSet']
+__all__ = ['ExamViewSet', 'ResultViewSet', 'ClassFastResultAPIView']
