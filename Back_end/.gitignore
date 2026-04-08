@@ -10,7 +10,7 @@ __pycache__/
 
 # 🔒 Environment & secrets
 .env
-.env.*
+# .env.*
 
 # 🧪 Test artifacts
 .coverage
