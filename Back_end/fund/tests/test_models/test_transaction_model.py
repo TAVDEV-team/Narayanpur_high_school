@@ -45,6 +45,16 @@ class FundTransactionModelTest(TestCase):
             with self.assertRaises(ValidationError):
                 transaction = transaction.save()
 
+    def test_negative_amount_is_not_allowed(self):
+        with self.assertRaises(ValidationError):
+            FundTransaction.objects.create(
+                fund=self.fund,
+                type="INCOME",
+                amount=-100,
+                reason="Invalid transaction",
+                payment_method="Cash",
+            )
+            
     def test_expense_cannot_exceed_fund_balance(self):
         FundTransaction.objects.create(
             fund=self.fund,
