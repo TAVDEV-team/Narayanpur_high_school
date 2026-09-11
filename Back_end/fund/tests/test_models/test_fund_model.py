@@ -6,7 +6,7 @@ from fund.models.transaction import FundTransaction
 
 class FundModelTest(TestCase):
     def setUp(self):
-        self.fund = Fund.objects.create()
+        self.fund = Fund.get_solo()
 
     def test_fund_can_be_created(self):
         """Fund object should be created successfully"""

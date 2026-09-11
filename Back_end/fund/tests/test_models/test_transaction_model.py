@@ -8,7 +8,7 @@ from fund.models.transaction import FundTransaction
 class FundTransactionModelTest(TestCase):
 
     def setUp(self):
-        self.fund = Fund.objects.create()
+        self.fund = Fund.get_solo()
 
     def test_valid_income_transaction(self):
         transaction = FundTransaction.objects.create(
