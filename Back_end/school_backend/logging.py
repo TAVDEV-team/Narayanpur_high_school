@@ -3,17 +3,53 @@ from pathlib import Path
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-LOGS_DIR = BASE_DIR / "logs"
-os.makedirs(LOGS_DIR, exist_ok=True)
-
 LOG_LEVEL = config("LOG_LEVEL", default="INFO")
 
+# Only used locally — Render's filesystem is ephemeral, so file logs
+# there would just disappear on every restart/redeploy anyway.
+IS_PRODUCTION = config("RENDER", default=False, cast=bool)
 
-def get_logging_config(debug: bool) -> dict:
+
+def get_logger(debug: bool) -> dict:
+    handlers = {
+        "console": {
+            "level": "DEBUG" if debug else "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "simple",
+        },
+    }
+
+    app_handlers = ["console"]
+    django_handlers = ["console"]
+    error_handlers = ["console"]
+
+    if not IS_PRODUCTION:
+        logs_dir = BASE_DIR / "logs"
+        os.makedirs(logs_dir, exist_ok=True)
+
+        handlers["file"] = {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": logs_dir / "django.log",
+            "maxBytes": 5 * 1024 * 1024,
+            "backupCount": 5,
+            "formatter": "verbose",
+        }
+        handlers["error_file"] = {
+            "level": "ERROR",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": logs_dir / "errors.log",
+            "maxBytes": 5 * 1024 * 1024,
+            "backupCount": 5,
+            "formatter": "verbose",
+        }
+        app_handlers.append("file")
+        django_handlers.append("file")
+        error_handlers.append("error_file")
+
     return {
         "version": 1,
         "disable_existing_loggers": False,
-
         "formatters": {
             "verbose": {
                 "format": "[{asctime}] {levelname} {name} - {message}",
@@ -24,44 +60,19 @@ def get_logging_config(debug: bool) -> dict:
                 "style": "{",
             },
         },
-
-        "handlers": {
-            "console": {
-                "level": "DEBUG" if debug else "INFO",
-                "class": "logging.StreamHandler",
-                "formatter": "simple",
-            },
-            "file": {
-                "level": "INFO",
-                "class": "logging.handlers.RotatingFileHandler",
-                "filename": LOGS_DIR / "django.log",
-                "maxBytes": 5 * 1024 * 1024,
-                "backupCount": 5,
-                "formatter": "verbose",
-            },
-            "error_file": {
-                "level": "ERROR",
-                "class": "logging.handlers.RotatingFileHandler",
-                "filename": LOGS_DIR / "errors.log",
-                "maxBytes": 5 * 1024 * 1024,
-                "backupCount": 5,
-                "formatter": "verbose",
-            },
-        },
-
+        "handlers": handlers,
         "root": {
             "handlers": ["console"],
             "level": "WARNING",
         },
-
         "loggers": {
             "django": {
-                "handlers": ["console", "file"],
+                "handlers": django_handlers,
                 "level": "INFO",
                 "propagate": False,
             },
             "django.request": {
-                "handlers": ["console", "error_file"],
+                "handlers": error_handlers,
                 "level": "ERROR",
                 "propagate": False,
             },
@@ -71,27 +82,27 @@ def get_logging_config(debug: bool) -> dict:
                 "propagate": False,
             },
             "accounts": {
-                "handlers": ["console", "file"],
+                "handlers": app_handlers,
                 "level": LOG_LEVEL,
                 "propagate": False,
             },
             "fund": {
-                "handlers": ["console", "file"],
+                "handlers": app_handlers,
                 "level": LOG_LEVEL,
                 "propagate": False,
             },
             "nphs_school": {
-                "handlers": ["console", "file"],
+                "handlers": app_handlers,
                 "level": LOG_LEVEL,
                 "propagate": False,
             },
             "results": {
-                "handlers": ["console", "file"],
+                "handlers": app_handlers,
                 "level": LOG_LEVEL,
                 "propagate": False,
             },
             "gallery": {
-                "handlers": ["console", "file"],
+                "handlers": app_handlers,
                 "level": LOG_LEVEL,
                 "propagate": False,
             },
