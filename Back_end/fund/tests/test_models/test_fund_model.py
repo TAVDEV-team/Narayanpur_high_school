@@ -28,62 +28,61 @@ class FundModelTest(TestCase):
         self.assertEqual(self.fund.balance, 1000)
 
     def test_balance_with_expense(self):
-            """Income trasaction should decrease the fund balance"""
-            FundTransaction.objects.create(
-                fund=self.fund,
-                type="INCOME",
-                amount=1000,
-                reason="Donation",
-                payment_method="Cash",
-            )
-            FundTransaction.objects.create(
-                    fund=self.fund,
-                    type="EXPENSE",
-                    amount=300,
-                    reason="School suplies",
-                    payment_method="Cash",
-            )
+        """Income trasaction should decrease the fund balance"""
+        FundTransaction.objects.create(
+            fund=self.fund,
+            type="INCOME",
+            amount=1000,
+            reason="Donation",
+            payment_method="Cash",
+        )
+        FundTransaction.objects.create(
+            fund=self.fund,
+            type="EXPENSE",
+            amount=300,
+            reason="School suplies",
+            payment_method="Cash",
+        )
 
-            self.assertEqual(self.fund.balance, 700)
+        self.assertEqual(self.fund.balance, 700)
 
     def test_balance_with_multiple_transactions(self):
-         """
-         Fund balance should equal:
-         total income - total expense
-         """
-         FundTransaction.objects.create(
-              fund=self.fund,
-              type="INCOME",
-              amount=1000,
-              reason="Donation",
-              payment_method="Cash",
-         )
-         FundTransaction.objects.create(
-              fund=self.fund,
-              type="INCOME",
-              amount=500,
-              reason="Donation",
-              payment_method="Bank",
-         )
-         FundTransaction.objects.create(
-              fund=self.fund,
-              type="EXPENSE",
-              amount=300,
-              reason="School supplies",
-              payment_method="cash",
-         )
-         self.assertEqual(self.fund.balance, 1200)
+        """
+        Fund balance should equal:
+        total income - total expense
+        """
+        FundTransaction.objects.create(
+            fund=self.fund,
+            type="INCOME",
+            amount=1000,
+            reason="Donation",
+            payment_method="Cash",
+        )
+        FundTransaction.objects.create(
+            fund=self.fund,
+            type="INCOME",
+            amount=500,
+            reason="Donation",
+            payment_method="Bank",
+        )
+        FundTransaction.objects.create(
+            fund=self.fund,
+            type="EXPENSE",
+            amount=300,
+            reason="School supplies",
+            payment_method="cash",
+        )
+        self.assertEqual(self.fund.balance, 1200)
 
     def test_fund_string_representation(self):
-         """Fund __str__ should contain the current balance"""
-         self.assertEqual(str(self.fund), "Current balance: 0 Tk")
+        """Fund __str__ should contain the current balance"""
+        self.assertEqual(str(self.fund), "Current balance: 0 Tk")
 
-         FundTransaction.objects.create(
-              fund=self.fund,
-              type="INCOME",
-              amount=1000,
-              reason="Donation",
-              payment_method="Cash",
-         )
-         self.assertEqual(str(self.fund),"Current balance: 1000 Tk")
-        
+        FundTransaction.objects.create(
+            fund=self.fund,
+            type="INCOME",
+            amount=1000,
+            reason="Donation",
+            payment_method="Cash",
+        )
+        self.assertEqual(str(self.fund), "Current balance: 1000 Tk")
