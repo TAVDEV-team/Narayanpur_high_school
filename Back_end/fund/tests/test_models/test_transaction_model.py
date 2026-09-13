@@ -42,8 +42,6 @@ class FundTransactionModelTest(TestCase):
                 reason="Test",
                 payment_method="Cash",
             )
-            with self.assertRaises(ValidationError):
-                transaction = transaction.save()
 
     def test_negative_amount_is_not_allowed(self):
         with self.assertRaises(ValidationError):
@@ -54,7 +52,7 @@ class FundTransactionModelTest(TestCase):
                 reason="Invalid transaction",
                 payment_method="Cash",
             )
-            
+
     def test_expense_cannot_exceed_fund_balance(self):
         FundTransaction.objects.create(
             fund=self.fund,
@@ -82,8 +80,10 @@ class FundTransactionModelTest(TestCase):
             payment_method='Cash',
         )
         self.assertEqual(
-            transaction.after_transaction_balance,1000,
+            transaction.after_transaction_balance,
+            1000,
         )
+
     def test_expense_updates_after_transaction_balance(self):
         FundTransaction.objects.create(
             fund=self.fund,
@@ -102,7 +102,8 @@ class FundTransactionModelTest(TestCase):
         )
 
         self.assertEqual(
-            transaction.after_transaction_balance,700,
+            transaction.after_transaction_balance,
+            700,
         )
 
     def test_transaction_string_representation(self):
@@ -113,6 +114,6 @@ class FundTransactionModelTest(TestCase):
             reason="Donation",
             payment_method="Cash",
         )
-        self.assertIn("1000Tk",str(transaction))
-        self.assertIn("INCOME",str(transaction))
-        self.assertIn("1000Tk",str(transaction))
+        self.assertIn("1000Tk", str(transaction))
+        self.assertIn("INCOME", str(transaction))
+        self.assertIn("1000Tk", str(transaction))
