@@ -1,4 +1,4 @@
-```yaml
+
 name: Django CI
 
 on:
@@ -166,4 +166,4 @@ jobs:
 
           echo ""
           echo "✅ All commit messages are valid."
-```
+
