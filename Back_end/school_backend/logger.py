@@ -1,16 +1,15 @@
 import os
+import logging
 from pathlib import Path
 from decouple import config
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 LOG_LEVEL = config("LOG_LEVEL", default="INFO")
-
-# Only used locally — Render's filesystem is ephemeral, so file logs
-# there would just disappear on every restart/redeploy anyway.
 IS_PRODUCTION = config("RENDER", default=False, cast=bool)
 
 
-def get_logger(debug: bool) -> dict:
+def get_logging_config(debug: bool) -> dict:
+    """Builds the LOGGING dict. Called once, from settings.py."""
     handlers = {
         "console": {
             "level": "DEBUG" if debug else "INFO",
@@ -108,3 +107,9 @@ def get_logger(debug: bool) -> dict:
             },
         },
     }
+
+
+def get_logger(name: str) -> logging.Logger:
+    """Returns an actual logger instance.\
+          Called from models/views/serializers."""
+    return logging.getLogger(name)
