@@ -1,5 +1,4 @@
 from django.test import TestCase
-
 from fund.models.fund_model import Fund
 from fund.models.transaction import FundTransaction
 
