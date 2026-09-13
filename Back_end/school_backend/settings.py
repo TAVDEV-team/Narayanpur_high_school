@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 from datetime import timedelta
 from pathlib import Path
-from .logging import get_logging_config
+from .logger import get_logging_config
 
 from decouple import config
 
