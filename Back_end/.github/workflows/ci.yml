@@ -1,18 +1,25 @@
+
 name: Django CI
 
 on:
   push:
-    branches: [main, dev]
+    branches:
+      - main
+      - dev
+
   pull_request:
-    branches: [main, dev]
+    branches:
+      - main
+      - dev
 
 jobs:
   test:
+    name: Test & Quality
     runs-on: ubuntu-latest
 
     services:
       postgres:
-        image: postgres:14
+        image: postgres:16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -20,7 +27,7 @@ jobs:
         ports:
           - 5432:5432
         options: >-
-          --health-cmd pg_isready
+          --health-cmd "pg_isready -U postgres -d test_db"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -31,30 +38,132 @@ jobs:
       POSTGRES_PASSWORD: postgres
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
-      DJANGO_SETTINGS_MODULE: school_backend.settings  
-  steps:
-    - name: 📥 Checkout code
-      uses: actions/checkout@v3
+      DJANGO_SETTINGS_MODULE: school_backend.settings
 
-    - name: 🐍 Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.12'
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
 
-    - name: 📦 Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+      - name: 🐍 Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
 
-    - name: 🧼 Run black
-      run: |
-        black --check .
+      - name: 📦 Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
-    - name: 🔎 Run flake8
-      run: |
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - name: 🧱 Check migrations
+        run: |
+          python manage.py makemigrations --check --dry-run
 
-    - name: 🧪 Run tests with coverage
-      run: |
-        python manage.py migrate
-        pytest --cov=. --cov-report=term --cov-fail-under=80
+      - name: 🔍 Run Django checks
+        run: |
+          python manage.py check
+
+      - name: 🧼 Run Black
+        run: |
+          black --check .
+
+      - name: 🔎 Run Flake8
+        run: |
+          flake8 . \
+            --count \
+            --select=E9,F63,F7,F82 \
+            --show-source \
+            --statistics
+
+      - name: 🧪 Run tests with coverage
+        run: |
+          pytest \
+            --cov=. \
+            --cov-report=term \
+            --cov-report=xml \
+            --cov-fail-under=80
+
+  branch-name:
+    name: Validate Branch Name
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🌿 Validate branch name
+        env:
+          BRANCH_NAME: ${{ github.head_ref }}
+        run: |
+          pattern='^(feat|fix|refactor|test|docs|chore|perf|style)/[0-9]+-[a-z0-9]+(-[a-z0-9]+)*$'
+
+          echo "Checking branch: $BRANCH_NAME"
+
+          if [[ "$BRANCH_NAME" =~ $pattern ]]; then
+            echo "✅ Branch name is valid."
+          else
+            echo "❌ Invalid branch name: $BRANCH_NAME"
+            echo ""
+            echo "Expected format:"
+            echo "  <type>/<issue-number>-<description>"
+            echo ""
+            echo "Examples:"
+            echo "  feat/209-student-dashboard"
+            echo "  fix/209-fund-views"
+            echo "  refactor/145-auth-service"
+            echo "  test/310-payment-tests"
+            echo "  docs/88-api-documentation"
+            echo ""
+            echo "Allowed types:"
+            echo "  feat, fix, refactor, test, docs, chore, perf, style"
+            exit 1
+          fi
+
+  commit-message:
+    name: Validate Commit Messages
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📝 Validate commit messages
+        run: |
+          pattern='^(feat|fix|refactor|test|docs|chore|perf|style): .+'
+          failed=0
+
+          echo "Checking commits in this pull request..."
+          echo ""
+
+          while IFS= read -r message; do
+            echo "Checking: $message"
+
+            if [[ ! "$message" =~ $pattern ]]; then
+              echo "❌ Invalid commit message: $message"
+              failed=1
+            else
+              echo "✅ Valid commit message"
+            fi
+          done < <(
+            git log \
+              --no-merges \
+              --format=%s \
+              "origin/${{ github.base_ref }}..HEAD"
+          )
+
+          if [ "$failed" -ne 0 ]; then
+            echo ""
+            echo "❌ Commit message validation failed."
+            echo ""
+            echo "Expected format:"
+            echo "  <type>: <description>"
+            echo ""
+            echo "Allowed types:"
+            echo "  feat, fix, refactor, test, docs, chore, perf, style"
+            exit 1
+          fi
+
+          echo ""
+          echo "✅ All commit messages are valid."
+
