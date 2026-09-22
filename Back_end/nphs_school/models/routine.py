@@ -1,4 +1,8 @@
 from django.db import models
+from django.core.exceptions import ValidationError
+from school_backend.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Routine(models.Model):
@@ -51,3 +55,63 @@ class Routine(models.Model):
 
     def __str__(self):
         return f"{self.aclass} - {self.get_day_display()} - {self.get_slot_display()} - {self.subject}"  # noqa: E501
+
+    def clean(self):
+        conflict_qs = Routine.objects.filter(
+            day=self.day, slot=self.slot
+        ).exclude(pk=self.pk)
+        class_conflict = conflict_qs.filter(aclass=self.aclass).first()
+        if class_conflict:
+            logger.warning(
+                "Routine conflict: class\
+                    %s already booked %s slot %s (existing subject=%s)",
+                self.aclass,
+                self.day,
+                self.slot,
+                class_conflict.subject,
+            )
+            raise ValidationError(
+                f"{self.aclass} already has a class \
+                    scheduled for {self.get_day_display()} "
+                f"slot {self.slot}."
+            )
+
+        if self.teacher_id:
+            teacher_conflict = conflict_qs.filter(teacher=self.teacher).first()
+            if teacher_conflict:
+                logger.warning(
+                    "Routine conflict: teacher %s \
+                        already booked %s slot %s (existing class=%s)",
+                    self.teacher,
+                    self.day,
+                    self.slot,
+                    teacher_conflict.aclass,
+                )
+                raise ValidationError(
+                    f"{self.teacher} is already scheduled elsewhere on "
+                    f"{self.get_day_display()} slot {self.slot}."
+                )
+
+    def save(self, *args, **kwargs):
+        if self.pk:
+            old = Routine.objects.filter(pk=self.pk).first()
+            if old and old.teacher_id != self.teacher_id:
+                logger.info(
+                    "Routine %s reassigned: teacher %s -> %s (%s slot %s)",
+                    self.pk,
+                    old.teacher,
+                    self.teacher,
+                    self.day,
+                    self.slot,
+                )
+            if old and old.subject_id != self.subject_id:
+                logger.info(
+                    "Routine %s subject changed: %s -> %s (%s slot %s)",
+                    self.pk,
+                    old.subject,
+                    self.subject,
+                    self.day,
+                    self.slot,
+                )
+        self.full_clean()  # triggers clean() above
+        super().save(*args, **kwargs)
