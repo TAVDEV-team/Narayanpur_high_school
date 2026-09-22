@@ -2,11 +2,68 @@ from datetime import date
 
 from django.db import IntegrityError
 from django.test import TestCase
-
+from django.contrib.auth import get_user_model
+from django.core.exceptions import PermissionDenied
 from nphs_school.models import Notice
+from accounts.models import TeacherAccount, HeadMasterAccount, Account
+from nphs_school.models import Subject
+
+User = get_user_model()
 
 
 class NoticeModelTest(TestCase):
+    def setUp(self):
+        self.subject = Subject.objects.create(
+            name="General Studies",
+            code="GS01",
+            written_marks=70,
+            practical_marks=0,
+            mcq_marks=30,
+        )
+
+        # --- Headmaster user ---
+        self.headmaster_user = User.objects.create_user(
+            username="headmaster",
+            password="testpass123",
+            first_name="Head",
+            last_name="Master",
+        )
+        headmaster_account = Account.objects.create(
+            user=self.headmaster_user,
+            mobile="01712345678",
+            date_of_birth=date(1980, 1, 1),
+            joining_date=date(2015, 1, 1),
+            address="Test Address",
+            last_educational_institute="Test University",
+        )
+        headmaster_teacher = TeacherAccount.objects.create(
+            account=headmaster_account,
+            base_subject=self.subject,
+        )
+        HeadMasterAccount.objects.create(
+            teacher=headmaster_teacher,
+            appointed_date=date(2020, 1, 1),
+        )
+
+        # --- Non-headmaster user (a regular teacher) ---
+        self.other_user = User.objects.create_user(
+            username="regular_teacher",
+            password="testpass123",
+            first_name="Regular",
+            last_name="Teacher",
+        )
+        other_account = Account.objects.create(
+            user=self.other_user,
+            mobile="01812345678",
+            date_of_birth=date(1985, 1, 1),
+            joining_date=date(2018, 1, 1),
+            address="Test Address",
+            last_educational_institute="Test University",
+        )
+        TeacherAccount.objects.create(
+            account=other_account,
+            base_subject=self.subject,
+        )
 
     def create_notice(
         self,
@@ -95,21 +152,37 @@ class NoticeModelTest(TestCase):
 
     def test_approve_marks_notice_as_approved(self):
         notice = self.create_notice()
-
-        notice.approve(None)
-
+        approved = notice.approve(self.headmaster_user)
         notice.refresh_from_db()
 
+        self.assertTrue(approved)
         self.assertTrue(notice.approved_by_headmaster)
 
     def test_approve_sets_approved_at(self):
         notice = self.create_notice()
-
-        notice.approve(None)
-
+        notice.approve(self.headmaster_user)
         notice.refresh_from_db()
 
-        self.assertIsNone(notice.approved_at)
+        self.assertIsNotNone(
+            notice.approved_at
+        )  # note: was assertIsNone before — that was testing the old bug
+
+    def test_approve_rejects_non_headmaster(self):
+        notice = self.create_notice()
+
+        with self.assertRaises(PermissionDenied):
+            notice.approve(self.other_user)
+
+        notice.refresh_from_db()
+        self.assertFalse(notice.approved_by_headmaster)
+
+    def test_approve_is_idempotent(self):
+        notice = self.create_notice()
+        notice.approve(self.headmaster_user)
+
+        result = notice.approve(self.headmaster_user)  # second call
+
+        self.assertFalse(result)  # returns False, doesn't re-approve or error
 
     def test_slug_is_generated_automatically(self):
         notice = self.create_notice(

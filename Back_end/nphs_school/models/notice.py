@@ -1,4 +1,5 @@
-from datetime import date, timezone
+from datetime import date
+from django.utils import timezone
 from django.core.exceptions import PermissionDenied
 
 from django.contrib import admin
