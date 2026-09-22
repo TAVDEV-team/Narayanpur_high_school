@@ -3,8 +3,7 @@ from django.test import TestCase
 from nphs_school.models import Messages
 from accounts.models import Account, TeacherAccount
 from django.contrib.auth.models import User
-from nphs_school.models import AClass, Routine, Subject
-
+from nphs_school.models import Subject
 
 
 class MessagesModelTest(TestCase):
@@ -16,21 +15,21 @@ class MessagesModelTest(TestCase):
         Replace the fields below with the required fields
         from your actual TeacherAccount model.
         """
+
     def setUp(self):
-                   
-            
+
         self.subject = Subject.objects.create(
             name="Physics",
             code="PHY1",
             subject_type=Subject.SubjectType.GROUP,
         )
-            
+
         self.user = User.objects.create(
             username="testteacher",
             first_name="Test",
             last_name="Teacher",
         )
-                     
+
         self.account = Account.objects.create(
             user=self.user,
             mobile="01712345678",
@@ -39,11 +38,11 @@ class MessagesModelTest(TestCase):
             address="Dhaka, Bangladesh",
             last_educational_institute="Dhaka University",
         )
-                     
+
         self.teacher = TeacherAccount.objects.create(
             account=self.account,
             base_subject=self.subject,
-        )           
+        )
 
     def test_create_message(self):
         message = Messages.objects.create(
@@ -68,6 +67,7 @@ class MessagesModelTest(TestCase):
 
         self.assertEqual(len(message.message), 600)
 
+
 def test_created_at_is_set(self):
     message = Messages.objects.create(
         message_of=self.teacher,
@@ -76,6 +76,7 @@ def test_created_at_is_set(self):
 
     self.assertIsNotNone(message.created_at)
 
+
 def test_updated_at_is_set(self):
     message = Messages.objects.create(
         message_of=self.teacher,
@@ -83,6 +84,7 @@ def test_updated_at_is_set(self):
     )
 
     self.assertIsNotNone(message.updated_at)
+
 
 def test_teacher_deletion_deletes_messages(self):
     message = Messages.objects.create(
@@ -94,6 +96,4 @@ def test_teacher_deletion_deletes_messages(self):
 
     self.teacher.delete()
 
-    self.assertFalse(
-        Messages.objects.filter(pk=message_id).exists()
-    )
+    self.assertFalse(Messages.objects.filter(pk=message_id).exists())

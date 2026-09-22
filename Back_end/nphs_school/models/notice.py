@@ -1,8 +1,12 @@
-from datetime import date
+from datetime import date, timezone
+from django.core.exceptions import PermissionDenied
 
 from django.contrib import admin
 from django.db import models
 from django.utils.text import slugify
+from school_backend.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class Notice(models.Model):
@@ -61,9 +65,32 @@ class Notice(models.Model):
         return self.approved_by_headmaster
 
     # Business method: approve notice
-    def approve(self, approver):
+    # only headmaster can approve
+
+    def approve(self, user):
+        from accounts.models import HeadMasterAccount
+
+        if not HeadMasterAccount.is_headmaster(user):
+            logger.warning(
+                "Unauthorized approval attempt on %s by %s", self.slug, user
+            )
+            raise PermissionDenied(
+                "Only the headmaster can approve this notice."
+            )
+
+        if self.approved_by_headmaster:
+            logger.warning(
+                "Notice %s already approved; ignoring duplicate call by %s",
+                self.slug,
+                user,
+            )
+            return False
+
         self.approved_by_headmaster = True
+        self.approved_at = timezone.now()
         self.save(update_fields=["approved_by_headmaster", "approved_at"])
+        logger.info("Notice %s approved by %s", self.slug, user)
+        return True
 
     # Slug generation
     def save(self, *args, **kwargs):

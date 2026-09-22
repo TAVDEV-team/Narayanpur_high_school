@@ -1,9 +1,10 @@
 from datetime import date
 
 from django.test import TestCase
-from solo.models import SingletonModel
 
 from nphs_school.models import About
+
+from django.db import transaction
 
 
 class AboutModelTest(TestCase):
@@ -22,16 +23,13 @@ class AboutModelTest(TestCase):
 
     def test_str_returns_name(self):
         about = About.objects.create(
-            name="Narayanpur High School",
-            history="School history"
+            name="Narayanpur High School", history="School history"
         )
 
         self.assertEqual(str(about), "Narayanpur High School")
 
     def test_optional_fields_can_be_empty(self):
-        about = About.objects.create(
-            history="School history"
-        )
+        about = About.objects.create(history="School history")
 
         self.assertIsNone(about.motto)
         self.assertFalse(about.logo)
@@ -49,12 +47,10 @@ class AboutModelTest(TestCase):
         about.refresh_from_db()
 
         self.assertEqual(
-            about.social_links["facebook"],
-            "https://facebook.com/example"
+            about.social_links["facebook"], "https://facebook.com/example"
         )
         self.assertEqual(
-            about.social_links["youtube"],
-            "https://youtube.com/example"
+            about.social_links["youtube"], "https://youtube.com/example"
         )
 
     def test_extra_can_store_json(self):
@@ -69,30 +65,21 @@ class AboutModelTest(TestCase):
         about.refresh_from_db()
 
         self.assertEqual(about.extra["theme"], "dark")
-        self.assertEqual(
-            about.extra["contact_email"],
-            "school@example.com"
-        )
+        self.assertEqual(about.extra["contact_email"], "school@example.com")
 
     def test_created_at_and_updated_at_are_set(self):
-        about = About.objects.create(
-            history="School history"
-        )
+        about = About.objects.create(history="School history")
 
         self.assertIsNotNone(about.created_at)
         self.assertIsNotNone(about.updated_at)
 
     def test_about_is_singleton(self):
-        about = About.objects.create(
-            history="First school history"
-        )
+        About.objects.create(history="First school history")
 
         self.assertEqual(About.objects.count(), 1)
 
         with self.assertRaises(Exception):
             with transaction.atomic():
-                About.objects.create(
-                    history="Second school history"
-                )
+                About.objects.create(history="Second school history")
 
         self.assertEqual(About.objects.count(), 1)

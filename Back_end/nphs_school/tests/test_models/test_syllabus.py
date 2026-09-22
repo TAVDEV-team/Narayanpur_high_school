@@ -32,10 +32,7 @@ class SyllabusModelTest(TestCase):
         )
 
         self.assertIsNotNone(syllabus.pk)
-        self.assertEqual(
-            syllabus.title,
-            "Class 9 Science Syllabus"
-        )
+        self.assertEqual(syllabus.title, "Class 9 Science Syllabus")
         self.assertEqual(syllabus.aclass, academic_class)
         self.assertTrue(syllabus.file)
 
@@ -70,9 +67,7 @@ class SyllabusModelTest(TestCase):
         )
 
         self.assertTrue(syllabus.file.name)
-        self.assertFalse(
-            syllabus.file.name.endswith("syllabus.pdf")
-        )
+        self.assertFalse(syllabus.file.name.endswith("syllabus.pdf"))
 
     def test_one_class_can_have_only_one_syllabus(self):
         academic_class = self.create_class()

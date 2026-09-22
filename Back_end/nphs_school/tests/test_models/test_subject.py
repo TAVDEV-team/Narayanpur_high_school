@@ -49,10 +49,7 @@ class SubjectModelTest(TestCase):
         with self.assertRaises(ValidationError) as context:
             subject.full_clean()
 
-        self.assertIn(
-            "Total marks cannot exceed 100.",
-            str(context.exception)
-        )
+        self.assertIn("Total marks cannot exceed 100.", str(context.exception))
 
     def test_total_marks_equal_to_100_is_valid(self):
         subject = Subject(
@@ -121,9 +118,7 @@ class SubjectModelTest(TestCase):
             "extra",
         }
 
-        actual_types = {
-            value for value, label in Subject.SubjectType.choices
-        }
+        actual_types = {value for value, label in Subject.SubjectType.choices}
 
         self.assertEqual(actual_types, expected_types)
 
