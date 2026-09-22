@@ -111,5 +111,3 @@ class SchoolModelTest(TestCase):
         )
 
         self.assertIsNotNone(school.updated_at)
-
-    

@@ -1,9 +1,10 @@
-from django.db import IntegrityError
 from django.test import TestCase
 
 from accounts.models import Account, TeacherAccount
 from nphs_school.models import AClass, Routine, Subject
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+
 
 class RoutineModelTest(TestCase):
 
@@ -111,18 +112,17 @@ class RoutineModelTest(TestCase):
         Routine.objects.create(
             aclass=self.academic_class,
             day="MON",
+            slot="1",
             subject=self.subject,
             teacher=self.teacher,
-            slot="1",
         )
-
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(ValidationError):
             Routine.objects.create(
                 aclass=self.academic_class,
                 day="MON",
-                subject=self.subject,
-                teacher=None,
                 slot="1",
+                subject=self.subject,
+                teacher=self.teacher,
             )
 
     def test_same_teacher_day_slot_cannot_be_duplicated(self):
@@ -141,7 +141,7 @@ class RoutineModelTest(TestCase):
             group="science",
         )
 
-        with self.assertRaises(IntegrityError):
+        with self.assertRaises(ValidationError):
             Routine.objects.create(
                 aclass=another_class,
                 day="MON",
@@ -248,9 +248,7 @@ class RoutineModelTest(TestCase):
 
         self.academic_class.delete()
 
-        self.assertFalse(
-            Routine.objects.filter(pk=routine_id).exists()
-        )
+        self.assertFalse(Routine.objects.filter(pk=routine_id).exists())
 
     def test_all_days_are_defined(self):
         expected_days = {
@@ -263,9 +261,7 @@ class RoutineModelTest(TestCase):
             "SUN",
         }
 
-        actual_days = {
-            value for value, label in Routine.DAYS_OF_WEEK
-        }
+        actual_days = {value for value, label in Routine.DAYS_OF_WEEK}
 
         self.assertEqual(actual_days, expected_days)
 
@@ -281,8 +277,6 @@ class RoutineModelTest(TestCase):
             "8",
         }
 
-        actual_slots = {
-            value for value, label in Routine.CLASS_SLOTS
-        }
+        actual_slots = {value for value, label in Routine.CLASS_SLOTS}
 
         self.assertEqual(actual_slots, expected_slots)

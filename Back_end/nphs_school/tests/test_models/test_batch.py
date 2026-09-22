@@ -6,25 +6,19 @@ from nphs_school.models import AClass, Batch
 class BatchModelTest(TestCase):
 
     def test_create_batch(self):
-        batch = Batch.objects.create(
-            graduation_year="2027"
-        )
+        batch = Batch.objects.create(graduation_year="2027")
 
         self.assertIsNotNone(batch.pk)
         self.assertEqual(batch.graduation_year, "2027")
         self.assertFalse(batch.is_graduated)
 
     def test_label_is_generated_automatically(self):
-        batch = Batch.objects.create(
-            graduation_year="2027"
-        )
+        batch = Batch.objects.create(graduation_year="2027")
 
         self.assertEqual(batch.label, "SSC-2027")
 
     def test_label_updates_when_graduation_year_changes(self):
-        batch = Batch.objects.create(
-            graduation_year="2027"
-        )
+        batch = Batch.objects.create(graduation_year="2027")
 
         self.assertEqual(batch.label, "SSC-2027")
 
@@ -46,9 +40,7 @@ class BatchModelTest(TestCase):
         self.assertEqual(batch.label, "SSC-2027")
 
     def test_default_is_graduated_is_false(self):
-        batch = Batch.objects.create(
-            graduation_year="2027"
-        )
+        batch = Batch.objects.create(graduation_year="2027")
 
         self.assertFalse(batch.is_graduated)
 
@@ -129,9 +121,7 @@ class BatchModelTest(TestCase):
         self.assertNotIn(active_batch, archived_batches)
 
     def test_current_class_returns_related_class(self):
-        batch = Batch.objects.create(
-            graduation_year="2027"
-        )
+        batch = Batch.objects.create(graduation_year="2027")
 
         academic_class = AClass.objects.create(
             name="9_science",
@@ -144,16 +134,12 @@ class BatchModelTest(TestCase):
         self.assertEqual(batch.current_class, academic_class)
 
     def test_current_class_returns_none_when_no_class_exists(self):
-        batch = Batch.objects.create(
-            graduation_year="2027"
-        )
+        batch = Batch.objects.create(graduation_year="2027")
 
         self.assertIsNone(batch.current_class)
 
     def test_current_class_returns_first_class_when_multiple_exist(self):
-        batch = Batch.objects.create(
-            graduation_year="2027"
-        )
+        batch = Batch.objects.create(graduation_year="2027")
 
         first_class = AClass.objects.create(
             name="9_science",
@@ -174,16 +160,12 @@ class BatchModelTest(TestCase):
         self.assertEqual(batch.current_class, first_class)
 
     def test_str_returns_label(self):
-        batch = Batch.objects.create(
-            graduation_year="2027"
-        )
+        batch = Batch.objects.create(graduation_year="2027")
 
         self.assertEqual(str(batch), "SSC-2027")
 
     def test_created_at_and_updated_at_are_set(self):
-        batch = Batch.objects.create(
-            graduation_year="2027"
-        )
+        batch = Batch.objects.create(graduation_year="2027")
 
         self.assertIsNotNone(batch.created_at)
         self.assertIsNotNone(batch.updated_at)

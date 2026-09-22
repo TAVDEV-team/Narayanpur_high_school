@@ -104,12 +104,11 @@ class AClassModelTest(TestCase):
         self.assertIn(religious, all_subjects)
         self.assertIn(extra, all_subjects)
 
-    
     def test_group_not_allowed_for_grade_below_9(self):
         academic_class = AClass.objects.create(
             name="8",
             room_number="103",
-            grade=9, 
+            grade=9,
         )
         academic_class.grade = 8
         academic_class.group = "science"
@@ -119,9 +118,8 @@ class AClassModelTest(TestCase):
 
         self.assertIn(
             "Groups are only allowed for grade 9 and above.",
-            str(context.exception)
+            str(context.exception),
         )
-
 
     def test_group_allowed_for_grade_9(self):
         academic_class = AClass(
@@ -151,10 +149,7 @@ class AClassModelTest(TestCase):
         with self.assertRaises(ValidationError) as context:
             academic_class.full_clean()
 
-        self.assertIn(
-            "compulsory",
-            context.exception.message_dict
-        )
+        self.assertIn("compulsory", context.exception.message_dict)
 
     def test_valid_compulsory_subject_is_allowed(self):
         academic_class = AClass.objects.create(
@@ -192,10 +187,7 @@ class AClassModelTest(TestCase):
         with self.assertRaises(ValidationError) as context:
             academic_class.full_clean()
 
-        self.assertIn(
-            "group_subjects",
-            context.exception.message_dict
-        )
+        self.assertIn("group_subjects", context.exception.message_dict)
 
     def test_group_optional_subject_is_allowed(self):
         academic_class = AClass.objects.create(
@@ -233,10 +225,7 @@ class AClassModelTest(TestCase):
         with self.assertRaises(ValidationError) as context:
             academic_class.full_clean()
 
-        self.assertIn(
-            "religious",
-            context.exception.message_dict
-        )
+        self.assertIn("religious", context.exception.message_dict)
 
     def test_valid_religious_subject_is_allowed(self):
         academic_class = AClass.objects.create(
@@ -273,10 +262,7 @@ class AClassModelTest(TestCase):
         with self.assertRaises(ValidationError) as context:
             academic_class.full_clean()
 
-        self.assertIn(
-            "extra",
-            context.exception.message_dict
-        )
+        self.assertIn("extra", context.exception.message_dict)
 
     def test_valid_extra_subject_is_allowed(self):
         academic_class = AClass.objects.create(
