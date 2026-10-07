@@ -16,6 +16,7 @@ class PhotoCategoryViewSet(viewsets.ModelViewSet):
     queryset = PhotoCategory.objects.all().order_by("name")
     serializer_class = PhotoCategorySerializer
     permission_classes = [ReadOnlyOrRestricted]
+    pagination_class = None
 
 
 @method_decorator(cache_page(60 * 5), name="list")  # cache list view 5 mins
