@@ -4,13 +4,7 @@ from accounts.models import TeacherAccount
 
 
 class IsTeacher(BasePermission):
-    """
-    Allows access only to authenticated users who have a TeacherAccount.
-    """
+    """Allows access only to authenticated teachers."""
 
     def has_permission(self, request, view):
-        if not request.user.is_authenticated:
-            return False
-        return TeacherAccount.objects.filter(
-            account__user=request.user
-        ).exists()
+        return TeacherAccount.is_teacher(request.user)

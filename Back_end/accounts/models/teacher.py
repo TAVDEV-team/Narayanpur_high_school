@@ -34,6 +34,12 @@ class TeacherAccount(models.Model):
         if self.is_class_teacher and not self.class_teacher_of:
             raise ValidationError("Class teacher must be assigned to a class.")
 
+    @classmethod
+    def is_teacher(cls, user):
+        if not user or not user.is_authenticated:
+            return False
+        return cls.objects.filter(account__user=user).exists()
+
     def save(self, *args, **kwargs):
         self.full_clean()
         return super().save(*args, **kwargs)
@@ -46,6 +52,18 @@ class HeadMasterAccount(SingletonModel):
         related_name="headmaster_profile",
     )
     appointed_date = models.DateField()
+
+    @classmethod
+    def is_headmaster(cls, user):
+        if not user or not user.is_authenticated:
+            return False
+        try:
+            headmaster = cls.objects.select_related(
+                "teacher__account__user"
+            ).get()
+        except (cls.DoesNotExist, cls.MultipleObjectsReturned):
+            return False
+        return user == headmaster.teacher.account.user
 
     def __str__(self):
         return (

@@ -15,7 +15,8 @@ __pycache__/
 # 🧪 Test artifacts
 .coverage
 htmlcov/
-*.log
+*.
+logs/
 *.tmp
 *.test.*
 .pytest_cache/

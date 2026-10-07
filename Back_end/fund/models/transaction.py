@@ -5,6 +5,9 @@ from django.db import models, transaction
 from django.utils.timezone import now
 
 from .fund_model import Fund
+from school_backend.logger import get_logger
+
+logger = get_logger(__name__)
 
 
 class FundTransaction(models.Model):
@@ -31,12 +34,20 @@ class FundTransaction(models.Model):
 
     def clean(self):
         if self.type not in dict(self.TRANSACTION_TYPES):
+            logger.warning(f"Invalid transaction type attempted: {self.type}")
             raise ValidationError("Invalid transaction type.")
 
         if self.amount <= 0:
+            logger.warning(
+                f"Rejected non-positive transaction amount: {self.amount}"
+            )
             raise ValidationError("Amount must be positive.")
 
         if self.type == "EXPENSE" and self.amount > self.fund.balance:
+            logger.warning(
+                f"Rejected expense of {self.amount}\
+                exceeding balance of {self.fund.balance}"
+            )
             raise ValidationError(
                 "Cannot spend more than current fund balance."
             )
@@ -44,12 +55,17 @@ class FundTransaction(models.Model):
     def save(self, *args, **kwargs):
         self.full_clean()
         with transaction.atomic():
-            current_balance = self.fund.balance
+            fund = Fund.objects.select_for_update().get(pk=self.fund_id)
+            current_balance = fund.balance
             if self.type == "INCOME":
                 self.after_transaction_balance = current_balance + self.amount
             elif self.type == "EXPENSE":
                 self.after_transaction_balance = current_balance - self.amount
-
+            logger.info(
+                f"Transaction saved: type={self.type} amount={self.amount} "
+                f"balance_before={current_balance}\
+                 balance_after={self.after_transaction_balance}"
+            )
             super().save(*args, **kwargs)
 
     class Meta:
