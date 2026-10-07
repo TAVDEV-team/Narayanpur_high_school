@@ -13,3 +13,4 @@ class RoutineViewSet(viewsets.ModelViewSet):
     queryset = Routine.objects.all()
     serializer_class = RoutineSerializer
     permission_classes = [AllowAny]
+    pagination_class = None
